@@ -1,11 +1,11 @@
 {
+  "[graphql]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "[json]": {
     "editor.defaultFormatter": "dprint.dprint"
   },
   "[jsonc]": {
-    "editor.defaultFormatter": "dprint.dprint"
-  },
-  "[yaml]": {
     "editor.defaultFormatter": "dprint.dprint"
   },
   "[markdown]": {
@@ -18,6 +18,9 @@
     "editor.defaultFormatter": "rust-lang.rust-analyzer"
   },
   "[toml]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  },
+  "[yaml]": {
     "editor.defaultFormatter": "dprint.dprint"
   },
   "editor.formatOnSave": true,
