@@ -1,8 +1,13 @@
 [package]
 name = "mina-mesh"
+version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
-description = "A Rust Implementation of the Mesh Spec for Mina"
+description = "A Rust Server Implementation of the Mesh Spec for Mina"
+
+[dependencies]
+clap = { version = "4.5.11", features = ["derive"] }
+tokio = "1.39.2"
 
 [dependencies.mesh]
 path = "./mesh-generated"
