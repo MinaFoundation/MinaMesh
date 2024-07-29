@@ -4,7 +4,7 @@
   "lineWidth": 120,
   "markdown": { "textWrap": "always" },
   "includes": ["**.{json,md,toml,yaml}"],
-  "excludes": [".git", "mesh-specifications", "target"],
+  "excludes": [".git", "mesh-generated", "mesh-specifications", "target"],
   "plugins": [
     "https://plugins.dprint.dev/g-plane/pretty_yaml-v0.4.0.wasm",
     "https://plugins.dprint.dev/json-0.19.2.wasm",

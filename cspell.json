@@ -9,5 +9,5 @@
   ],
   "enableGlobDot": true,
   "dictionaries": ["project-words"],
-  "ignorePaths": [".git", "mesh-specifications", "target"]
+  "ignorePaths": [".git", "mesh-generated", "mesh-specifications", "target"]
 }
