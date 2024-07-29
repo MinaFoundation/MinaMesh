@@ -1,0 +1,9 @@
+[package]
+name = "mina-mesh"
+edition = "2021"
+description = "A Rust Implementation of the Mesh Spec for Mina"
+license = "Apache-2.0"
+
+[[bin]]
+name = "mina-mesh"
+path = "src/main.rs"
