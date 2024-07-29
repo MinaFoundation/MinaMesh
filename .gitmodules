@@ -1,0 +1,3 @@
+[submodule "mesh-specifications"]
+	path = mesh-specifications
+	url = git@github.com:coinbase/mesh-specifications.git
