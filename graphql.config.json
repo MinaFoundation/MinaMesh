@@ -1,12 +1,12 @@
 {
   "$schema": "https://unpkg.com/graphql-config@5.0.3/config-schema.json",
   "projects": {
-    "network": {
-      "schema": "graphql_introspection_schema.json",
+    "mina": {
+      "schema": "graphql/schemas/mina_introspection.json",
       "documents": ["**/*[!.archive].graphql"]
     },
     "archive": {
-      "schema": "https://raw.githubusercontent.com/o1-labs/Archive-Node-API/main/schema.graphql",
+      "schema": "graphql/schemas/archive.graphql",
       "documents": ["**/*.archive.graphql"]
     }
   }
