@@ -1,10 +1,9 @@
 mod graphql_generated;
 
 use clap::{Parser, Subcommand};
-use cynic::http::SurfExt;
-use cynic::{QueryBuilder, QueryFragment};
+use cynic::http::ReqwestExt;
+use cynic::{GraphQlResponse, QueryBuilder, QueryFragment};
 use graphql_generated::archive;
-use surf::RequestBuilder;
 use tokio;
 
 #[derive(Debug, Parser)]
@@ -32,13 +31,33 @@ enum Commands {
 #[tokio::main]
 async fn main() {
   let args = MinaMeshArgs::parse();
-  let MinaMeshArgs { verbose, command } = args;
+  let MinaMeshArgs { command, .. } = args;
   match command.unwrap() {
-    Commands::Start { port, mina_proxy_url, archive_url } => {
+    Commands::Start { archive_url, mina_proxy_url, .. } => {
       println!("Starting server.");
-      let operation = graphql_generated::archive::SomethingArchiveQuery::build(());
-      let response = surf::post(archive_url).run_graphql(operation).await.unwrap();
+      let client = GraphQLClient { archive_url, mina_proxy_url, inner: reqwest::Client::new() };
+      let operation = archive::SomethingArchiveQuery::build(());
+      let response = client.archive(operation).await;
       println!("{:?}", response);
     }
+  }
+}
+
+struct GraphQLClient {
+  pub inner: reqwest::Client,
+  pub mina_proxy_url: String,
+  pub archive_url: String,
+}
+
+impl GraphQLClient {
+  pub async fn archive<ResponseData, Vars>(
+    self,
+    operation: cynic::Operation<ResponseData, Vars>,
+  ) -> GraphQlResponse<ResponseData>
+  where
+    Vars: serde::Serialize,
+    ResponseData: serde::de::DeserializeOwned + 'static,
+  {
+    self.inner.post(self.archive_url).run_graphql(operation).await.unwrap()
   }
 }
