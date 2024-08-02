@@ -1,6 +1,10 @@
 mod graphql_generated;
 
 use clap::{Parser, Subcommand};
+use cynic::http::SurfExt;
+use cynic::{QueryBuilder, QueryFragment};
+use graphql_generated::archive;
+use surf::RequestBuilder;
 use tokio;
 
 #[derive(Debug, Parser)]
@@ -28,5 +32,13 @@ enum Commands {
 #[tokio::main]
 async fn main() {
   let args = MinaMeshArgs::parse();
-  println!("Hello, Mina Mesh!, {:?}", args);
+  let MinaMeshArgs { verbose, command } = args;
+  match command.unwrap() {
+    Commands::Start { port, mina_proxy_url, archive_url } => {
+      println!("Starting server.");
+      let operation = graphql_generated::archive::SomethingArchiveQuery::build(());
+      let response = surf::post(archive_url).run_graphql(operation).await.unwrap();
+      println!("{:?}", response);
+    }
+  }
 }

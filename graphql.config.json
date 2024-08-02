@@ -3,11 +3,11 @@
   "projects": {
     "mina": {
       "schema": "graphql/schemas/mina_introspection.json",
-      "documents": ["**/*[!.archive].graphql"]
+      "documents": ["**/[!.archive].*.graphql"]
     },
     "archive": {
       "schema": "graphql/schemas/archive.graphql",
-      "documents": ["**/*.archive.graphql"]
+      "documents": ["**/archive.*.graphql"]
     }
   }
 }
