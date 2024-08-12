@@ -6,6 +6,6 @@ codegen:
     --output=mesh-generated \
 
 schemas:
-  mkdir -p schemas
-  curl -o schemas/mina_introspection.json https://raw.githubusercontent.com/MinaProtocol/mina/develop/graphql_schema.json
-  curl -o schemas/archive.graphql https://raw.githubusercontent.com/o1-labs/Archive-Node-API/main/schema.graphql
+  mkdir -p graphql/schemas
+  curl -o graphql/schemas/mina_introspection.json https://raw.githubusercontent.com/MinaProtocol/mina/develop/graphql_schema.json
+  curl -o graphql/schemas/archive.graphql https://raw.githubusercontent.com/o1-labs/Archive-Node-API/main/schema.graphql

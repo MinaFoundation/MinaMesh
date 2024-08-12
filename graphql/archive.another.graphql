@@ -1,7 +1,0 @@
-query AnotherArchiveQuery {
-  events(input: { address: "0x0", from: 0, to: 100 }) {
-    blockInfo {
-      height
-    }
-  }
-}

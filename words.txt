@@ -1,5 +1,13 @@
 codegen
+coinbases
+deamon's
+eventbus
+graphviz
+microschemas
 mina
+navroot
+preprocess
 querygen
 reqwest
 walkdir
+webroot

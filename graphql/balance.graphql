@@ -1,0 +1,11 @@
+query BalanceQuery($publicKey: PublicKey!) {
+  account(publicKey: $publicKey) {
+    balance {
+      blockHeight
+      stateHash
+      liquid
+      total
+    }
+    nonce
+  }
+}
