@@ -7,19 +7,25 @@ pub struct BalanceQueryVariables {
 }
 
 #[derive(cynic::QueryFragment, Debug)]
-#[cynic(graphql_type = "query", variables = "BalanceQueryVariables")]
+#[cynic(
+  graphql_type = "query",
+  variables = "BalanceQueryVariables",
+  schema = "mina"
+)]
 pub struct BalanceQuery {
   #[arguments(publicKey: $public_key)]
   pub account: Option<Account>,
 }
 
 #[derive(cynic::QueryFragment, Debug)]
+#[cynic(schema = "mina")]
 pub struct Account {
   pub balance: AnnotatedBalance,
   pub nonce: Option<AccountNonce>,
 }
 
 #[derive(cynic::QueryFragment, Debug)]
+#[cynic(schema = "mina")]
 pub struct AnnotatedBalance {
   pub block_height: Length,
   pub state_hash: Option<StateHash>,

@@ -74,7 +74,10 @@ fn codegen(schema: String, document_contents: Vec<String>, file_name: &str) -> i
       cynic_querygen::document_to_fragment_structs(
         document_contents.join("\n\n"),
         schema,
-        &cynic_querygen::QueryGenOptions::default(),
+        &cynic_querygen::QueryGenOptions {
+          schema_module_name: file_name.to_string(),
+          schema_name: Some(file_name.to_string()),
+        },
       )
       .unwrap()
       .as_str(),
