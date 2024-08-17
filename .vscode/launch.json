@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=${workspaceFolderBasename}"
+        ],
+        "filter": {
+          "name": "${workspaceFolderBasename}",
+          "kind": "lib"
+        }
+      },
+      "args": ["--nocapture"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "RUST_LOG": "debug"
+      }
+    }
+  ]
+}

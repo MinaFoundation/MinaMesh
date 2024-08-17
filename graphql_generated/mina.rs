@@ -3,34 +3,30 @@ mod schema {}
 
 #[derive(cynic::QueryVariables, Debug)]
 pub struct BalanceQueryVariables {
-  pub public_key: PublicKey,
+    pub public_key: PublicKey,
 }
 
 #[derive(cynic::QueryFragment, Debug)]
-#[cynic(
-  graphql_type = "query",
-  variables = "BalanceQueryVariables",
-  schema = "mina"
-)]
+#[cynic(graphql_type = "query", variables = "BalanceQueryVariables", schema = "mina")]
 pub struct BalanceQuery {
-  #[arguments(publicKey: $public_key)]
-  pub account: Option<Account>,
+    #[arguments(publicKey: $public_key)]
+    pub account: Option<Account>,
 }
 
 #[derive(cynic::QueryFragment, Debug)]
 #[cynic(schema = "mina")]
 pub struct Account {
-  pub balance: AnnotatedBalance,
-  pub nonce: Option<AccountNonce>,
+    pub balance: AnnotatedBalance,
+    pub nonce: Option<AccountNonce>,
 }
 
 #[derive(cynic::QueryFragment, Debug)]
 #[cynic(schema = "mina")]
 pub struct AnnotatedBalance {
-  pub block_height: Length,
-  pub state_hash: Option<StateHash>,
-  pub liquid: Option<Balance>,
-  pub total: Balance,
+    pub block_height: Length,
+    pub state_hash: Option<StateHash>,
+    pub liquid: Option<Balance>,
+    pub total: Balance,
 }
 
 #[derive(cynic::Scalar, Debug, Clone)]
@@ -47,3 +43,4 @@ pub struct PublicKey(pub String);
 
 #[derive(cynic::Scalar, Debug, Clone)]
 pub struct StateHash(pub String);
+

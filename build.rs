@@ -1,7 +1,5 @@
-use std::fs::File;
-use std::fs::{self};
-use std::io::{self};
-use std::io::{Read, Write};
+use std::fs::{self, File};
+use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 
 const SCHEMAS_DIR: &str = "graphql/schemas";
@@ -64,11 +62,7 @@ fn main() -> io::Result<()> {
 }
 
 fn codegen(schema: String, document_contents: Vec<String>, file_name: &str) -> io::Result<()> {
-  let mut code = "".to_string();
-  code.push_str("#[cynic::schema(\"");
-  code.push_str(file_name);
-  code.push_str("\")]");
-  code.push_str("\nmod schema {}\n\n");
+  let mut code = format!("#[cynic::schema(\"{}\")]\nmod schema {{}}\n\n", file_name);
   if !document_contents.is_empty() {
     code.push_str(
       cynic_querygen::document_to_fragment_structs(

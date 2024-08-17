@@ -1,4 +1,4 @@
-mod graphql_generated;
+pub mod graphql_generated;
 mod handlers;
 
 use clap::{Parser, Subcommand};
