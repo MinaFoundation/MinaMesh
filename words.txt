@@ -3,11 +3,14 @@ coinbases
 deamon's
 eventbus
 graphviz
+harrysolovay
+joaosreis
 microschemas
 mina
 navroot
 preprocess
 querygen
 reqwest
+sqlx
 walkdir
 webroot

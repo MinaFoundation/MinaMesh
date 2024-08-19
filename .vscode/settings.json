@@ -24,5 +24,17 @@
     "editor.defaultFormatter": "dprint.dprint"
   },
   "editor.formatOnSave": true,
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "pg",
+      "database": "archive",
+      "username": "mina",
+      "password": "whatever"
+    }
+  ]
 }
