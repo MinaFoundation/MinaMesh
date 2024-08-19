@@ -1,4 +1,4 @@
 SELECT COUNT(*)
 FROM blocks
 WHERE height = ?
-AND chain_status = 'canonical'
+  AND chain_status = 'canonical';
