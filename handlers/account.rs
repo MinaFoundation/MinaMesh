@@ -107,6 +107,7 @@ async fn block_balance(
       }
     }
     None => {
+      // TODO: return proper error message
       anyhow::bail!("Block not found")
     }
   }
@@ -219,7 +220,7 @@ impl Into<MinaAccountIdentifier> for AccountIdentifier {
   fn into(self) -> MinaAccountIdentifier {
     let token_id = match self.metadata {
       Some(serde_json::Value::Object(map)) => map.get("token_id").map(|v| v.as_str().unwrap().to_string()),
-      None => Some(DEFAULT_TOKEN_ID.to_string()), // TODO: return actual default token ID
+      None => Some(DEFAULT_TOKEN_ID.to_string()),
       _ => unimplemented!(),
     }
     .unwrap(); // TODO: handle unwrap
