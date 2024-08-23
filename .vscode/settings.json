@@ -6,7 +6,7 @@
     "editor.defaultFormatter": "dprint.dprint"
   },
   "[sql]": {
-    "editor.defaultFormatter": "mtxr.sqltools"
+    "editor.defaultFormatter": "dprint.dprint"
   },
   "[jsonc]": {
     "editor.defaultFormatter": "dprint.dprint"
