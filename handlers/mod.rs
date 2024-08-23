@@ -5,9 +5,13 @@ mod mempool;
 pub mod network;
 
 use anyhow::{Context as AnyhowContext, Result};
+use cynic::{http::ReqwestExt, QueryBuilder};
+use mesh::models::NetworkIdentifier;
 use reqwest::Client;
 use serde::Deserialize;
 use sqlx::PgPool;
+
+use crate::graphql_generated::mina::NetworkId;
 
 #[derive(Deserialize, Debug, Default)]
 pub struct Config {
@@ -41,10 +45,15 @@ impl Context {
   async fn from_env() -> Result<Self> {
     let config = envy::from_env::<Config>().with_context(|| "Failed to parse config from env")?;
     let database_url = config.database_url.clone();
-    Ok(Self {
-      config,
-      client: Client::new(),
-      pool: PgPool::connect(database_url.as_str()).await?,
-    })
+    Ok(Self { config, client: Client::new(), pool: PgPool::connect(database_url.as_str()).await? })
   }
+}
+
+pub async fn network_health_check(context: &Context, network_identifier: NetworkIdentifier) -> Result<bool> {
+  // TODO: create util to unwrap GraphQL data otherwise throw error into anyhow context
+  let NetworkId { network_id } =
+    context.client.post(&context.config.mina_proxy_url).run_graphql(NetworkId::build(())).await?.data.unwrap();
+  if network_identifier.blockchain == "MINA" {}
+  if network_identifier.network == network_id {}
+  Ok(true)
 }

@@ -6,11 +6,7 @@ const SCHEMAS_DIR: &str = "graphql/schemas";
 const DEST_DIR: &str = "graphql_generated";
 
 fn main() -> io::Result<()> {
-  cynic_codegen::register_schema("mina")
-    .from_sdl_file("graphql/schemas/mina.graphql")
-    .unwrap()
-    .as_default()
-    .unwrap();
+  cynic_codegen::register_schema("mina").from_sdl_file("graphql/schemas/mina.graphql").unwrap().as_default().unwrap();
   cynic_codegen::register_schema("archive")
     .from_sdl_file("graphql/schemas/archive.graphql")
     .unwrap()
@@ -43,11 +39,7 @@ fn main() -> io::Result<()> {
     file.read_to_string(&mut contents)?;
     if let Some(stem_os) = document_path.file_stem() {
       if let Some(stem) = stem_os.to_str() {
-        let which = if stem.starts_with("archive.") {
-          &mut archive_documents
-        } else {
-          &mut mina_documents
-        };
+        let which = if stem.starts_with("archive.") { &mut archive_documents } else { &mut mina_documents };
         which.push(contents);
       }
     }
