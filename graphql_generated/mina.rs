@@ -7,6 +7,13 @@ pub struct BalanceQueryVariables {
 }
 
 #[derive(cynic::QueryFragment, Debug)]
+#[cynic(graphql_type = "query", schema = "mina")]
+pub struct NetworkId {
+    #[cynic(rename = "networkID")]
+    pub network_id: String,
+}
+
+#[derive(cynic::QueryFragment, Debug)]
 #[cynic(graphql_type = "query", variables = "BalanceQueryVariables", schema = "mina")]
 pub struct BalanceQuery {
     #[arguments(publicKey: $public_key)]

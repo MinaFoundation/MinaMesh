@@ -1,3 +1,4 @@
+use super::network_health_check;
 use super::Context;
 use crate::graphql_generated::mina::{
   Account, AnnotatedBalance, Balance, BalanceQuery, BalanceQueryVariables, Length, PublicKey, StateHash,
@@ -12,6 +13,7 @@ use mesh::models::{
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/account.ml#L11
 pub async fn balance(request: AccountBalanceRequest) -> Result<AccountBalanceResponse> {
   let context = Context::from_env().await?;
+  network_health_check(&context, *request.network_identifier).await?;
   let account: MinaAccountIdentifier = (*request.account_identifier).into();
   match request.block_identifier {
     Some(block_identifier) => block_balance(&context, &account, *block_identifier).await,
@@ -27,81 +29,24 @@ async fn block_balance(
   block_identifier: PartialBlockIdentifier,
 ) -> Result<AccountBalanceResponse> {
   // Get block data from the database
-
-  let maybe_block = sqlx::query!(
-    r#"
-      SELECT height, state_hash, global_slot_since_genesis FROM blocks
-      WHERE height = $1
-      AND chain_status = 'canonical'
-    "#,
-    block_identifier.index,
-  )
-  .fetch_optional(&context.pool)
-  .await?;
+  let maybe_block =
+    sqlx::query_file!("sql/maybe_block.sql", block_identifier.index).fetch_optional(&context.pool).await?;
   match maybe_block {
     Some(block) => {
       // has canonical height
       // do we really need to do a different query?
-      let account_balance_info = sqlx::query!(
-        r#"
-          SELECT b.height, b.global_slot_since_genesis AS block_global_slot_since_genesis, balance, nonce, timing_id
-
-          FROM blocks b
-          INNER JOIN accounts_accessed ac ON ac.block_id = b.id
-          INNER JOIN account_identifiers ai on ai.id = ac.account_identifier_id
-          INNER JOIN public_keys pks ON ai.public_key_id = pks.id
-          INNER JOIN tokens t ON ai.token_id = t.id
-
-          WHERE pks.value = $1
-          AND b.height <= $2
-          AND b.chain_status = 'canonical'
-          AND t.value = $3
-
-          ORDER BY (b.height) DESC
-          LIMIT 1
-        "#,
+      println!("{:?}", account_identifier);
+      println!("{:?}", block_identifier);
+      let maybe_account_balance_info = sqlx::query_file!(
+        "sql/maybe_account_balance_info.sql",
         account_identifier.public_key,
-        block_identifier.index,
+        block_identifier.index.unwrap(),
         account_identifier.token_id,
-      );
-      let result = account_balance_info.fetch_one(&context.pool).await?;
-      println!("HERE");
-      // println!("{:?}", result);
-      let timing_info =
-        sqlx::query!("SELECT * FROM timing_info WHERE id = $1", result.timing_id).fetch_optional(&context.pool).await?;
-      println!("REACHES HERE");
-      match timing_info {
-        Some(timing_info) => {
-          let incremental_balance = incremental_balance_between_slots(
-            result.block_global_slot_since_genesis as u32,
-            block.global_slot_since_genesis as u32,
-            timing_info.cliff_time as u32,
-            timing_info.cliff_amount.parse::<u64>().unwrap(),
-            timing_info.vesting_period as u32,
-            timing_info.vesting_increment.parse::<u64>().unwrap(),
-            timing_info.initial_minimum_balance.parse::<u64>().unwrap(),
-          );
-          let balance = result.balance.parse::<u64>()? + incremental_balance;
-          let balance_string = result.balance.to_string();
-          return Ok(AccountBalanceResponse::new(
-            BlockIdentifier { hash: block.state_hash, index: block.height },
-            vec![Amount {
-              currency: Box::new(Currency {
-                symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
-                decimals: 9,
-                metadata: None,
-              }),
-              value: balance_string,
-              metadata: Some(serde_json::json!({
-                "locked_balance": "".to_string(),
-                "liquid_balance": balance_string,
-                "total_balance": balance.to_string()
-              })),
-            }],
-          ));
-        }
+      )
+      .fetch_optional(&context.pool)
+      .await?;
+      match maybe_account_balance_info {
         None => {
-          let balance_string = result.balance.to_string();
           return Ok(AccountBalanceResponse::new(
             BlockIdentifier { hash: block.state_hash, index: block.height },
             vec![Amount {
@@ -110,19 +55,59 @@ async fn block_balance(
                 decimals: 9,
                 metadata: None,
               }),
-              value: result.balance,
+              value: "0".to_string(),
               metadata: Some(serde_json::json!({
-                "locked_balance": 0.to_string(),
-                "liquid_balance": balance_string,
-                "total_balance": balance_string
+                "locked_balance": "0".to_string(),
+                "liquid_balance": "0".to_string(),
+                "total_balance": "0".to_string()
               })),
             }],
           ));
         }
-      };
+        Some(account_balance_info) => {
+          println!("B");
+          let last_relevant_command_balance = account_balance_info.balance.parse::<u64>()?;
+          let timing_info = sqlx::query_file!("sql/timing_info.sql", account_balance_info.timing_id)
+            .fetch_optional(&context.pool)
+            .await?;
+          let liquid_balance = match timing_info {
+            Some(timing_info) => {
+              let incremental_balance = incremental_balance_between_slots(
+                account_balance_info.block_global_slot_since_genesis as u32,
+                block.global_slot_since_genesis as u32,
+                timing_info.cliff_time as u32,
+                timing_info.cliff_amount.parse::<u64>().unwrap(),
+                timing_info.vesting_period as u32,
+                timing_info.vesting_increment.parse::<u64>().unwrap(),
+                timing_info.initial_minimum_balance.parse::<u64>().unwrap(),
+              );
+              last_relevant_command_balance + incremental_balance
+            }
+            None => last_relevant_command_balance,
+          };
+          let total_balance = last_relevant_command_balance;
+          let locked_balance = total_balance - liquid_balance;
+          Ok(AccountBalanceResponse::new(
+            BlockIdentifier { hash: block.state_hash, index: block.height },
+            vec![Amount {
+              currency: Box::new(Currency {
+                symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
+                decimals: 9,
+                metadata: None,
+              }),
+              value: liquid_balance.to_string(),
+              metadata: Some(serde_json::json!({
+                "locked_balance": locked_balance.to_string(),
+                "liquid_balance": liquid_balance.to_string(),
+                "total_balance": total_balance.to_string()
+              })),
+            }],
+          ))
+        }
+      }
     }
     None => {
-      unimplemented!();
+      anyhow::bail!("Block not found")
     }
   }
 }
