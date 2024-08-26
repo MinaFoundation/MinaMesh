@@ -1,13 +1,20 @@
+use super::Context;
 use super::ToVecOfString;
+use crate::graphql_generated::mina::{Block2, NetworkId, QueryNetworkStatus, SyncStatus as GraphQLGeneratedSyncStatus};
 use anyhow::Result;
+use cynic::QueryBuilder;
+use mesh::models::BlockIdentifier;
+use mesh::models::Peer;
 use mesh::models::{
   Allow, Case, Error, NetworkIdentifier, NetworkListResponse, NetworkOptionsResponse, NetworkStatusResponse,
-  OperationStatus, Version,
+  OperationStatus, SyncStatus as MeshSyncStatus, Version,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/network.ml#L162
-pub fn list() -> Result<NetworkListResponse> {
-  Ok(NetworkListResponse::new(vec![NetworkIdentifier::new("mina".into(), "mainnet".into())]))
+pub async fn list() -> Result<NetworkListResponse> {
+  let context = Context::from_env().await?;
+  let NetworkId { network_id } = context.graphql(NetworkId::build(())).await?;
+  Ok(NetworkListResponse::new(vec![NetworkIdentifier::new("mina".into(), network_id.into())]))
 }
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/network.ml#L444
@@ -262,15 +269,43 @@ pub fn options() -> Result<NetworkOptionsResponse> {
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/network.ml#L201
 pub async fn status() -> Result<NetworkStatusResponse> {
-  // let context = Context::from_env().await?;
-  // let network_identifier = NetworkIdentifier::new("mina".into(), "mainnet".into());
-  // Ok(NetworkStatusResponse {
-  //   peers: Some(vec![]),
-  //   current_block_identifier: Box::new(BlockIdentifier::new(0, "".into())),
-  //   current_block_timestamp: 0,
-  //   genesis_block_identifier: Box::new(BlockIdentifier::new(0, "".into())),
-  //   oldest_block_identifier: None,
-  //   sync_status: None,
-  // })
-  unimplemented!();
+  let context = Context::from_env().await?;
+  let QueryNetworkStatus { best_chain, daemon_status, sync_status } =
+    context.graphql(QueryNetworkStatus::build(())).await?;
+  let Block2 { protocol_state, state_hash } = &best_chain.unwrap()[0];
+  let oldest_block = sqlx::query_file!("sql/oldest_block.sql").fetch_one(&context.pool).await?;
+  Ok(NetworkStatusResponse {
+    peers: Some(daemon_status.peers.iter().map(|peer| Peer::new(peer.peer_id.clone())).collect()),
+    current_block_identifier: Box::new(BlockIdentifier::new(
+      protocol_state.consensus_state.block_height.0.parse::<i64>()?,
+      state_hash.0.clone(),
+    )),
+    current_block_timestamp: protocol_state.blockchain_state.utc_date.0.parse::<i64>()?,
+    // TODO: get from env
+    genesis_block_identifier: Box::new(BlockIdentifier::new(
+      359605,
+      "3NK4BpDSekaqsG6tx8Nse2zJchRft2JpnbvMiog55WCr5xJZaKeP".into(),
+    )),
+    oldest_block_identifier: Some(Box::new(BlockIdentifier::new(oldest_block.height, oldest_block.state_hash))),
+    sync_status: Some(Box::new(sync_status.into())),
+  })
+}
+
+impl Into<MeshSyncStatus> for GraphQLGeneratedSyncStatus {
+  fn into(self) -> MeshSyncStatus {
+    match self {
+      Self::Bootstrap => {
+        MeshSyncStatus { stage: Some("Bootstrap".to_string()), synced: Some(false), ..Default::default() }
+      }
+      Self::Catchup => MeshSyncStatus { stage: Some("Catchup".to_string()), synced: Some(false), ..Default::default() },
+      Self::Connecting => {
+        MeshSyncStatus { stage: Some("Connecting".to_string()), synced: Some(false), ..Default::default() }
+      }
+      Self::Listening => {
+        MeshSyncStatus { stage: Some("Listening".to_string()), synced: Some(false), ..Default::default() }
+      }
+      Self::Offline => MeshSyncStatus { stage: Some("Offline".to_string()), synced: Some(false), ..Default::default() },
+      Self::Synced => MeshSyncStatus { stage: Some("Synced".to_string()), synced: Some(true), ..Default::default() },
+    }
+  }
 }

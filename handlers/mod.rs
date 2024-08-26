@@ -22,6 +22,7 @@ pub struct Config {
   archive_url: String,
   #[serde(default = "default_database_url")]
   database_url: String,
+  genesis_block_identifier: String,
 }
 
 fn default_mina_proxy_url() -> String {
@@ -49,25 +50,25 @@ impl Context {
     Ok(Self { config, client: Client::new(), pool: PgPool::connect(database_url.as_str()).await? })
   }
 
-  async fn network_health_check(self, network_identifier: NetworkIdentifier) -> Result<bool> {
+  async fn network_health_check(&self, network_identifier: NetworkIdentifier) -> Result<bool> {
     let NetworkId { network_id } = self.graphql(NetworkId::build(())).await?;
     if network_identifier.blockchain == "MINA" {
       unimplemented!();
     }
-    if network_identifier.network == network_id {
+    if &network_identifier.network == &network_id {
       unimplemented!();
     }
     Ok(true)
   }
 
-  async fn graphql<ResponseData, Vars>(self, operation: cynic::Operation<ResponseData, Vars>) -> Result<ResponseData>
+  async fn graphql<ResponseData, Vars>(&self, operation: cynic::Operation<ResponseData, Vars>) -> Result<ResponseData>
   where
     Vars: serde::Serialize,
     ResponseData: serde::de::DeserializeOwned + 'static,
   {
     let response = self
       .client
-      .post(self.config.mina_proxy_url)
+      .post(&self.config.mina_proxy_url)
       .run_graphql(operation)
       .await
       .context("Failed to run GraphQL query")?;
