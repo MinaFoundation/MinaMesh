@@ -65,7 +65,12 @@ impl Context {
     Vars: serde::Serialize,
     ResponseData: serde::de::DeserializeOwned + 'static,
   {
-    let response = self.client.post(self.config.mina_proxy_url).run_graphql(operation).await.context("")?;
+    let response = self
+      .client
+      .post(self.config.mina_proxy_url)
+      .run_graphql(operation)
+      .await
+      .context("Failed to run GraphQL query")?;
     if let Some(errors) = response.errors {
       bail!(errors.iter().map(|err| err.message.clone()).collect::<Vec<String>>().join("\n\n"));
     } else if let Some(data) = response.data {
