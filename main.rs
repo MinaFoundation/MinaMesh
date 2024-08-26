@@ -1,5 +1,4 @@
 pub mod graphql_generated;
-mod handlers;
 
 use anyhow::{bail, Result};
 use clap::{Args, Parser, Subcommand};
@@ -7,7 +6,13 @@ use cynic::{http::ReqwestExt, QueryBuilder};
 use tokio;
 
 #[derive(Debug, Parser)]
-#[command(name = "mina-mesh", version, about = "A Mesh-compliant Server for Mina", propagate_version = true, author)]
+#[command(
+  name = "mina-mesh",
+  version,
+  about = "A Mesh-compliant Server for Mina",
+  propagate_version = true,
+  author
+)]
 struct MinaMeshArgs {
   #[arg(long, short = 'v', default_value = "false", global = true)]
   verbose: bool,
@@ -48,7 +53,9 @@ async fn main() {
 
 // Initial genesis ledger got too big because / includes every existing account up until hardfork / when we call this endpoint, it takes a long time to return the identifier
 async fn fetch_genesis_block_identifier(
-  FetchGenesisBlockIdentifierArgs { proxy_node_graphql_endpoint }: FetchGenesisBlockIdentifierArgs,
+  FetchGenesisBlockIdentifierArgs {
+    proxy_node_graphql_endpoint,
+  }: FetchGenesisBlockIdentifierArgs,
 ) -> Result<()> {
   let client = reqwest::Client::new();
   let result = client

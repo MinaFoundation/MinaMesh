@@ -1,7 +1,7 @@
-use super::Context;
 use crate::graphql_generated::mina::{
-  Account, AnnotatedBalance, Balance, BalanceQuery, BalanceQueryVariables, Length, PublicKey, StateHash,
+  Account, AnnotatedBalance, Balance, Length, PublicKey, QueryBalance, QueryBalanceVariables, StateHash,
 };
+use crate::MinaMeshContext;
 use anyhow::Result;
 use cynic::{http::ReqwestExt, QueryBuilder};
 use mesh::models::{
@@ -11,7 +11,7 @@ use mesh::models::{
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/account.ml#L11
 pub async fn balance(request: AccountBalanceRequest) -> Result<AccountBalanceResponse> {
-  let context = Context::from_env().await?;
+  let context = MinaMeshContext::from_env().await?;
   context.network_health_check(*request.network_identifier).await?;
   let account: MinaAccountIdentifier = (*request.account_identifier).into();
   match request.block_identifier {
@@ -23,13 +23,14 @@ pub async fn balance(request: AccountBalanceRequest) -> Result<AccountBalanceRes
 const DEFAULT_TOKEN_ID: &str = "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf";
 
 async fn block_balance(
-  context: &Context,
+  context: &MinaMeshContext,
   account_identifier: &MinaAccountIdentifier,
   block_identifier: PartialBlockIdentifier,
 ) -> Result<AccountBalanceResponse> {
   // Get block data from the database
-  let maybe_block =
-    sqlx::query_file!("sql/maybe_block.sql", block_identifier.index).fetch_optional(&context.pool).await?;
+  let maybe_block = sqlx::query_file!("sql/maybe_block.sql", block_identifier.index)
+    .fetch_optional(&context.pool)
+    .await?;
   match maybe_block {
     Some(block) => {
       // has canonical height
@@ -45,7 +46,10 @@ async fn block_balance(
       match maybe_account_balance_info {
         None => {
           return Ok(AccountBalanceResponse::new(
-            BlockIdentifier { hash: block.state_hash, index: block.height },
+            BlockIdentifier {
+              hash: block.state_hash,
+              index: block.height,
+            },
             vec![Amount {
               currency: Box::new(Currency {
                 symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
@@ -85,7 +89,10 @@ async fn block_balance(
           let total_balance = last_relevant_command_balance;
           let locked_balance = total_balance - liquid_balance;
           Ok(AccountBalanceResponse::new(
-            BlockIdentifier { hash: block.state_hash, index: block.height },
+            BlockIdentifier {
+              hash: block.state_hash,
+              index: block.height,
+            },
             vec![Amount {
               currency: Box::new(Currency {
                 symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
@@ -158,18 +165,33 @@ fn incremental_balance_between_slots(
     vesting_increment,
     initial_minimum_balance,
   );
-  let min_balance_at_end_slot =
-    min_balance_at_slot(end_slot, cliff_time, cliff_amount, vesting_period, vesting_increment, initial_minimum_balance);
+  let min_balance_at_end_slot = min_balance_at_slot(
+    end_slot,
+    cliff_time,
+    cliff_amount,
+    vesting_period,
+    vesting_increment,
+    initial_minimum_balance,
+  );
   min_balance_at_start_slot.saturating_sub(min_balance_at_end_slot)
 }
 
 // Note: The `min_balance_at_slot` function is not provided in the original OCaml code,
 // so we'll declare it here as a separate function that needs to be implemented.
 
-async fn frontier_balance(context: &Context, address: &MinaAccountIdentifier) -> Result<AccountBalanceResponse> {
-  let operation = BalanceQuery::build(BalanceQueryVariables { public_key: PublicKey(address.public_key.clone()) });
-  let result = context.client.post(&context.config.mina_proxy_url).run_graphql(operation).await?;
-  if let Some(BalanceQuery {
+async fn frontier_balance(
+  context: &MinaMeshContext,
+  address: &MinaAccountIdentifier,
+) -> Result<AccountBalanceResponse> {
+  let operation = QueryBalance::build(QueryBalanceVariables {
+    public_key: PublicKey(address.public_key.clone()),
+  });
+  let result = context
+    .client
+    .post(&context.config.mina_proxy_url)
+    .run_graphql(operation)
+    .await?;
+  if let Some(QueryBalance {
     account:
       Some(Account {
         balance:
@@ -221,7 +243,10 @@ impl Into<MinaAccountIdentifier> for AccountIdentifier {
       _ => unimplemented!(),
     }
     .unwrap(); // TODO: handle unwrap
-    MinaAccountIdentifier { public_key: self.address, token_id }
+    MinaAccountIdentifier {
+      public_key: self.address,
+      token_id,
+    }
   }
 }
 
@@ -236,7 +261,10 @@ async fn first() {
       sub_account: None,
       metadata: None,
     }),
-    block_identifier: Some(Box::new(PartialBlockIdentifier { index: Some(371513), hash: None })),
+    block_identifier: Some(Box::new(PartialBlockIdentifier {
+      index: Some(371513),
+      hash: None,
+    })),
     currencies: None,
     network_identifier: Box::new(NetworkIdentifier {
       blockchain: "mina".into(),

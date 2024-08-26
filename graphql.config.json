@@ -3,11 +3,7 @@
   "projects": {
     "mina": {
       "schema": "graphql/schemas/mina.graphql",
-      "documents": ["**/[!.archive].*.graphql"]
-    },
-    "archive": {
-      "schema": "graphql/schemas/archive.graphql",
-      "documents": ["**/archive.*.graphql"]
+      "documents": ["**/*.graphql"]
     }
   }
 }

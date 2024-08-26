@@ -4,6 +4,7 @@ pub mod construction;
 mod mempool;
 pub mod network;
 
+use crate::graphql_generated::mina::QueryNetworkId;
 use anyhow::{bail, Context as AnyhowContext, Result};
 use cynic::{http::ReqwestExt, QueryBuilder};
 use mesh::models::NetworkIdentifier;
@@ -11,8 +12,6 @@ use reqwest::Client;
 use serde::Deserialize;
 use sqlx::PgPool;
 use std::vec::Vec;
-
-use crate::graphql_generated::mina::NetworkId;
 
 #[derive(Deserialize, Debug, Default)]
 pub struct Config {
@@ -37,21 +36,25 @@ fn default_database_url() -> String {
   "postgres://mina:whatever@localhost:5432/archive".to_string()
 }
 
-pub struct Context {
+pub struct MinaMeshContext {
   config: Config,
   client: Client,
   pool: PgPool,
 }
 
-impl Context {
+impl MinaMeshContext {
   async fn from_env() -> Result<Self> {
     let config = envy::from_env::<Config>().with_context(|| "Failed to parse config from env")?;
     let database_url = config.database_url.clone();
-    Ok(Self { config, client: Client::new(), pool: PgPool::connect(database_url.as_str()).await? })
+    Ok(Self {
+      config,
+      client: Client::new(),
+      pool: PgPool::connect(database_url.as_str()).await?,
+    })
   }
 
   async fn network_health_check(&self, network_identifier: NetworkIdentifier) -> Result<bool> {
-    let NetworkId { network_id } = self.graphql(NetworkId::build(())).await?;
+    let QueryNetworkId { network_id } = self.graphql(QueryNetworkId::build(())).await?;
     if network_identifier.blockchain == "MINA" {
       unimplemented!();
     }
@@ -73,7 +76,11 @@ impl Context {
       .await
       .context("Failed to run GraphQL query")?;
     if let Some(errors) = response.errors {
-      bail!(errors.iter().map(|err| err.message.clone()).collect::<Vec<String>>().join("\n\n"));
+      bail!(errors
+        .iter()
+        .map(|err| err.message.clone())
+        .collect::<Vec<String>>()
+        .join("\n\n"));
     } else if let Some(data) = response.data {
       Ok(data)
     } else {
