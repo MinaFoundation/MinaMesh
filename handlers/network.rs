@@ -6,7 +6,7 @@ use mesh::models::{
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/network.ml#L162
-pub async fn list() -> Result<NetworkListResponse> {
+pub fn list() -> Result<NetworkListResponse> {
   Ok(NetworkListResponse::new(vec![NetworkIdentifier::new("mina".into(), "mainnet".into())]))
 }
 
