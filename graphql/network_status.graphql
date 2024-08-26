@@ -1,12 +1,19 @@
-query NetworkStatus {
-  block {
+query QueryNetworkStatus {
+  bestChain(maxLength: 1) {
     stateHash
+    protocolState {
+      blockchainState {
+        utcDate
+      }
+      consensusState {
+        blockHeight
+      }
+    }
   }
-  getPeers {
-    host
-    peerId
+  daemonStatus {
+    peers {
+      peerId
+    }
   }
-  genesisBlock {
-    stateHash
-  }
+  syncStatus
 }

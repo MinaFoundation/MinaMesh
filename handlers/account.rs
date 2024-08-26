@@ -1,4 +1,3 @@
-use super::network_health_check;
 use super::Context;
 use crate::graphql_generated::mina::{
   Account, AnnotatedBalance, Balance, BalanceQuery, BalanceQueryVariables, Length, PublicKey, StateHash,
@@ -13,7 +12,7 @@ use mesh::models::{
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/account.ml#L11
 pub async fn balance(request: AccountBalanceRequest) -> Result<AccountBalanceResponse> {
   let context = Context::from_env().await?;
-  network_health_check(&context, *request.network_identifier).await?;
+  context.network_health_check(*request.network_identifier).await?;
   let account: MinaAccountIdentifier = (*request.account_identifier).into();
   match request.block_identifier {
     Some(block_identifier) => block_balance(&context, &account, *block_identifier).await,
@@ -35,8 +34,6 @@ async fn block_balance(
     Some(block) => {
       // has canonical height
       // do we really need to do a different query?
-      println!("{:?}", account_identifier);
-      println!("{:?}", block_identifier);
       let maybe_account_balance_info = sqlx::query_file!(
         "sql/maybe_account_balance_info.sql",
         account_identifier.public_key,
