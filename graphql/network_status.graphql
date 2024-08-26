@@ -1,0 +1,12 @@
+query NetworkStatus {
+  block {
+    stateHash
+  }
+  getPeers {
+    host
+    peerId
+  }
+  genesisBlock {
+    stateHash
+  }
+}

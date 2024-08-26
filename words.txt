@@ -11,6 +11,8 @@ navroot
 preprocess
 querygen
 reqwest
+retriable
 sqlx
 walkdir
 webroot
+zkapp

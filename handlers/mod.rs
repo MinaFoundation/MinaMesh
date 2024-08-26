@@ -57,3 +57,13 @@ pub async fn network_health_check(context: &Context, network_identifier: Network
   if network_identifier.network == network_id {}
   Ok(true)
 }
+
+trait ToVecOfString {
+  fn to_vec_of_string(self) -> Vec<String>;
+}
+
+impl ToVecOfString for Vec<&str> {
+  fn to_vec_of_string(self) -> Vec<String> {
+    self.into_iter().map(|s| s.to_string()).collect()
+  }
+}
