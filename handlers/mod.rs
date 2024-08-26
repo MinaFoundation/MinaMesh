@@ -4,12 +4,13 @@ pub mod construction;
 mod mempool;
 pub mod network;
 
-use anyhow::{Context as AnyhowContext, Result};
+use anyhow::{bail, Context as AnyhowContext, Result};
 use cynic::{http::ReqwestExt, QueryBuilder};
 use mesh::models::NetworkIdentifier;
 use reqwest::Client;
 use serde::Deserialize;
 use sqlx::PgPool;
+use std::vec::Vec;
 
 use crate::graphql_generated::mina::NetworkId;
 
@@ -47,15 +48,32 @@ impl Context {
     let database_url = config.database_url.clone();
     Ok(Self { config, client: Client::new(), pool: PgPool::connect(database_url.as_str()).await? })
   }
-}
 
-pub async fn network_health_check(context: &Context, network_identifier: NetworkIdentifier) -> Result<bool> {
-  // TODO: create util to unwrap GraphQL data otherwise throw error into anyhow context
-  let NetworkId { network_id } =
-    context.client.post(&context.config.mina_proxy_url).run_graphql(NetworkId::build(())).await?.data.unwrap();
-  if network_identifier.blockchain == "MINA" {}
-  if network_identifier.network == network_id {}
-  Ok(true)
+  async fn network_health_check(self, network_identifier: NetworkIdentifier) -> Result<bool> {
+    let NetworkId { network_id } = self.graphql(NetworkId::build(())).await?;
+    if network_identifier.blockchain == "MINA" {
+      unimplemented!();
+    }
+    if network_identifier.network == network_id {
+      unimplemented!();
+    }
+    Ok(true)
+  }
+
+  async fn graphql<ResponseData, Vars>(self, operation: cynic::Operation<ResponseData, Vars>) -> Result<ResponseData>
+  where
+    Vars: serde::Serialize,
+    ResponseData: serde::de::DeserializeOwned + 'static,
+  {
+    let response = self.client.post(self.config.mina_proxy_url).run_graphql(operation).await.context("")?;
+    if let Some(errors) = response.errors {
+      bail!(errors.iter().map(|err| err.message.clone()).collect::<Vec<String>>().join("\n\n"));
+    } else if let Some(data) = response.data {
+      Ok(data)
+    } else {
+      bail!("No data contained in GraphQL response");
+    }
+  }
 }
 
 trait ToVecOfString {
