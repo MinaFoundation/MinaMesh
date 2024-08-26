@@ -2,7 +2,6 @@
 name = "mina-mesh-cli"
 version.workspace = true
 authors = ["Mina Foundation"]
-build = "build.rs"
 edition = "2021"
 license = "Apache-2.0"
 description = "A Rust Server Implementation of the Mesh Spec for Mina"
@@ -14,13 +13,13 @@ version = "0.1.0"
 name = "mina-mesh"
 path = "main.rs"
 
-[build-dependencies]
-cynic-codegen = "3.7.3"
-cynic-querygen = "3.7.3"
-
 [dependencies]
 anyhow = "1.0.86"
 clap = { version = "4.5.11", features = ["derive"] }
 cynic = { version = "3.7.3", features = ["http-reqwest-blocking"] }
 envy = "0.4.2"
+reqwest = { version = "0.12.5", features = ["json", "blocking"] }
 tokio = { version = "1.39.2", features = ["full", "test-util"] }
+
+mina_mesh = { path = "./mina_mesh" }
+mina_mesh_graphql = { path = "./mina_mesh_graphql" }

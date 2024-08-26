@@ -1,8 +1,9 @@
-pub mod graphql_generated;
+// TODO: document workflow regarding fetching and using initial genesis ledger hash.
 
 use anyhow::{bail, Result};
 use clap::{Args, Parser, Subcommand};
 use cynic::{http::ReqwestExt, QueryBuilder};
+use mina_mesh_graphql::QueryGenesisBlockIdentifier;
 use tokio;
 
 #[derive(Debug, Parser)]
@@ -51,7 +52,6 @@ async fn main() {
   .expect("TODO");
 }
 
-// Initial genesis ledger got too big because / includes every existing account up until hardfork / when we call this endpoint, it takes a long time to return the identifier
 async fn fetch_genesis_block_identifier(
   FetchGenesisBlockIdentifierArgs {
     proxy_node_graphql_endpoint,
@@ -60,7 +60,7 @@ async fn fetch_genesis_block_identifier(
   let client = reqwest::Client::new();
   let result = client
     .post(proxy_node_graphql_endpoint)
-    .run_graphql(graphql_generated::mina::QueryGenesisBlockIdentifier::build(()))
+    .run_graphql(QueryGenesisBlockIdentifier::build(()))
     .await?;
   if let Some(inner) = result.data {
     let genesis_block_hash = inner.genesis_block.state_hash.0;
