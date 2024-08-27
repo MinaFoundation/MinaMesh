@@ -8,6 +8,7 @@ edition = "2021"
 path = "mod.rs"
 
 [build-dependencies]
+anyhow = "1.0.86"
 cynic-codegen = "3.7.3"
 cynic-querygen = "3.7.3"
 indoc = "2.0.5"

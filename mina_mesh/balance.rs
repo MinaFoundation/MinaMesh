@@ -19,24 +19,20 @@ pub async fn balance(context: &MinaMeshContext, request: AccountBalanceRequest) 
 
 async fn block_balance(
   context: &MinaMeshContext,
-  account_identifier: &MinaAccountIdentifier,
-  block_identifier: PartialBlockIdentifier,
+  MinaAccountIdentifier { public_key, token_id }: &MinaAccountIdentifier,
+  PartialBlockIdentifier { index, .. }: PartialBlockIdentifier,
 ) -> Result<AccountBalanceResponse> {
   // Get block data from the database
-  let maybe_block = sqlx::query_file!("sql/maybe_block.sql", block_identifier.index)
+  let maybe_block = sqlx::query_file!("sql/maybe_block.sql", index)
     .fetch_optional(&context.pool)
     .await?;
   match maybe_block {
     Some(block) => {
       // has canonical height / do we really need to do a different query?
-      let maybe_account_balance_info = sqlx::query_file!(
-        "sql/maybe_account_balance_info.sql",
-        account_identifier.public_key,
-        block_identifier.index.unwrap(),
-        account_identifier.token_id,
-      )
-      .fetch_optional(&context.pool)
-      .await?;
+      let maybe_account_balance_info =
+        sqlx::query_file!("sql/maybe_account_balance_info.sql", public_key, index, token_id,)
+          .fetch_optional(&context.pool)
+          .await?;
       match maybe_account_balance_info {
         None => {
           return Ok(AccountBalanceResponse::new(
@@ -71,10 +67,10 @@ async fn block_balance(
                 account_balance_info.block_global_slot_since_genesis as u32,
                 block.global_slot_since_genesis as u32,
                 timing_info.cliff_time as u32,
-                timing_info.cliff_amount.parse::<u64>().unwrap(),
+                timing_info.cliff_amount.parse::<u64>()?,
                 timing_info.vesting_period as u32,
-                timing_info.vesting_increment.parse::<u64>().unwrap(),
-                timing_info.initial_minimum_balance.parse::<u64>().unwrap(),
+                timing_info.vesting_increment.parse::<u64>()?,
+                timing_info.initial_minimum_balance.parse::<u64>()?,
               );
               last_relevant_command_balance + incremental_balance
             }

@@ -3,7 +3,7 @@ use mesh::models::{AccountBalanceRequest, AccountIdentifier, NetworkIdentifier, 
 
 #[tokio::test]
 async fn first() {
-  let context = MinaMeshContext::from_env().await.unwrap();
+  let context = MinaMeshContext::from_env().await.expect("");
   let result = balance(
     &context,
     AccountBalanceRequest {

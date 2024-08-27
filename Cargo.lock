@@ -1342,6 +1342,7 @@ dependencies = [
 name = "mina_mesh_graphql"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "cynic",
  "cynic-codegen",
  "cynic-querygen",

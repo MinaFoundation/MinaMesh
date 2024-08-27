@@ -105,10 +105,7 @@ impl TryInto<MinaAccountIdentifier> for AccountIdentifier {
   fn try_into(self) -> Result<MinaAccountIdentifier> {
     let token_id = match self.metadata {
       None => DEFAULT_TOKEN_ID.to_string(),
-      Some(serde_json::Value::Object(map)) => map
-        .get("token_id")
-        .map(|v| v.as_str().unwrap().to_string())
-        .context("")?,
+      Some(serde_json::Value::Object(map)) => map.get("token_id").map(|v| v.to_string()).context("")?,
       _ => Err(anyhow!(""))?,
     };
     Ok(MinaAccountIdentifier {
