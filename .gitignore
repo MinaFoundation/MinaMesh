@@ -1,5 +1,3 @@
 .DS_Store
 .env
-graphql_generated
-sql_scripts/mainnet-archive-dump-2024-08-19_0000.sql
 target

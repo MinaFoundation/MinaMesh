@@ -5,6 +5,7 @@ eventbus
 graphviz
 hardfork
 harrysolovay
+indoc
 joaosreis
 microschemas
 mina

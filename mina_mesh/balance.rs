@@ -9,9 +9,7 @@ use mina_mesh_graphql::{
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/account.ml#L11
-pub async fn balance(request: AccountBalanceRequest) -> Result<AccountBalanceResponse> {
-  let context = MinaMeshContext::from_env().await?;
-  context.network_health_check(*request.network_identifier).await?;
+pub async fn balance(context: &MinaMeshContext, request: AccountBalanceRequest) -> Result<AccountBalanceResponse> {
   let account: MinaAccountIdentifier = (*request.account_identifier).into();
   match request.block_identifier {
     Some(block_identifier) => block_balance(&context, &account, *block_identifier).await,
@@ -30,8 +28,7 @@ async fn block_balance(
     .await?;
   match maybe_block {
     Some(block) => {
-      // has canonical height
-      // do we really need to do a different query?
+      // has canonical height / do we really need to do a different query?
       let maybe_account_balance_info = sqlx::query_file!(
         "sql/maybe_account_balance_info.sql",
         account_identifier.public_key,

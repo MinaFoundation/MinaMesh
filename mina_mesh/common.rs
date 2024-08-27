@@ -12,29 +12,34 @@ use std::vec::Vec;
 pub struct Config {
   #[serde(default = "default_mina_proxy_url")]
   mina_proxy_url: String,
-  #[serde(default = "default_archive_url")]
-  archive_url: String,
   #[serde(default = "default_database_url")]
   database_url: String,
-  genesis_block_identifier: String,
+  #[serde(default = "default_genesis_block_identifier_height")]
+  pub genesis_block_identifier_height: i64,
+  #[serde(default = "default_genesis_block_identifier_state_hash")]
+  pub genesis_block_identifier_state_hash: String,
 }
 
 fn default_mina_proxy_url() -> String {
   "https://mainnet.minaprotocol.network/graphql".to_string()
 }
 
-fn default_archive_url() -> String {
-  "https://api.minascan.io/archive/devnet/v1/graphql".to_string()
-}
-
 fn default_database_url() -> String {
   "postgres://mina:whatever@localhost:5432/archive".to_string()
 }
 
+fn default_genesis_block_identifier_height() -> i64 {
+  359605
+}
+
+fn default_genesis_block_identifier_state_hash() -> String {
+  "3NK4BpDSekaqsG6tx8Nse2zJchRft2JpnbvMiog55WCr5xJZaKeP".to_string()
+}
+
 pub struct MinaMeshContext {
-  config: Config,
-  client: Client,
+  pub config: Config,
   pub pool: PgPool,
+  client: Client,
 }
 
 impl MinaMeshContext {
@@ -43,8 +48,8 @@ impl MinaMeshContext {
     let database_url = config.database_url.clone();
     Ok(Self {
       config,
-      client: Client::new(),
       pool: PgPool::connect(database_url.as_str()).await?,
+      client: Client::new(),
     })
   }
 
