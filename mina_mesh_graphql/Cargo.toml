@@ -10,6 +10,7 @@ path = "mod.rs"
 [build-dependencies]
 cynic-codegen = "3.7.3"
 cynic-querygen = "3.7.3"
+indoc = "2.0.5"
 
 [dependencies]
 cynic = { version = "3.7.3", features = ["http-reqwest-blocking"] }
