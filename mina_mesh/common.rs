@@ -1,7 +1,6 @@
-use anyhow::{bail, Context as AnyhowContext, Result};
+use anyhow::{anyhow, bail, Context as AnyhowContext, Result};
 use cynic::{http::ReqwestExt, QueryBuilder};
-use mesh::models::AccountIdentifier;
-use mesh::models::NetworkIdentifier;
+use mesh::models::{AccountIdentifier, NetworkIdentifier};
 use mina_mesh_graphql::QueryNetworkId;
 use reqwest::Client;
 use serde::Deserialize;
@@ -101,17 +100,20 @@ pub struct MinaAccountIdentifier {
 // cspell:disable-next-line
 const DEFAULT_TOKEN_ID: &str = "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf";
 
-impl Into<MinaAccountIdentifier> for AccountIdentifier {
-  fn into(self) -> MinaAccountIdentifier {
+impl TryInto<MinaAccountIdentifier> for AccountIdentifier {
+  type Error = anyhow::Error;
+  fn try_into(self) -> Result<MinaAccountIdentifier> {
     let token_id = match self.metadata {
-      Some(serde_json::Value::Object(map)) => map.get("token_id").map(|v| v.as_str().unwrap().to_string()),
-      None => Some(DEFAULT_TOKEN_ID.to_string()),
-      _ => unimplemented!(),
-    }
-    .unwrap();
-    MinaAccountIdentifier {
+      None => DEFAULT_TOKEN_ID.to_string(),
+      Some(serde_json::Value::Object(map)) => map
+        .get("token_id")
+        .map(|v| v.as_str().unwrap().to_string())
+        .context("")?,
+      _ => Err(anyhow!(""))?,
+    };
+    Ok(MinaAccountIdentifier {
       public_key: self.address,
       token_id,
-    }
+    })
   }
 }
