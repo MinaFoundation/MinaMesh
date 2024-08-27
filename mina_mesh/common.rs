@@ -9,7 +9,7 @@ use sqlx::PgPool;
 use std::vec::Vec;
 
 #[derive(Deserialize, Debug, Default)]
-pub struct Config {
+pub struct MinaMeshEnv {
   #[serde(default = "default_mina_proxy_url")]
   mina_proxy_url: String,
   #[serde(default = "default_database_url")]
@@ -37,17 +37,17 @@ fn default_genesis_block_identifier_state_hash() -> String {
 }
 
 pub struct MinaMeshContext {
-  pub config: Config,
+  pub env: MinaMeshEnv,
   pub pool: PgPool,
   client: Client,
 }
 
 impl MinaMeshContext {
   pub async fn from_env() -> Result<Self> {
-    let config = envy::from_env::<Config>().with_context(|| "Failed to parse config from env")?;
+    let config = envy::from_env::<MinaMeshEnv>().with_context(|| "Failed to parse config from env")?;
     let database_url = config.database_url.clone();
     Ok(Self {
-      config,
+      env: config,
       pool: PgPool::connect(database_url.as_str()).await?,
       client: Client::new(),
     })
@@ -74,7 +74,7 @@ impl MinaMeshContext {
   {
     let response = self
       .client
-      .post(&self.config.mina_proxy_url)
+      .post(&self.env.mina_proxy_url)
       .run_graphql(operation)
       .await
       .context("Failed to run GraphQL query")?;

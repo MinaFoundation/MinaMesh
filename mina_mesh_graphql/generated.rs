@@ -4,6 +4,11 @@
 mod schema {}
 
 #[derive(cynic::QueryVariables, Debug)]
+pub struct QueryMempoolTransactionsVariables<'a> {
+    pub hashes: Option<Vec<&'a str>>,
+}
+
+#[derive(cynic::QueryVariables, Debug)]
 pub struct QueryBalanceVariables {
     pub public_key: PublicKey,
 }
@@ -13,6 +18,47 @@ pub struct QueryBalanceVariables {
 pub struct QueryNetworkId {
     #[cynic(rename = "networkID")]
     pub network_id: String,
+}
+
+#[derive(cynic::QueryFragment, Debug)]
+#[cynic(graphql_type = "query", variables = "QueryMempoolTransactionsVariables", schema = "mina")]
+pub struct QueryMempoolTransactions {
+    pub initial_peers: Vec<String>,
+    pub daemon_status: DaemonStatus,
+    #[arguments(hashes: $hashes)]
+    pub pooled_user_commands: Vec<UserCommand>,
+}
+
+#[derive(cynic::QueryFragment, Debug)]
+#[cynic(schema = "mina")]
+pub struct UserCommand {
+    pub hash: TransactionHash,
+    pub amount: Amount,
+    pub fee: Fee,
+    pub kind: UserCommandKind,
+    pub fee_token: TokenId,
+    pub valid_until: Globalslot,
+    pub memo: String,
+    pub fee_payer: Account,
+    pub nonce: i32,
+    pub receiver: Account,
+    pub source: Account,
+    pub token: TokenId,
+}
+
+#[derive(cynic::QueryFragment, Debug)]
+#[cynic(graphql_type = "query", schema = "mina")]
+pub struct QueryMempool {
+    pub initial_peers: Vec<String>,
+    pub daemon_status: DaemonStatus2,
+    #[arguments(publicKey: null)]
+    pub pooled_user_commands: Vec<UserCommand2>,
+}
+
+#[derive(cynic::QueryFragment, Debug)]
+#[cynic(graphql_type = "UserCommand", schema = "mina")]
+pub struct UserCommand2 {
+    pub hash: TransactionHash,
 }
 
 #[derive(cynic::QueryFragment, Debug)]
@@ -26,7 +72,7 @@ pub struct QueryGenesisBlockIdentifier {
 pub struct QueryNetworkStatus {
     #[arguments(maxLength: 1)]
     pub best_chain: Option<Vec<Block2>>,
-    pub daemon_status: DaemonStatus,
+    pub daemon_status: DaemonStatus3,
     pub sync_status: SyncStatus,
 }
 
@@ -34,12 +80,12 @@ pub struct QueryNetworkStatus {
 #[cynic(graphql_type = "query", variables = "QueryBalanceVariables", schema = "mina")]
 pub struct QueryBalance {
     #[arguments(publicKey: $public_key)]
-    pub account: Option<Account>,
+    pub account: Option<Account2>,
 }
 
 #[derive(cynic::QueryFragment, Debug)]
-#[cynic(schema = "mina")]
-pub struct DaemonStatus {
+#[cynic(graphql_type = "DaemonStatus", schema = "mina")]
+pub struct DaemonStatus3 {
     pub peers: Vec<Peer>,
 }
 
@@ -47,6 +93,25 @@ pub struct DaemonStatus {
 #[cynic(schema = "mina")]
 pub struct Peer {
     pub peer_id: String,
+}
+
+#[derive(cynic::QueryFragment, Debug)]
+#[cynic(schema = "mina")]
+pub struct DaemonStatus {
+    pub chain_id: String,
+    pub peers: Vec<Peer2>,
+}
+
+#[derive(cynic::QueryFragment, Debug)]
+#[cynic(graphql_type = "Peer", schema = "mina")]
+pub struct Peer2 {
+    pub host: String,
+}
+
+#[derive(cynic::QueryFragment, Debug)]
+#[cynic(graphql_type = "DaemonStatus", schema = "mina")]
+pub struct DaemonStatus2 {
+    pub chain_id: String,
 }
 
 #[derive(cynic::QueryFragment, Debug)]
@@ -91,6 +156,12 @@ pub struct BlockchainState {
 #[derive(cynic::QueryFragment, Debug)]
 #[cynic(schema = "mina")]
 pub struct Account {
+    pub public_key: PublicKey,
+}
+
+#[derive(cynic::QueryFragment, Debug)]
+#[cynic(graphql_type = "Account", schema = "mina")]
+pub struct Account2 {
     pub balance: AnnotatedBalance,
     pub nonce: Option<AccountNonce>,
 }
@@ -119,10 +190,19 @@ pub enum SyncStatus {
 pub struct AccountNonce(pub String);
 
 #[derive(cynic::Scalar, Debug, Clone)]
+pub struct Amount(pub String);
+
+#[derive(cynic::Scalar, Debug, Clone)]
 pub struct Balance(pub String);
 
 #[derive(cynic::Scalar, Debug, Clone)]
 pub struct BlockTime(pub String);
+
+#[derive(cynic::Scalar, Debug, Clone)]
+pub struct Fee(pub String);
+
+#[derive(cynic::Scalar, Debug, Clone)]
+pub struct Globalslot(pub String);
 
 #[derive(cynic::Scalar, Debug, Clone)]
 pub struct Length(pub String);
@@ -132,4 +212,13 @@ pub struct PublicKey(pub String);
 
 #[derive(cynic::Scalar, Debug, Clone)]
 pub struct StateHash(pub String);
+
+#[derive(cynic::Scalar, Debug, Clone)]
+pub struct TokenId(pub String);
+
+#[derive(cynic::Scalar, Debug, Clone)]
+pub struct TransactionHash(pub String);
+
+#[derive(cynic::Scalar, Debug, Clone)]
+pub struct UserCommandKind(pub String);
 

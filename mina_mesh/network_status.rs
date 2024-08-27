@@ -4,13 +4,13 @@ use crate::common::MinaMeshContext;
 use anyhow::{Context, Result};
 use cynic::QueryBuilder;
 use mesh::models::{BlockIdentifier, NetworkStatusResponse, Peer};
-use mina_mesh_graphql::{Block2, DaemonStatus, QueryNetworkStatus};
+use mina_mesh_graphql::{Block2, DaemonStatus3, QueryNetworkStatus};
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/network.ml#L201
 pub async fn status(context: &MinaMeshContext) -> Result<NetworkStatusResponse> {
   let QueryNetworkStatus {
     best_chain,
-    daemon_status: DaemonStatus { peers },
+    daemon_status: DaemonStatus3 { peers },
     sync_status,
   } = context.graphql(QueryNetworkStatus::build(())).await?;
   let blocks = best_chain.context("")?;
@@ -30,8 +30,8 @@ pub async fn status(context: &MinaMeshContext) -> Result<NetworkStatusResponse> 
     )),
     current_block_timestamp: protocol_state.blockchain_state.utc_date.0.parse::<i64>()?,
     genesis_block_identifier: Box::new(BlockIdentifier::new(
-      context.config.genesis_block_identifier_height,
-      context.config.genesis_block_identifier_state_hash.clone(),
+      context.env.genesis_block_identifier_height,
+      context.env.genesis_block_identifier_state_hash.clone(),
     )),
     oldest_block_identifier: Some(Box::new(BlockIdentifier::new(
       oldest_block.height,
