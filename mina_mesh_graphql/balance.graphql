@@ -1,4 +1,4 @@
-query BalanceQuery($publicKey: PublicKey!) {
+query QueryBalance($publicKey: PublicKey!) {
   account(publicKey: $publicKey) {
     balance {
       blockHeight

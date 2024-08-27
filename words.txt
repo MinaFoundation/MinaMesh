@@ -3,7 +3,9 @@ coinbases
 deamon's
 eventbus
 graphviz
+hardfork
 harrysolovay
+indoc
 joaosreis
 microschemas
 mina
@@ -13,6 +15,7 @@ preprocess
 querygen
 reqwest
 retriable
+rustfmt
 sqlx
 walkdir
 webroot
