@@ -1,0 +1,26 @@
+query QueryBlockTransactions($stateHash: String) {
+  block(stateHash: $stateHash) {
+    transactions {
+      userCommands {
+        amount
+        fee
+        feePayer {
+          publicKey
+        }
+        feeToken
+        hash
+        kind
+        memo
+        nonce
+        receiver {
+          publicKey
+        }
+        source {
+          publicKey
+        }
+        token
+        validUntil
+      }
+    }
+  }
+}

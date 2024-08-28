@@ -4,13 +4,18 @@
 mod schema {}
 
 #[derive(cynic::QueryVariables, Debug)]
+pub struct QueryBalanceVariables {
+    pub public_key: PublicKey,
+}
+
+#[derive(cynic::QueryVariables, Debug)]
 pub struct QueryMempoolTransactionsVariables<'a> {
     pub hashes: Option<Vec<&'a str>>,
 }
 
 #[derive(cynic::QueryVariables, Debug)]
-pub struct QueryBalanceVariables {
-    pub public_key: PublicKey,
+pub struct QueryBlockTransactionsVariables<'a> {
+    pub state_hash: Option<&'a str>,
 }
 
 #[derive(cynic::QueryFragment, Debug)]
@@ -27,23 +32,6 @@ pub struct QueryMempoolTransactions {
     pub daemon_status: DaemonStatus,
     #[arguments(hashes: $hashes)]
     pub pooled_user_commands: Vec<UserCommand>,
-}
-
-#[derive(cynic::QueryFragment, Debug)]
-#[cynic(schema = "mina")]
-pub struct UserCommand {
-    pub hash: TransactionHash,
-    pub amount: Amount,
-    pub fee: Fee,
-    pub kind: UserCommandKind,
-    pub fee_token: TokenId,
-    pub valid_until: Globalslot,
-    pub memo: String,
-    pub fee_payer: Account,
-    pub nonce: i32,
-    pub receiver: Account,
-    pub source: Account,
-    pub token: TokenId,
 }
 
 #[derive(cynic::QueryFragment, Debug)]
@@ -68,10 +56,17 @@ pub struct QueryGenesisBlockIdentifier {
 }
 
 #[derive(cynic::QueryFragment, Debug)]
+#[cynic(graphql_type = "query", variables = "QueryBlockTransactionsVariables", schema = "mina")]
+pub struct QueryBlockTransactions {
+    #[arguments(stateHash: $state_hash)]
+    pub block: Block2,
+}
+
+#[derive(cynic::QueryFragment, Debug)]
 #[cynic(graphql_type = "query", schema = "mina")]
 pub struct QueryNetworkStatus {
     #[arguments(maxLength: 1)]
-    pub best_chain: Option<Vec<Block2>>,
+    pub best_chain: Option<Vec<Block3>>,
     pub daemon_status: DaemonStatus3,
     pub sync_status: SyncStatus,
 }
@@ -80,7 +75,7 @@ pub struct QueryNetworkStatus {
 #[cynic(graphql_type = "query", variables = "QueryBalanceVariables", schema = "mina")]
 pub struct QueryBalance {
     #[arguments(publicKey: $public_key)]
-    pub account: Option<Account2>,
+    pub account: Option<Account>,
 }
 
 #[derive(cynic::QueryFragment, Debug)]
@@ -115,6 +110,35 @@ pub struct DaemonStatus2 {
 }
 
 #[derive(cynic::QueryFragment, Debug)]
+#[cynic(graphql_type = "Block", schema = "mina")]
+pub struct Block2 {
+    pub transactions: Transactions,
+}
+
+#[derive(cynic::QueryFragment, Debug)]
+#[cynic(schema = "mina")]
+pub struct Transactions {
+    pub user_commands: Vec<UserCommand>,
+}
+
+#[derive(cynic::QueryFragment, Debug)]
+#[cynic(schema = "mina")]
+pub struct UserCommand {
+    pub amount: Amount,
+    pub fee: Fee,
+    pub fee_payer: Account2,
+    pub fee_token: TokenId,
+    pub hash: TransactionHash,
+    pub kind: UserCommandKind,
+    pub memo: String,
+    pub nonce: i32,
+    pub receiver: Account2,
+    pub source: Account2,
+    pub token: TokenId,
+    pub valid_until: Globalslot,
+}
+
+#[derive(cynic::QueryFragment, Debug)]
 #[cynic(schema = "mina")]
 pub struct Block {
     pub state_hash: StateHash,
@@ -129,7 +153,7 @@ pub struct ProtocolState {
 
 #[derive(cynic::QueryFragment, Debug)]
 #[cynic(graphql_type = "Block", schema = "mina")]
-pub struct Block2 {
+pub struct Block3 {
     pub state_hash: StateHash,
     pub protocol_state: ProtocolState2,
 }
@@ -154,14 +178,14 @@ pub struct BlockchainState {
 }
 
 #[derive(cynic::QueryFragment, Debug)]
-#[cynic(schema = "mina")]
-pub struct Account {
+#[cynic(graphql_type = "Account", schema = "mina")]
+pub struct Account2 {
     pub public_key: PublicKey,
 }
 
 #[derive(cynic::QueryFragment, Debug)]
-#[cynic(graphql_type = "Account", schema = "mina")]
-pub struct Account2 {
+#[cynic(schema = "mina")]
+pub struct Account {
     pub balance: AnnotatedBalance,
     pub nonce: Option<AccountNonce>,
 }

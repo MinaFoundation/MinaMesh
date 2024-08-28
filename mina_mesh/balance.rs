@@ -5,7 +5,7 @@ use mesh::models::{
   AccountBalanceRequest, AccountBalanceResponse, Amount, BlockIdentifier, Currency, PartialBlockIdentifier,
 };
 use mina_mesh_graphql::{
-  Account2, AnnotatedBalance, Balance, Length, PublicKey, QueryBalance, QueryBalanceVariables, StateHash,
+  Account, AnnotatedBalance, Balance, Length, PublicKey, QueryBalance, QueryBalanceVariables, StateHash,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/account.ml#L11
@@ -180,7 +180,7 @@ async fn frontier_balance(
     .await?;
   if let QueryBalance {
     account:
-      Some(Account2 {
+      Some(Account {
         balance:
           AnnotatedBalance {
             block_height: Length(index_raw),
