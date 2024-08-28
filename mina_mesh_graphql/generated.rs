@@ -9,13 +9,13 @@ pub struct QueryBlockTransactionsVariables<'a> {
 }
 
 #[derive(cynic::QueryVariables, Debug)]
-pub struct QueryMempoolTransactionsVariables<'a> {
-    pub hashes: Option<Vec<&'a str>>,
+pub struct QueryBalanceVariables {
+    pub public_key: PublicKey,
 }
 
 #[derive(cynic::QueryVariables, Debug)]
-pub struct QueryBalanceVariables {
-    pub public_key: PublicKey,
+pub struct QueryMempoolTransactionsVariables<'a> {
+    pub hashes: Option<Vec<&'a str>>,
 }
 
 #[derive(cynic::QueryFragment, Debug)]
