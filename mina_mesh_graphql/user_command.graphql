@@ -1,0 +1,20 @@
+fragment FragmentUserCommand on UserCommand {
+  amount
+  fee
+  source {
+    publicKey
+  }
+  feeToken
+  hash
+  kind
+  memo
+  nonce
+  receiver {
+    publicKey
+  }
+  source {
+    publicKey
+  }
+  token
+  validUntil
+}

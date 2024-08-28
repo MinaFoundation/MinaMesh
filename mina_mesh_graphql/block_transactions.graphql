@@ -1,10 +1,11 @@
 query QueryBlockTransactions($stateHash: String) {
   block(stateHash: $stateHash) {
     transactions {
+      # TODO: use the fragment
       userCommands {
         amount
         fee
-        feePayer {
+        source {
           publicKey
         }
         feeToken

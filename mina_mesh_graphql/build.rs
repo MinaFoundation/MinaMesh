@@ -4,6 +4,7 @@ use std::io::Write;
 use std::path::PathBuf;
 
 fn main() -> Result<()> {
+  println!("cargo:rerun-if-changed=../mina_mesh_graphql");
   let mina_schema = std::fs::read_to_string("schema/mina_schema.graphql")?;
   cynic_codegen::register_schema("mina")
     .from_sdl(mina_schema.as_str())?
