@@ -1,14 +1,15 @@
+use anyhow::Result;
 use std::fs;
-use std::io::{self, Write};
+use std::io::Write;
 use std::path::PathBuf;
 
-fn main() -> io::Result<()> {
+fn main() -> Result<()> {
+  // TODO: why is the following line not working?
+  // println!("cargo:rerun-if-changed=../mina_mesh_graphql");
   let mina_schema = std::fs::read_to_string("schema/mina_schema.graphql")?;
   cynic_codegen::register_schema("mina")
-    .from_sdl(mina_schema.as_str())
-    .unwrap()
-    .as_default()
-    .unwrap();
+    .from_sdl(mina_schema.as_str())?
+    .as_default()?;
   let document_paths = fs::read_dir(".")?
     .filter_map(|entry_result| match entry_result {
       Ok(entry) => {
@@ -43,8 +44,7 @@ fn main() -> io::Result<()> {
         schema_module_name: "mina".to_string(),
         schema_name: Some("mina".to_string()),
       },
-    )
-    .unwrap()
+    )?
     .as_str(),
   );
   let mut mod_file = fs::File::create("generated.rs")?;

@@ -1,0 +1,27 @@
+query QueryBlockTransactions($stateHash: String) {
+  block(stateHash: $stateHash) {
+    transactions {
+      # TODO: use the fragment
+      userCommands {
+        amount
+        fee
+        source {
+          publicKey
+        }
+        feeToken
+        hash
+        kind
+        memo
+        nonce
+        receiver {
+          publicKey
+        }
+        source {
+          publicKey
+        }
+        token
+        validUntil
+      }
+    }
+  }
+}

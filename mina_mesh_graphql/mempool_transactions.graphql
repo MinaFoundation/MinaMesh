@@ -1,0 +1,30 @@
+query QueryMempoolTransactions($hashes: [String!]) {
+  initialPeers
+  daemonStatus {
+    chainId
+    peers {
+      host
+    }
+  }
+  # TODO: use the fragment
+  pooledUserCommands(hashes: $hashes) {
+    amount
+    fee
+    source {
+      publicKey
+    }
+    feeToken
+    hash
+    kind
+    memo
+    nonce
+    receiver {
+      publicKey
+    }
+    source {
+      publicKey
+    }
+    token
+    validUntil
+  }
+}

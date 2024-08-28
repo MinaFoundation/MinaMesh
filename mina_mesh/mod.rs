@@ -1,7 +1,4 @@
 mod balance;
-#[cfg(test)]
-#[path = "balance.test.rs"]
-mod balance_test;
 mod block;
 mod block_transaction;
 mod common;
@@ -22,6 +19,7 @@ mod network_status;
 pub use balance::*;
 pub use block::*;
 pub use block_transaction::*;
+pub use common::*;
 pub use construction_combine::*;
 pub use construction_derive::*;
 pub use construction_hash::*;

@@ -1,0 +1,9 @@
+query QueryMempool {
+  initialPeers
+  daemonStatus {
+    chainId
+  }
+  pooledUserCommands(publicKey: null) {
+    hash
+  }
+}
