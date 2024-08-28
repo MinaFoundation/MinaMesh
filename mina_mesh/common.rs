@@ -1,6 +1,6 @@
 use anyhow::{anyhow, bail, Context as AnyhowContext, Result};
 use cynic::{http::ReqwestExt, QueryBuilder};
-use mesh::models::{AccountIdentifier, NetworkIdentifier};
+pub use mesh::models::{AccountIdentifier, NetworkIdentifier};
 use mina_mesh_graphql::QueryNetworkId;
 use reqwest::Client;
 use serde::Deserialize;

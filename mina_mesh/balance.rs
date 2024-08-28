@@ -1,7 +1,7 @@
 use crate::common::{MinaAccountIdentifier, MinaMeshContext};
 use anyhow::Result;
 use cynic::QueryBuilder;
-use mesh::models::{
+pub use mesh::models::{
   AccountBalanceRequest, AccountBalanceResponse, Amount, BlockIdentifier, Currency, PartialBlockIdentifier,
 };
 use mina_mesh_graphql::{

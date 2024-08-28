@@ -1,7 +1,7 @@
 use crate::common::MinaMeshContext;
 use anyhow::Result;
 use cynic::QueryBuilder;
-use mesh::models::{BlockTransactionRequest, BlockTransactionResponse, Transaction, TransactionIdentifier};
+pub use mesh::models::{BlockTransactionRequest, BlockTransactionResponse, Transaction, TransactionIdentifier};
 use mina_mesh_graphql::{Block2, QueryBlockTransactions, QueryBlockTransactionsVariables, Transactions};
 
 pub async fn block_transaction(

@@ -1,5 +1,6 @@
-use crate::{balance, common::MinaMeshContext};
-use mesh::models::{AccountBalanceRequest, AccountIdentifier, NetworkIdentifier, PartialBlockIdentifier};
+use mina_mesh::{
+  balance, AccountBalanceRequest, AccountIdentifier, MinaMeshContext, NetworkIdentifier, PartialBlockIdentifier,
+};
 
 #[tokio::test]
 async fn first() {

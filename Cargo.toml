@@ -13,13 +13,20 @@ version = "0.1.0"
 name = "mina-mesh"
 path = "main.rs"
 
+[[test]]
+name = "tests"
+
 [dependencies]
 anyhow = "1.0.86"
 clap = { version = "4.5.11", features = ["derive"] }
 cynic = { version = "3.7.3", features = ["http-reqwest-blocking"] }
 envy = "0.4.2"
 reqwest = { version = "0.12.5", features = ["json", "blocking"] }
-tokio = { version = "1.39.2", features = ["full", "test-util"] }
+tokio = { version = "1.39.2", features = ["full"] }
 
 mina_mesh = { path = "./mina_mesh" }
 mina_mesh_graphql = { path = "./mina_mesh_graphql" }
+
+[dev-dependencies]
+insta = "1.39.0"
+tokio = { version = "1.39.2", features = ["full", "test-util"] }
