@@ -5,7 +5,7 @@ pub use mesh::models::{BlockTransactionRequest, BlockTransactionResponse, Transa
 use mina_mesh_graphql::{Block2, QueryBlockTransactions, QueryBlockTransactionsVariables, Transactions};
 
 impl MinaMesh {
-  pub async fn block_transaction(&self, transaction: &BlockTransactionRequest) -> Result<BlockTransactionResponse> {
+  pub async fn block_transaction(&self, transaction: BlockTransactionRequest) -> Result<BlockTransactionResponse> {
     let QueryBlockTransactions {
       block: Block2 {
         transactions: Transactions { user_commands },

@@ -8,7 +8,7 @@ use mina_mesh_graphql::{Block3, DaemonStatus3, QueryNetworkStatus};
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/network.ml#L201
 impl MinaMesh {
-  pub async fn status(&self) -> Result<NetworkStatusResponse> {
+  pub async fn network_status(&self) -> Result<NetworkStatusResponse> {
     let QueryNetworkStatus {
       best_chain,
       daemon_status: DaemonStatus3 { peers },

@@ -2,6 +2,7 @@ use anyhow::{bail, Context, Result};
 use cynic::http::ReqwestExt;
 use reqwest::Client;
 
+#[derive(Debug)]
 pub struct GraphQLClient {
   mina_proxy_url: String,
   client: Client,

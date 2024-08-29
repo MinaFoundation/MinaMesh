@@ -4,7 +4,7 @@ use mina_mesh::{AccountBalanceRequest, AccountIdentifier, MinaMesh, NetworkIdent
 async fn first() {
   let mina_mesh = MinaMesh::from_env().await.expect("");
   let result = mina_mesh
-    .balance(AccountBalanceRequest {
+    .account_balance(AccountBalanceRequest {
       account_identifier: Box::new(AccountIdentifier {
         // cspell:disable-next-line
         address: "B62qmjJeM4Fd4FVghfhgwoE1fkEexK2Rre8WYKMnbxVwB5vtKUwvgMv".into(),
