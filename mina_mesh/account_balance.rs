@@ -10,7 +10,7 @@ use mina_mesh_graphql::{
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/account.ml#L11
 impl MinaMesh {
-  pub async fn balance(&self, request: AccountBalanceRequest) -> Result<AccountBalanceResponse> {
+  pub async fn account_balance(&self, request: AccountBalanceRequest) -> Result<AccountBalanceResponse> {
     let account: MinaAccountIdentifier = (*request.account_identifier).try_into()?;
     match request.block_identifier {
       Some(block_identifier) => block_balance(&self, &account, *block_identifier).await,

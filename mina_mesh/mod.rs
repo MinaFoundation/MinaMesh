@@ -1,6 +1,7 @@
-mod balance;
+mod account_balance;
 mod block;
 mod block_transaction;
+mod call;
 mod common;
 mod construction_combine;
 mod construction_derive;
@@ -17,9 +18,10 @@ mod network_options;
 mod network_status;
 mod util;
 
-pub use balance::*;
+pub use account_balance::*;
 pub use block::*;
 pub use block_transaction::*;
+pub use call::*;
 pub use common::*;
 pub use construction_combine::*;
 pub use construction_derive::*;

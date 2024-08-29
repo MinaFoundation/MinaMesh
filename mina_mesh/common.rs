@@ -4,6 +4,7 @@ use mina_mesh_graphql::GraphQLClient;
 use serde::Deserialize;
 use sqlx::PgPool;
 
+#[derive(Debug)]
 pub struct MinaMesh {
   pub env: MinaMeshEnv,
   pub graphql_client: GraphQLClient,

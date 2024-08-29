@@ -4,6 +4,7 @@ use anyhow::{bail, Result};
 use clap::{Args, Parser, Subcommand};
 use cynic::{http::ReqwestExt, QueryBuilder};
 use mina_mesh_graphql::QueryGenesisBlockIdentifier;
+use mina_mesh_server::serve;
 use tokio;
 
 #[derive(Debug, Parser)]
@@ -44,7 +45,7 @@ async fn main() {
   let MinaMeshArgs { maybe_command, .. } = args;
   match maybe_command {
     Some(command) => match command {
-      Commands::Serve => unimplemented!(),
+      Commands::Serve => serve().await,
       Commands::FetchGenesisBlockIdentifier(args) => fetch_genesis_block_identifier(args).await,
     },
     None => unimplemented!(),

@@ -23,6 +23,7 @@ tokio = { version = "1.39.2", features = ["full"] }
 
 mina_mesh = { path = "./mina_mesh" }
 mina_mesh_graphql = { path = "./mina_mesh_graphql" }
+mina_mesh_server = { path = "./mina_mesh_server" }
 
 [dev-dependencies]
 insta = "1.39.0"

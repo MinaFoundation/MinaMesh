@@ -7,7 +7,7 @@ pub use mesh::models::{Allow, Case, Error, NetworkOptionsResponse, OperationStat
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/network.ml#L444
 impl MinaMesh {
-  pub fn options(&self) -> Result<NetworkOptionsResponse> {
+  pub async fn network_options(&self) -> Result<NetworkOptionsResponse> {
     Ok(NetworkOptionsResponse::new(
       Version::new("1.4.9".into(), "1.0.0".into()),
       Allow {
