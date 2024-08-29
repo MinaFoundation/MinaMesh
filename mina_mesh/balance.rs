@@ -1,4 +1,4 @@
-use crate::common::{MinaAccountIdentifier, MinaMeshContext};
+use crate::{MinaAccountIdentifier, MinaMesh};
 use anyhow::Result;
 use cynic::QueryBuilder;
 pub use mesh::models::{
@@ -9,16 +9,18 @@ use mina_mesh_graphql::{
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/account.ml#L11
-pub async fn balance(context: &MinaMeshContext, request: AccountBalanceRequest) -> Result<AccountBalanceResponse> {
-  let account: MinaAccountIdentifier = (*request.account_identifier).try_into()?;
-  match request.block_identifier {
-    Some(block_identifier) => block_balance(&context, &account, *block_identifier).await,
-    None => frontier_balance(&context, &account).await,
+impl MinaMesh {
+  pub async fn balance(&self, request: AccountBalanceRequest) -> Result<AccountBalanceResponse> {
+    let account: MinaAccountIdentifier = (*request.account_identifier).try_into()?;
+    match request.block_identifier {
+      Some(block_identifier) => block_balance(&self, &account, *block_identifier).await,
+      None => frontier_balance(&self, &account).await,
+    }
   }
 }
 
 async fn block_balance(
-  context: &MinaMeshContext,
+  context: &MinaMesh,
   MinaAccountIdentifier { public_key, token_id }: &MinaAccountIdentifier,
   PartialBlockIdentifier { index, .. }: PartialBlockIdentifier,
 ) -> Result<AccountBalanceResponse> {
@@ -169,12 +171,10 @@ fn incremental_balance_between_slots(
 // Note: The `min_balance_at_slot` function is not provided in the original OCaml code,
 // so we'll declare it here as a separate function that needs to be implemented.
 
-async fn frontier_balance(
-  context: &MinaMeshContext,
-  address: &MinaAccountIdentifier,
-) -> Result<AccountBalanceResponse> {
+async fn frontier_balance(context: &MinaMesh, address: &MinaAccountIdentifier) -> Result<AccountBalanceResponse> {
   let result = context
-    .graphql(QueryBalance::build(QueryBalanceVariables {
+    .graphql_client
+    .send(QueryBalance::build(QueryBalanceVariables {
       public_key: PublicKey(address.public_key.clone()),
     }))
     .await?;

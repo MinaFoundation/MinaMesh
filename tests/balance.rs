@@ -1,13 +1,10 @@
-use mina_mesh::{
-  balance, AccountBalanceRequest, AccountIdentifier, MinaMeshContext, NetworkIdentifier, PartialBlockIdentifier,
-};
+use mina_mesh::{AccountBalanceRequest, AccountIdentifier, MinaMesh, NetworkIdentifier, PartialBlockIdentifier};
 
 #[tokio::test]
 async fn first() {
-  let context = MinaMeshContext::from_env().await.expect("");
-  let result = balance(
-    &context,
-    AccountBalanceRequest {
+  let mina_mesh = MinaMesh::from_env().await.expect("");
+  let result = mina_mesh
+    .balance(AccountBalanceRequest {
       account_identifier: Box::new(AccountIdentifier {
         // cspell:disable-next-line
         address: "B62qmjJeM4Fd4FVghfhgwoE1fkEexK2Rre8WYKMnbxVwB5vtKUwvgMv".into(),
@@ -24,9 +21,8 @@ async fn first() {
         network: "mainnet".into(),
         sub_network_identifier: None,
       }),
-    },
-  )
-  .await;
+    })
+    .await;
   println!("{:?}", result);
 }
 
