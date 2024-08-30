@@ -1,4 +1,7 @@
 {
+  "[dockerfile]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  },
   "[graphql]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
