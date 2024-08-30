@@ -20,7 +20,9 @@ impl MinaMesh {
       protocol_state,
       state_hash,
     } = first_block;
-    let oldest_block = sqlx::query_file!("sql/oldest_block.sql").fetch_one(&self.pool).await?;
+    let oldest_block = sqlx::query_file_unchecked!("sql/oldest_block.sql")
+      .fetch_one(&self.pool)
+      .await?;
     Ok(NetworkStatusResponse {
       peers: Some(peers.into_iter().map(|peer| Peer::new(peer.peer_id)).collect()),
       current_block_identifier: Box::new(BlockIdentifier::new(

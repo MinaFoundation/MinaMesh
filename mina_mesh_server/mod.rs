@@ -34,7 +34,7 @@ pub async fn serve() -> Result<()> {
     .route("/construction/submit", post(handle_construction_submit))
     .route("/call", post(handle_call))
     .with_state(mina_mesh);
-  let listener = TcpListener::bind("127.0.0.1:3000").await?;
+  let listener = TcpListener::bind("127.0.0.1:6465").await?;
   tracing::debug!("listening on {}", listener.local_addr()?);
   axum_serve(listener, router).await?;
   Ok(())
