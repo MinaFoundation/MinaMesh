@@ -18,6 +18,7 @@ reqwest
 retriable
 rustfmt
 sqlx
+thiserror
 walkdir
 webroot
 zkapp
