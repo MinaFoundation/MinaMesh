@@ -1,6 +1,6 @@
 SELECT
   b.block_winner_id,
-  b.chain_status :: text as chain_status,
+  b.chain_status::TEXT AS chain_status,
   b.creator_id,
   b.global_slot_since_genesis,
   b.global_slot_since_hard_fork,
@@ -20,21 +20,21 @@ SELECT
   b.sub_window_densities,
   b.timestamp,
   b.total_currency,
-  pk.value as creator,
-  bw.value as winner
+  pk.value AS creator,
+  bw.value AS winner
 FROM
   blocks b
-  INNER JOIN public_keys pk ON pk.id = b.creator_id
-  INNER JOIN public_keys bw ON bw.id = b.block_winner_id
+  INNER JOIN public_keys pk ON pk.id=b.creator_id
+  INNER JOIN public_keys bw ON bw.id=b.block_winner_id
 WHERE
-  b.height = (
-    select
-      MAX(b.height)
-    from
+  b.height=(
+    SELECT
+      max(b.height)
+    FROM
       blocks b
   )
 ORDER BY
-  timestamp ASC,
+  TIMESTAMP ASC,
   state_hash ASC
 LIMIT
   1

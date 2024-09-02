@@ -7,15 +7,15 @@ edition = "2021"
 [lib]
 path = "mod.rs"
 
-[build-dependencies]
-anyhow = "1.0.86"
-cynic-codegen = "3.7.3"
-cynic-querygen = "3.7.3"
-indoc = "2.0.5"
-
 [dependencies]
 anyhow = "1.0.86"
 cynic = { version = "3.7.3", features = ["http-reqwest-blocking"] }
 mesh = { path = "../mesh_generated" }
 reqwest = "0.12.7"
 serde = "1.0.209"
+
+[build-dependencies]
+anyhow = "1.0.86"
+cynic-codegen = "3.7.3"
+cynic-querygen = "3.7.3"
+indoc = "2.0.5"

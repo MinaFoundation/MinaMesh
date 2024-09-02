@@ -1,8 +1,12 @@
-use anyhow::{Context, Result};
-pub use mesh::models::{AccountIdentifier, NetworkIdentifier};
+use anyhow::Context;
+use anyhow::Result;
+pub use mesh::models::AccountIdentifier;
+pub use mesh::models::NetworkIdentifier;
 use mina_mesh_graphql::GraphQLClient;
-use serde::{Deserialize, Serialize};
-use sqlx::{PgPool, Type};
+use serde::Deserialize;
+use serde::Serialize;
+use sqlx::PgPool;
+use sqlx::Type;
 
 #[derive(Debug)]
 pub struct MinaMesh {

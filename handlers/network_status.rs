@@ -1,10 +1,15 @@
 // TODO: get genesis block identifier from env
 
 use crate::MinaMesh;
-use anyhow::{Context, Result};
+use anyhow::Context;
+use anyhow::Result;
 use cynic::QueryBuilder;
-pub use mesh::models::{BlockIdentifier, NetworkStatusResponse, Peer};
-use mina_mesh_graphql::{Block3, DaemonStatus3, QueryNetworkStatus};
+pub use mesh::models::BlockIdentifier;
+pub use mesh::models::NetworkStatusResponse;
+pub use mesh::models::Peer;
+use mina_mesh_graphql::Block3;
+use mina_mesh_graphql::DaemonStatus3;
+use mina_mesh_graphql::QueryNetworkStatus;
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/network.ml#L201
 impl MinaMesh {

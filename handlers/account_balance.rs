@@ -1,12 +1,21 @@
-use crate::{MinaAccountIdentifier, MinaMesh};
+use crate::MinaAccountIdentifier;
+use crate::MinaMesh;
 use anyhow::Result;
 use cynic::QueryBuilder;
-pub use mesh::models::{
-  AccountBalanceRequest, AccountBalanceResponse, Amount, BlockIdentifier, Currency, PartialBlockIdentifier,
-};
-use mina_mesh_graphql::{
-  Account, AnnotatedBalance, Balance, Length, PublicKey, QueryBalance, QueryBalanceVariables, StateHash,
-};
+pub use mesh::models::AccountBalanceRequest;
+pub use mesh::models::AccountBalanceResponse;
+pub use mesh::models::Amount;
+pub use mesh::models::BlockIdentifier;
+pub use mesh::models::Currency;
+pub use mesh::models::PartialBlockIdentifier;
+use mina_mesh_graphql::Account;
+use mina_mesh_graphql::AnnotatedBalance;
+use mina_mesh_graphql::Balance;
+use mina_mesh_graphql::Length;
+use mina_mesh_graphql::PublicKey;
+use mina_mesh_graphql::QueryBalance;
+use mina_mesh_graphql::QueryBalanceVariables;
+use mina_mesh_graphql::StateHash;
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/account.ml#L11
 impl MinaMesh {

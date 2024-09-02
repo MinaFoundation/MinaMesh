@@ -3,7 +3,12 @@
 
 use crate::MinaMesh;
 use anyhow::Result;
-pub use mesh::models::{Allow, Case, Error, NetworkOptionsResponse, OperationStatus, Version};
+pub use mesh::models::Allow;
+pub use mesh::models::Case;
+pub use mesh::models::Error;
+pub use mesh::models::NetworkOptionsResponse;
+pub use mesh::models::OperationStatus;
+pub use mesh::models::Version;
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/network.ml#L444
 impl MinaMesh {

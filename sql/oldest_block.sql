@@ -1,10 +1,10 @@
 SELECT
-  height,
+  HEIGHT,
   state_hash
 FROM
   blocks
 ORDER BY
-  timestamp ASC,
+  TIMESTAMP ASC,
   state_hash ASC
 LIMIT
   1

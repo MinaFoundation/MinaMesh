@@ -1,7 +1,10 @@
 use crate::MinaMesh;
 use anyhow::anyhow;
 use anyhow::Result;
-pub use mesh::models::{Block, BlockRequest, BlockResponse, PartialBlockIdentifier};
+pub use mesh::models::Block;
+pub use mesh::models::BlockRequest;
+pub use mesh::models::BlockResponse;
+pub use mesh::models::PartialBlockIdentifier;
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
 impl MinaMesh {
