@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n  height,\n  state_hash,\n  global_slot_since_genesis\nFROM\n  blocks\nWHERE\n  height = $1\n  AND chain_status = 'canonical'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "height",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "state_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "global_slot_since_genesis",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "0e7051b27b0ac377f73fb99b8ee92d5dc4763558fd76317d786fc94cdf683fdc"
+}

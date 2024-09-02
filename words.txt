@@ -17,7 +17,9 @@ querygen
 reqwest
 retriable
 rustfmt
+snarked
 sqlx
+thiserror
 walkdir
 webroot
 zkapp

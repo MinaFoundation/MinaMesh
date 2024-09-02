@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n  MAX(height) as max_canonical_height\nFROM\n  blocks\nWHERE\n  chain_status = 'canonical'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "max_canonical_height",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "339b7066a2179ec7f71c06592925317e4df9bff8034f205c1b31fbe371226c0b"
+}

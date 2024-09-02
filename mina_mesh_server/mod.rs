@@ -20,7 +20,6 @@ pub async fn serve() -> Result<()> {
     .route("/network/status", post(handle_network_status))
     .route("/network/options", post(handle_network_options))
     .route("/block", post(handle_block))
-    .route("/block/transaction", post(handle_block_transaction))
     .route("/mempool", post(handle_mempool))
     .route("/mempool/transaction", post(handle_mempool_transaction))
     .route("/account/balance", post(handle_account_balance))
@@ -67,7 +66,6 @@ macro_rules! create_handler {
 }
 
 create_handler!(block, BlockRequest);
-create_handler!(block_transaction, BlockTransactionRequest);
 create_handler!(network_list);
 create_handler!(network_status);
 create_handler!(network_options);

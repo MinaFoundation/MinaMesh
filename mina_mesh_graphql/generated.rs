@@ -4,6 +4,11 @@
 mod schema {}
 
 #[derive(cynic::QueryVariables, Debug)]
+pub struct QueryBalanceVariables {
+    pub public_key: PublicKey,
+}
+
+#[derive(cynic::QueryVariables, Debug)]
 pub struct QueryMempoolTransactionsVariables<'a> {
     pub hashes: Option<Vec<&'a str>>,
 }
@@ -11,11 +16,6 @@ pub struct QueryMempoolTransactionsVariables<'a> {
 #[derive(cynic::QueryVariables, Debug)]
 pub struct QueryBlockTransactionsVariables<'a> {
     pub state_hash: Option<&'a str>,
-}
-
-#[derive(cynic::QueryVariables, Debug)]
-pub struct QueryBalanceVariables {
-    pub public_key: PublicKey,
 }
 
 #[derive(cynic::QueryFragment, Debug)]

@@ -1,8 +1,8 @@
 use anyhow::{Context, Result};
 pub use mesh::models::{AccountIdentifier, NetworkIdentifier};
 use mina_mesh_graphql::GraphQLClient;
-use serde::Deserialize;
-use sqlx::PgPool;
+use serde::{Deserialize, Serialize};
+use sqlx::{PgPool, Type};
 
 #[derive(Debug)]
 pub struct MinaMesh {
@@ -50,4 +50,12 @@ fn default_genesis_block_identifier_height() -> i64 {
 
 fn default_genesis_block_identifier_state_hash() -> String {
   "3NK4BpDSekaqsG6tx8Nse2zJchRft2JpnbvMiog55WCr5xJZaKeP".to_string()
+}
+
+#[derive(Type, Debug, Serialize, Deserialize)]
+#[sqlx(type_name = "chain_status_type", rename_all = "lowercase")]
+pub enum ChainStatus {
+  Canonical,
+  Orphaned,
+  Pending,
 }
