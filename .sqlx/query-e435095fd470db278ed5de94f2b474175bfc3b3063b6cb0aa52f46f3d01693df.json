@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n  *\nFROM\n  timing_info\nWHERE\n  id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "account_identifier_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "initial_minimum_balance",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "cliff_time",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "cliff_amount",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "vesting_period",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "vesting_increment",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "e435095fd470db278ed5de94f2b474175bfc3b3063b6cb0aa52f46f3d01693df"
+}

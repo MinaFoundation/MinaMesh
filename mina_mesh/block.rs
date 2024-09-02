@@ -1,4 +1,5 @@
 use crate::common::MinaMesh;
+use anyhow::anyhow;
 use anyhow::Result;
 pub use mesh::models::{Block, BlockRequest, BlockResponse, PartialBlockIdentifier};
 
@@ -6,10 +7,11 @@ pub use mesh::models::{Block, BlockRequest, BlockResponse, PartialBlockIdentifie
 impl MinaMesh {
   pub async fn block(&self, request: BlockRequest) -> Result<BlockResponse> {
     let PartialBlockIdentifier { index, hash } = *request.block_identifier;
-    let metadata = if let (Some(index), Some(hash)) = (index, hash) {
-      sqlx::query_file!("sql/query_both.sql", hash, index)
+    let _metadata = if let (Some(index), Some(hash)) = (&index, &hash) {
+      sqlx::query_file!("sql/query_both.sql", index.to_string(), hash.parse::<i64>()?)
         .fetch_optional(&self.pool)
-        .await?;
+        .await?
+        .ok_or(anyhow!(""))?;
     } else if let Some(index) = index {
       let record = sqlx::query_file!("sql/max_canonical_height.sql")
         .fetch_one(&self.pool)
@@ -17,20 +19,24 @@ impl MinaMesh {
       if index <= record.max_canonical_height.unwrap() {
         sqlx::query_file!("sql/query_canonical.sql", index)
           .fetch_optional(&self.pool)
-          .await?;
+          .await?
+          .ok_or(anyhow!(""))?;
       } else {
         sqlx::query_file!("sql/query_pending.sql", index)
           .fetch_optional(&self.pool)
-          .await?;
+          .await?
+          .ok_or(anyhow!(""))?;
       }
-    } else if let Some(hash) = hash {
+    } else if let Some(hash) = &hash {
       sqlx::query_file!("sql/query_hash.sql", hash)
         .fetch_optional(&self.pool)
-        .await?;
+        .await?
+        .ok_or(anyhow!(""))?;
     } else {
       sqlx::query_file!("sql/query_best.sql")
         .fetch_optional(&self.pool)
-        .await?;
+        .await?
+        .ok_or(anyhow!(""))?;
     };
     // Check if the block exists (metadata is Some(...))
 
@@ -42,7 +48,7 @@ impl MinaMesh {
 
     // Populate the block response from the fetched metadata, if any.
 
-    Ok(unimplemented!())
+    unimplemented!();
     // Ok(BlockResponse {
     //   block: Some(Box::new(Block::new(
     //     BlockIdentifier::new(0, "".to_string()),

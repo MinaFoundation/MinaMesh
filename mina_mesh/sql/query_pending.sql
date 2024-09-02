@@ -1,7 +1,27 @@
 WITH RECURSIVE chain AS (
   (
     SELECT
-      *
+      block_winner_id,
+      chain_status :: text as chain_status,
+      creator_id,
+      global_slot_since_genesis,
+      global_slot_since_hard_fork,
+      height,
+      id,
+      last_vrf_output,
+      ledger_hash,
+      min_window_density,
+      next_epoch_data_id,
+      parent_hash,
+      parent_id,
+      proposed_protocol_version_id,
+      protocol_version_id,
+      snarked_ledger_hash_id,
+      staking_epoch_data_id,
+      state_hash,
+      sub_window_densities,
+      timestamp,
+      total_currency
     FROM
       blocks
     WHERE
@@ -20,7 +40,27 @@ WITH RECURSIVE chain AS (
   UNION
   ALL
   SELECT
-    b.*
+    b.block_winner_id,
+    b.chain_status :: text as chain_status,
+    b.creator_id,
+    b.global_slot_since_genesis,
+    b.global_slot_since_hard_fork,
+    b.height,
+    b.id,
+    b.last_vrf_output,
+    b.ledger_hash,
+    b.min_window_density,
+    b.next_epoch_data_id,
+    b.parent_hash,
+    b.parent_id,
+    b.proposed_protocol_version_id,
+    b.protocol_version_id,
+    b.snarked_ledger_hash_id,
+    b.staking_epoch_data_id,
+    b.state_hash,
+    b.sub_window_densities,
+    b.timestamp,
+    b.total_currency
   FROM
     blocks b
     INNER JOIN chain ON b.id = chain.parent_id
