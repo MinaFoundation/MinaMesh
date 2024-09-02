@@ -2,14 +2,24 @@
   "incremental": true,
   "indentWidth": 2,
   "lineWidth": 100,
-  "markdown": { "textWrap": "always" },
-  "includes": ["**.{json,md,sql,toml,yaml}"],
-  "excludes": [".git", "mesh-generated", "mesh-specifications", "target"],
+  "exec": {
+    "commands": [{
+      "command": "rustfmt --config imports_granularity=item",
+      "exts": ["rs"]
+    }, {
+      "command": "sql-formatter -c sql_fmt.json -l postgresql",
+      "exts": ["sql"]
+    }]
+  },
+  "markdown": {
+    "textWrap": "always"
+  },
+  "excludes": [".sqlx"],
   "plugins": [
+    "https://plugins.dprint.dev/exec-0.5.0.json@8d9972eee71fa1590e04873540421f3eda7674d0f1aae3d7c788615e7b7413d0",
     "https://plugins.dprint.dev/g-plane/pretty_yaml-v0.4.0.wasm",
     "https://plugins.dprint.dev/json-0.19.2.wasm",
     "https://plugins.dprint.dev/markdown-0.16.4.wasm",
-    "https://plugins.dprint.dev/toml-0.6.2.wasm",
-    "https://plugins.dprint.dev/sql-0.2.0.wasm"
+    "https://plugins.dprint.dev/toml-0.6.2.wasm"
   ]
 }

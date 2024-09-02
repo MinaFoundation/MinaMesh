@@ -1,4 +1,6 @@
-use anyhow::{bail, Context, Result};
+use anyhow::bail;
+use anyhow::Context;
+use anyhow::Result;
 use cynic::http::ReqwestExt;
 use reqwest::Client;
 

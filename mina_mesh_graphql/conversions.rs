@@ -1,5 +1,11 @@
-use crate::{SyncStatus, UserCommand};
-use mesh::models::{AccountIdentifier, Amount, Currency, Operation, OperationIdentifier, SyncStatus as MeshSyncStatus};
+use crate::SyncStatus;
+use crate::UserCommand;
+use mesh::models::AccountIdentifier;
+use mesh::models::Amount;
+use mesh::models::Currency;
+use mesh::models::Operation;
+use mesh::models::OperationIdentifier;
+use mesh::models::SyncStatus as MeshSyncStatus;
 
 impl Into<MeshSyncStatus> for SyncStatus {
   fn into(self) -> MeshSyncStatus {
