@@ -36,9 +36,8 @@ impl GraphQLClient {
         .collect::<Vec<String>>()
         .join("\n\n"));
     } else if let Some(data) = response.data {
-      Ok(data)
-    } else {
-      bail!("No data contained in GraphQL response");
+      return Ok(data);
     }
+    bail!("No data contained in GraphQL response");
   }
 }

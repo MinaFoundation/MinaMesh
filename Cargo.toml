@@ -14,6 +14,12 @@ path = "mod.rs"
 name = "mina-mesh"
 path = "main.rs"
 
+[build-dependencies]
+anyhow = "1.0.86"
+cynic-codegen = "3.7.3"
+cynic-querygen = "3.7.3"
+indoc = "2.0.5"
+
 [dependencies]
 anyhow = "1.0.86"
 axum = "0.7.5"
@@ -21,7 +27,6 @@ clap = { version = "4.5.11", features = ["derive"] }
 cynic = { version = "3.7.3", features = ["http-reqwest-blocking"] }
 envy = "0.4.2"
 mesh = { path = "./mesh_generated" }
-mina_mesh_graphql = { path = "./mina_mesh_graphql" }
 paste = "1.0.15"
 reqwest = { version = "0.12.5", features = ["json", "blocking"] }
 serde = { version = "1.0.204", features = ["derive"] }

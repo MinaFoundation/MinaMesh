@@ -1,5 +1,5 @@
-use crate::SyncStatus;
-use crate::UserCommand;
+use super::SyncStatus;
+use super::UserCommand;
 use mesh::models::AccountIdentifier;
 use mesh::models::Amount;
 use mesh::models::Currency;

@@ -1,3 +1,11 @@
+use crate::graphql::Account;
+use crate::graphql::AnnotatedBalance;
+use crate::graphql::Balance;
+use crate::graphql::Length;
+use crate::graphql::PublicKey;
+use crate::graphql::QueryBalance;
+use crate::graphql::QueryBalanceVariables;
+use crate::graphql::StateHash;
 use crate::MinaAccountIdentifier;
 use crate::MinaMesh;
 use anyhow::Result;
@@ -8,14 +16,6 @@ pub use mesh::models::Amount;
 pub use mesh::models::BlockIdentifier;
 pub use mesh::models::Currency;
 pub use mesh::models::PartialBlockIdentifier;
-use mina_mesh_graphql::Account;
-use mina_mesh_graphql::AnnotatedBalance;
-use mina_mesh_graphql::Balance;
-use mina_mesh_graphql::Length;
-use mina_mesh_graphql::PublicKey;
-use mina_mesh_graphql::QueryBalance;
-use mina_mesh_graphql::QueryBalanceVariables;
-use mina_mesh_graphql::StateHash;
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/account.ml#L11
 impl MinaMesh {
@@ -35,14 +35,14 @@ async fn block_balance(
 ) -> Result<AccountBalanceResponse> {
   // Get block data from the database
   let maybe_block = sqlx::query_file!("sql/maybe_block.sql", index)
-    .fetch_optional(&context.pool)
+    .fetch_optional(&context.pg_pool)
     .await?;
   match maybe_block {
     Some(block) => {
       // has canonical height / do we really need to do a different query?
       let maybe_account_balance_info =
         sqlx::query_file!("sql/maybe_account_balance_info.sql", public_key, index, token_id,)
-          .fetch_optional(&context.pool)
+          .fetch_optional(&context.pg_pool)
           .await?;
       match maybe_account_balance_info {
         None => {
@@ -70,7 +70,7 @@ async fn block_balance(
           println!("B");
           let last_relevant_command_balance = account_balance_info.balance.parse::<u64>()?;
           let timing_info = sqlx::query_file!("sql/timing_info.sql", account_balance_info.timing_id)
-            .fetch_optional(&context.pool)
+            .fetch_optional(&context.pg_pool)
             .await?;
           let liquid_balance = match timing_info {
             Some(timing_info) => {
