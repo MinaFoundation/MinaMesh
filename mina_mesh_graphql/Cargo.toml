@@ -1,6 +1,6 @@
 [package]
 name = "mina_mesh_graphql"
-version.workspace = true
+version = "0.1.0"
 build = "build.rs"
 edition = "2021"
 

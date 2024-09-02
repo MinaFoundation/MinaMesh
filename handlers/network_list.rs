@@ -1,4 +1,4 @@
-use crate::common::MinaMesh;
+use crate::MinaMesh;
 use anyhow::Result;
 use cynic::QueryBuilder;
 pub use mesh::models::{NetworkIdentifier, NetworkListResponse};

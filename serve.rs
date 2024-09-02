@@ -1,3 +1,4 @@
+use crate::MinaMesh;
 use anyhow::Result;
 use axum::{
   body::Body,
@@ -7,7 +8,6 @@ use axum::{
   routing::post,
   serve as axum_serve, Json, Router,
 };
-use mina_mesh::MinaMesh;
 use paste::paste;
 use std::sync::Arc;
 use tokio::net::TcpListener;
@@ -44,7 +44,7 @@ macro_rules! create_handler {
     paste! {
       async fn [<handle _ $name>](
         State(server): State<Arc<MinaMesh>>,
-        Json(req): Json<mina_mesh::$request_type>,
+        Json(req): Json<crate::$request_type>,
       ) -> Response {
         match server.$name(req).await {
           Ok(d) => (StatusCode::OK, Json(d)).into_response(),

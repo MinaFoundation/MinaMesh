@@ -1,4 +1,4 @@
-use crate::common::MinaMesh;
+use crate::MinaMesh;
 use anyhow::anyhow;
 use anyhow::Result;
 pub use mesh::models::{Block, BlockRequest, BlockResponse, PartialBlockIdentifier};

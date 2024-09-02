@@ -1,6 +1,6 @@
 // TODO: get genesis block identifier from env
 
-use crate::common::MinaMesh;
+use crate::MinaMesh;
 use anyhow::{Context, Result};
 use cynic::QueryBuilder;
 pub use mesh::models::{BlockIdentifier, NetworkStatusResponse, Peer};

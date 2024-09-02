@@ -1,6 +1,6 @@
 // TODO: why does OCaml implementation query for the `daemon_status` and `initial_peers`?
 
-use crate::common::MinaMesh;
+use crate::MinaMesh;
 use anyhow::Result;
 use cynic::QueryBuilder;
 pub use mesh::models::{MempoolResponse, TransactionIdentifier};

@@ -3,8 +3,8 @@
 use anyhow::{bail, Result};
 use clap::{Args, Parser, Subcommand};
 use cynic::{http::ReqwestExt, QueryBuilder};
+use mina_mesh::serve;
 use mina_mesh_graphql::QueryGenesisBlockIdentifier;
-use mina_mesh_server::serve;
 use tokio;
 
 #[derive(Debug, Parser)]
