@@ -1,5 +1,6 @@
-use crate::SyncStatus;
-use crate::UserCommand;
+use super::PublicKey;
+use super::SyncStatus;
+use super::UserCommand;
 use mesh::models::AccountIdentifier;
 use mesh::models::Amount;
 use mesh::models::Currency;
@@ -41,5 +42,11 @@ impl Into<Operation> for UserCommand {
       operation_identifier,
       related_operations: None,
     }
+  }
+}
+
+impl From<String> for PublicKey {
+  fn from(value: String) -> Self {
+    Self(value)
   }
 }

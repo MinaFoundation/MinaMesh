@@ -1,8 +1,8 @@
+use crate::graphql::QueryNetworkId;
 use crate::MinaMesh;
 use anyhow::Result;
 use cynic::QueryBuilder;
 use mesh::models::NetworkIdentifier;
-use mina_mesh_graphql::QueryNetworkId;
 
 pub async fn network_health_check(context: &MinaMesh, network_identifier: NetworkIdentifier) -> Result<bool> {
   let QueryNetworkId { network_id } = context.graphql_client.send(QueryNetworkId::build(())).await?;

@@ -12,32 +12,32 @@ impl MinaMesh {
     let PartialBlockIdentifier { index, hash } = *request.block_identifier;
     let _metadata = if let (Some(index), Some(hash)) = (&index, &hash) {
       sqlx::query_file!("sql/query_both.sql", index.to_string(), hash.parse::<i64>()?)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.pg_pool)
         .await?
         .ok_or(anyhow!(""))?;
     } else if let Some(index) = index {
       let record = sqlx::query_file!("sql/max_canonical_height.sql")
-        .fetch_one(&self.pool)
+        .fetch_one(&self.pg_pool)
         .await?;
       if index <= record.max_canonical_height.unwrap() {
         sqlx::query_file!("sql/query_canonical.sql", index)
-          .fetch_optional(&self.pool)
+          .fetch_optional(&self.pg_pool)
           .await?
           .ok_or(anyhow!(""))?;
       } else {
         sqlx::query_file!("sql/query_pending.sql", index)
-          .fetch_optional(&self.pool)
+          .fetch_optional(&self.pg_pool)
           .await?
           .ok_or(anyhow!(""))?;
       }
     } else if let Some(hash) = &hash {
       sqlx::query_file!("sql/query_hash.sql", hash)
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.pg_pool)
         .await?
         .ok_or(anyhow!(""))?;
     } else {
       sqlx::query_file!("sql/query_best.sql")
-        .fetch_optional(&self.pool)
+        .fetch_optional(&self.pg_pool)
         .await?
         .ok_or(anyhow!(""))?;
     };

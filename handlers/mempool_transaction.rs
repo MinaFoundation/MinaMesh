@@ -1,3 +1,5 @@
+use crate::graphql::QueryMempoolTransactions;
+use crate::graphql::QueryMempoolTransactionsVariables;
 use crate::MinaMesh;
 use anyhow::Result;
 use cynic::QueryBuilder;
@@ -5,8 +7,6 @@ pub use mesh::models::MempoolTransactionRequest;
 pub use mesh::models::MempoolTransactionResponse;
 pub use mesh::models::Transaction;
 pub use mesh::models::TransactionIdentifier;
-use mina_mesh_graphql::QueryMempoolTransactions;
-use mina_mesh_graphql::QueryMempoolTransactionsVariables;
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/mempool.ml#L137
 impl MinaMesh {

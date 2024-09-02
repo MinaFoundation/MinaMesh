@@ -1,4 +1,5 @@
 .DS_Store
 .env
 archive
+graphql/generated
 target

@@ -1,49 +1,54 @@
-use crate::MinaAccountIdentifier;
+use crate::graphql::Account;
+use crate::graphql::AnnotatedBalance;
+use crate::graphql::Balance;
+use crate::graphql::Length;
+use crate::graphql::QueryBalance;
+use crate::graphql::QueryBalanceVariables;
+use crate::graphql::StateHash;
 use crate::MinaMesh;
+use crate::ToTokenId;
 use anyhow::Result;
 use cynic::QueryBuilder;
 pub use mesh::models::AccountBalanceRequest;
 pub use mesh::models::AccountBalanceResponse;
+use mesh::models::AccountIdentifier;
 pub use mesh::models::Amount;
 pub use mesh::models::BlockIdentifier;
 pub use mesh::models::Currency;
 pub use mesh::models::PartialBlockIdentifier;
-use mina_mesh_graphql::Account;
-use mina_mesh_graphql::AnnotatedBalance;
-use mina_mesh_graphql::Balance;
-use mina_mesh_graphql::Length;
-use mina_mesh_graphql::PublicKey;
-use mina_mesh_graphql::QueryBalance;
-use mina_mesh_graphql::QueryBalanceVariables;
-use mina_mesh_graphql::StateHash;
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/account.ml#L11
 impl MinaMesh {
   pub async fn account_balance(&self, request: AccountBalanceRequest) -> Result<AccountBalanceResponse> {
-    let account: MinaAccountIdentifier = (*request.account_identifier).try_into()?;
+    let AccountIdentifier { address, metadata, .. } = *request.account_identifier;
     match request.block_identifier {
-      Some(block_identifier) => block_balance(&self, &account, *block_identifier).await,
-      None => frontier_balance(&self, &account).await,
+      Some(block_identifier) => block_balance(&self, address, metadata, *block_identifier).await,
+      None => frontier_balance(&self, address).await,
     }
   }
 }
 
 async fn block_balance(
   context: &MinaMesh,
-  MinaAccountIdentifier { public_key, token_id }: &MinaAccountIdentifier,
+  public_key: String,
+  metadata: Option<serde_json::Value>,
   PartialBlockIdentifier { index, .. }: PartialBlockIdentifier,
 ) -> Result<AccountBalanceResponse> {
   // Get block data from the database
   let maybe_block = sqlx::query_file!("sql/maybe_block.sql", index)
-    .fetch_optional(&context.pool)
+    .fetch_optional(&context.pg_pool)
     .await?;
   match maybe_block {
     Some(block) => {
       // has canonical height / do we really need to do a different query?
-      let maybe_account_balance_info =
-        sqlx::query_file!("sql/maybe_account_balance_info.sql", public_key, index, token_id,)
-          .fetch_optional(&context.pool)
-          .await?;
+      let maybe_account_balance_info = sqlx::query_file!(
+        "sql/maybe_account_balance_info.sql",
+        public_key,
+        index,
+        metadata.to_token_id()?
+      )
+      .fetch_optional(&context.pg_pool)
+      .await?;
       match maybe_account_balance_info {
         None => {
           return Ok(AccountBalanceResponse::new(
@@ -70,7 +75,7 @@ async fn block_balance(
           println!("B");
           let last_relevant_command_balance = account_balance_info.balance.parse::<u64>()?;
           let timing_info = sqlx::query_file!("sql/timing_info.sql", account_balance_info.timing_id)
-            .fetch_optional(&context.pool)
+            .fetch_optional(&context.pg_pool)
             .await?;
           let liquid_balance = match timing_info {
             Some(timing_info) => {
@@ -180,11 +185,11 @@ fn incremental_balance_between_slots(
 // Note: The `min_balance_at_slot` function is not provided in the original OCaml code,
 // so we'll declare it here as a separate function that needs to be implemented.
 
-async fn frontier_balance(context: &MinaMesh, address: &MinaAccountIdentifier) -> Result<AccountBalanceResponse> {
+async fn frontier_balance(context: &MinaMesh, public_key: String) -> Result<AccountBalanceResponse> {
   let result = context
     .graphql_client
     .send(QueryBalance::build(QueryBalanceVariables {
-      public_key: PublicKey(address.public_key.clone()),
+      public_key: public_key.into(),
     }))
     .await?;
   if let QueryBalance {
