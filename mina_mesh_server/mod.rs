@@ -5,12 +5,14 @@ use axum::{
   http::StatusCode,
   response::{IntoResponse, Response},
   routing::post,
+  routing::get,
   serve as axum_serve, Json, Router,
 };
 use mina_mesh::MinaMesh;
 use paste::paste;
 use std::sync::Arc;
 use tokio::net::TcpListener;
+
 
 pub async fn serve() -> Result<()> {
   tracing_subscriber::fmt::init();
@@ -20,6 +22,9 @@ pub async fn serve() -> Result<()> {
     .route("/network/status", post(handle_network_status))
     .route("/network/options", post(handle_network_options))
     .route("/block", post(handle_block))
+    .route("/", get(|| -> &'static str {
+      "Hello"
+    }))
     .route("/block/transaction", post(handle_block_transaction))
     .route("/mempool", post(handle_mempool))
     .route("/mempool/transaction", post(handle_mempool_transaction))
