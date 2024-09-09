@@ -1,6 +1,6 @@
 SELECT
   b.block_winner_id,
-  b.chain_status::TEXT AS chain_status,
+  b.chain_status::TEXT,
   b.creator_id,
   b.global_slot_since_genesis,
   b.global_slot_since_hard_fork,

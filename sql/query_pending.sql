@@ -2,46 +2,46 @@ WITH RECURSIVE
   chain AS (
     (
       SELECT
-        block_winner_id,
-        chain_status::TEXT AS chain_status,
-        creator_id,
-        global_slot_since_genesis,
-        global_slot_since_hard_fork,
-        HEIGHT,
-        id,
-        last_vrf_output,
-        ledger_hash,
-        min_window_density,
-        next_epoch_data_id,
-        parent_hash,
-        parent_id,
-        proposed_protocol_version_id,
-        protocol_version_id,
-        snarked_ledger_hash_id,
-        staking_epoch_data_id,
-        state_hash,
-        sub_window_densities,
-        TIMESTAMP,
-        total_currency
+        b1.block_winner_id,
+        b1.chain_status::TEXT,
+        b1.creator_id,
+        b1.global_slot_since_genesis,
+        b1.global_slot_since_hard_fork,
+        b1.height,
+        b1.id,
+        b1.last_vrf_output,
+        b1.ledger_hash,
+        b1.min_window_density,
+        b1.next_epoch_data_id,
+        b1.parent_hash,
+        b1.parent_id,
+        b1.proposed_protocol_version_id,
+        b1.protocol_version_id,
+        b1.snarked_ledger_hash_id,
+        b1.staking_epoch_data_id,
+        b1.state_hash,
+        b1.sub_window_densities,
+        b1.timestamp,
+        b1.total_currency
       FROM
-        blocks
+        blocks b1
       WHERE
         HEIGHT=(
           SELECT
-            max(HEIGHT)
+            max(b2.height)
           FROM
-            blocks
+            blocks b2
         )
       ORDER BY
-        TIMESTAMP ASC,
-        state_hash ASC
+        b1.timestamp ASC,
+        b1.state_hash ASC
       LIMIT
         1
     )
     UNION ALL
     SELECT
       b.block_winner_id,
-      b.chain_status::TEXT AS chain_status,
+      b.chain_status::TEXT,
       b.creator_id,
       b.global_slot_since_genesis,
       b.global_slot_since_hard_fork,
@@ -68,12 +68,32 @@ WITH RECURSIVE
       AND chain.chain_status<>'canonical'
   )
 SELECT
-  c.*,
-  pk.value AS creator,
-  bw.value AS winner
+  c.block_winner_id,
+  c.chain_status::TEXT,
+  c.creator_id,
+  c.global_slot_since_genesis,
+  c.global_slot_since_hard_fork,
+  c.height,
+  c.id,
+  c.last_vrf_output,
+  c.ledger_hash,
+  c.min_window_density,
+  c.next_epoch_data_id,
+  c.parent_hash,
+  c.parent_id,
+  c.proposed_protocol_version_id,
+  c.protocol_version_id,
+  c.snarked_ledger_hash_id,
+  c.staking_epoch_data_id,
+  c.state_hash,
+  c.sub_window_densities,
+  c.timestamp,
+  c.total_currency,
+  creator_pk.value AS creator,
+  block_winner_pk.value AS winner
 FROM
   chain c
-  INNER JOIN public_keys pk ON pk.id=c.creator_id
-  INNER JOIN public_keys bw ON bw.id=c.block_winner_id
+  INNER JOIN public_keys creator_pk ON creator_pk.id=c.creator_id
+  INNER JOIN public_keys block_winner_pk ON block_winner_pk.id=c.block_winner_id
 WHERE
   c.height=$1

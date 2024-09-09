@@ -1,6 +1,5 @@
 use anyhow::Result;
 use mina_mesh::{AccountBalanceRequest, AccountIdentifier, NetworkIdentifier, PartialBlockIdentifier, ServeCommand};
-use std::default::Default;
 
 #[tokio::test]
 async fn first() -> Result<()> {
