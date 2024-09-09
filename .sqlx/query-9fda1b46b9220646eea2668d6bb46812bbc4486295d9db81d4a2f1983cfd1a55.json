@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT\n  *\nFROM\n  timing_info\nWHERE\n  id = $1\n",
+  "query": "SELECT\n  *\nFROM\n  timing_info\nWHERE\n  id=$1\n",
   "describe": {
     "columns": [
       {
@@ -54,5 +54,5 @@
       false
     ]
   },
-  "hash": "e435095fd470db278ed5de94f2b474175bfc3b3063b6cb0aa52f46f3d01693df"
+  "hash": "9fda1b46b9220646eea2668d6bb46812bbc4486295d9db81d4a2f1983cfd1a55"
 }

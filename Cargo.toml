@@ -6,14 +6,6 @@ edition = "2021"
 license = "Apache-2.0"
 description = "A Rust Server Implementation of the Mesh Spec for Mina"
 
-[lib]
-name = "mina_mesh"
-path = "mod.rs"
-
-[[bin]]
-name = "mina-mesh"
-path = "main.rs"
-
 [build-dependencies]
 anyhow = "1.0.86"
 cynic-codegen = "3.7.3"
@@ -23,7 +15,7 @@ indoc = "2.0.5"
 [dependencies]
 anyhow = "1.0.86"
 axum = "0.7.5"
-clap = { version = "4.5.11", features = ["derive"] }
+clap = { version = "4.5.11", features = ["derive", "env"] }
 cynic = { version = "3.7.3", features = ["http-reqwest-blocking"] }
 envy = "0.4.2"
 mesh = { path = "./mesh_generated" }

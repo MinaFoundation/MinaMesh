@@ -2,8 +2,8 @@
   "$schema": "https://unpkg.com/graphql-config@5.0.3/config-schema.json",
   "projects": {
     "mina": {
-      "schema": "graphql/schema/mina_schema.graphql",
-      "documents": ["graphql/*.graphql"]
+      "schema": "src/graphql/schema/mina_schema.graphql",
+      "documents": ["src/graphql/*.graphql"]
     }
   }
 }

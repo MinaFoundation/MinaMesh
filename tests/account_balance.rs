@@ -1,12 +1,10 @@
-use mina_mesh::AccountBalanceRequest;
-use mina_mesh::AccountIdentifier;
-use mina_mesh::MinaMesh;
-use mina_mesh::NetworkIdentifier;
-use mina_mesh::PartialBlockIdentifier;
+use anyhow::Result;
+use mina_mesh::{AccountBalanceRequest, AccountIdentifier, NetworkIdentifier, PartialBlockIdentifier, ServeCommand};
+use std::default::Default;
 
 #[tokio::test]
-async fn first() {
-  let mina_mesh = MinaMesh::from_env().await.expect("");
+async fn first() -> Result<()> {
+  let mina_mesh = ServeCommand::default().to_mina_mesh().await?;
   let result = mina_mesh
     .account_balance(AccountBalanceRequest {
       account_identifier: Box::new(AccountIdentifier {
@@ -28,6 +26,7 @@ async fn first() {
     })
     .await;
   println!("{:?}", result);
+  Ok(())
 }
 
 // TODO: add tests for accounts with similar properties to these:
