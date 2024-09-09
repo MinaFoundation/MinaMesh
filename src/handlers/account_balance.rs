@@ -51,7 +51,7 @@ async fn block_balance(
       .await?;
       match maybe_account_balance_info {
         None => {
-          return Ok(AccountBalanceResponse::new(
+          Ok(AccountBalanceResponse::new(
             BlockIdentifier {
               hash: block.state_hash,
               index: block.height,
@@ -69,7 +69,7 @@ async fn block_balance(
                 "total_balance": "0".to_string()
               })),
             }],
-          ));
+          ))
         }
         Some(account_balance_info) => {
           println!("B");

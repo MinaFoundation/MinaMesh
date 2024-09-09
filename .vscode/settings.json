@@ -1,4 +1,7 @@
 {
+  "[dockerfile]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  },
   "[graphql]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -12,7 +15,7 @@
     "editor.defaultFormatter": "dprint.dprint"
   },
   "[rust]": {
-    "editor.defaultFormatter": "dprint.dprint"
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
   },
   "[sql]": {
     "editor.defaultFormatter": "dprint.dprint"

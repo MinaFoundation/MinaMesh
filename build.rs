@@ -6,11 +6,11 @@ use std::path::PathBuf;
 fn main() -> Result<()> {
   // TODO: why is the following line not working?
   // println!("cargo:rerun-if-changed=../mina_mesh_graphql");
-  let mina_schema = std::fs::read_to_string("graphql/schema/mina_schema.graphql")?;
+  let mina_schema = std::fs::read_to_string("src/graphql/schema/mina_schema.graphql")?;
   cynic_codegen::register_schema("mina")
     .from_sdl(mina_schema.as_str())?
     .as_default()?;
-  let document_paths = fs::read_dir("graphql")?
+  let document_paths = fs::read_dir("src/graphql")?
     .filter_map(|entry_result| match entry_result {
       Ok(entry) => {
         let entry_path = entry.path();
@@ -34,7 +34,7 @@ fn main() -> Result<()> {
   .to_string();
   let document_contents = document_paths
     .iter()
-    .map(|document_path| std::fs::read_to_string(document_path))
+    .map(std::fs::read_to_string)
     .collect::<Result<Vec<String>, _>>()?
     .join("\n\n");
   code.push_str(
@@ -49,7 +49,7 @@ fn main() -> Result<()> {
     .as_str(),
   );
   // let formatted_code =
-  let mut mod_file = fs::File::create("graphql/generated.rs")?;
+  let mut mod_file = fs::File::create("src/graphql/generated.rs")?;
   mod_file.write_all(code.as_bytes())?;
   Ok(())
 }

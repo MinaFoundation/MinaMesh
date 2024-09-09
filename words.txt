@@ -8,6 +8,7 @@ hardfork
 harrysolovay
 indoc
 joaosreis
+johnmarcou
 microschemas
 mina
 MINAMESH

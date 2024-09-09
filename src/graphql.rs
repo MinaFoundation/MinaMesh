@@ -1,8 +1,7 @@
 mod client;
 mod conversions;
-mod fetch;
+#[rustfmt::skip]
 mod generated;
 
 pub use client::*;
-pub use fetch::*;
 pub use generated::*;

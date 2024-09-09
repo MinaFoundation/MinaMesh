@@ -3,19 +3,19 @@
   "indentWidth": 2,
   "lineWidth": 100,
   "exec": {
-    "commands": [{
-      "command": "rustfmt --config imports_granularity=item",
-      "exts": ["rs"]
-    }, {
-      "command": "sql-formatter -c sql_fmt.json -l postgresql",
-      "exts": ["sql"]
-    }]
+    "commands": [
+      {
+        "command": "sql-formatter -c sql_fmt.json -l postgresql",
+        "exts": ["sql"]
+      }
+    ]
   },
   "markdown": {
     "textWrap": "always"
   },
-  "excludes": [".sqlx", "graphql/generated.rs"],
+  "excludes": [".sqlx", "src/graphql/generated.rs"],
   "plugins": [
+    "https://plugins.dprint.dev/dockerfile-0.3.2.wasm",
     "https://plugins.dprint.dev/exec-0.5.0.json@8d9972eee71fa1590e04873540421f3eda7674d0f1aae3d7c788615e7b7413d0",
     "https://plugins.dprint.dev/g-plane/pretty_yaml-v0.4.0.wasm",
     "https://plugins.dprint.dev/json-0.19.2.wasm",
