@@ -1,10 +1,9 @@
 use anyhow::Result;
-use mina_mesh::{AccountBalanceRequest, AccountIdentifier, NetworkIdentifier, PartialBlockIdentifier, ServeCommand};
-use std::default::Default;
+use mina_mesh::{AccountBalanceRequest, AccountIdentifier, MinaMeshConfig, NetworkIdentifier, PartialBlockIdentifier};
 
 #[tokio::test]
 async fn first() -> Result<()> {
-  let mina_mesh = ServeCommand::default().to_mina_mesh().await?;
+  let mina_mesh = MinaMeshConfig::default().to_mina_mesh().await?;
   let result = mina_mesh
     .account_balance(AccountBalanceRequest {
       account_identifier: Box::new(AccountIdentifier {

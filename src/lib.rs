@@ -1,4 +1,5 @@
 mod commands;
+mod config;
 mod errors;
 mod graphql;
 pub mod handlers;
@@ -13,7 +14,9 @@ use axum::{
   routing::post,
   serve as axum_serve, Json, Router,
 };
+use clap::Args;
 pub use commands::*;
+pub use config::*;
 pub use errors::*;
 pub use handlers::*;
 pub use mesh::models::{AccountIdentifier, BlockIdentifier, NetworkIdentifier};
@@ -31,7 +34,7 @@ pub struct MinaMesh {
 }
 
 impl MinaMesh {
-  pub async fn serve(self) -> Result<()> {
+  pub async fn serve(self, ServeArgs { host, port }: ServeArgs) -> Result<()> {
     let router = Router::new()
       .route("/network/list", post(handle_network_list))
       .route("/network/status", post(handle_network_status))
@@ -50,7 +53,7 @@ impl MinaMesh {
       .route("/construction/submit", post(handle_construction_submit))
       .route("/call", post(handle_call))
       .with_state(Arc::new(self));
-    let listener = TcpListener::bind("127.0.0.1:3000").await?;
+    let listener = TcpListener::bind(format!("{}:{}", host, port)).await?;
     tracing::debug!("listening on {}", listener.local_addr()?);
     axum_serve(listener, router).await?;
     Ok(())
@@ -106,4 +109,29 @@ fn anyhow_error_as_response(e: anyhow::Error) -> Response {
     .status(StatusCode::INTERNAL_SERVER_ERROR)
     .body(Body::from(e.to_string()))
     .unwrap()
+}
+
+#[derive(Debug, Args)]
+pub struct ServeArgs {
+  #[arg(default_value_t = default_host())]
+  host: String,
+  #[arg(default_value_t = default_port())]
+  port: u16,
+}
+
+impl Default for ServeArgs {
+  fn default() -> Self {
+    Self {
+      host: default_host(),
+      port: default_port(),
+    }
+  }
+}
+
+fn default_host() -> String {
+  "127.0.0.1".to_string()
+}
+
+fn default_port() -> u16 {
+  3000
 }
