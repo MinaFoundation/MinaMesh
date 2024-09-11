@@ -1,3 +1,7 @@
+use std::num::ParseIntError;
+
+use cynic::http::CynicReqwestError;
+use sqlx::Error as SqlxError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -104,6 +108,7 @@ impl MinaMeshError {
 
   pub fn description(&self) -> String {
     match self {
+      MinaMeshError::Sql(s) => s.clone(),
       _ => unimplemented!(),
     }
   }
@@ -118,5 +123,23 @@ impl MinaMeshError {
     match self {
       _ => unimplemented!(),
     }
+  }
+}
+
+impl From<SqlxError> for MinaMeshError {
+  fn from(value: SqlxError) -> Self {
+    MinaMeshError::Sql(value.to_string())
+  }
+}
+
+impl From<ParseIntError> for MinaMeshError {
+  fn from(value: ParseIntError) -> Self {
+    MinaMeshError::Exception(value.to_string())
+  }
+}
+
+impl From<CynicReqwestError> for MinaMeshError {
+  fn from(value: CynicReqwestError) -> Self {
+    MinaMeshError::GraphqlMinaQuery(value.to_string())
   }
 }

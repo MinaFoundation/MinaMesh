@@ -1,7 +1,5 @@
 use anyhow::Result;
-use std::fs;
-use std::io::Write;
-use std::path::PathBuf;
+use std::{fs, io::Write, path::PathBuf};
 
 fn main() -> Result<()> {
   // TODO: why is the following line not working?
@@ -38,14 +36,10 @@ fn main() -> Result<()> {
     .collect::<Result<Vec<String>, _>>()?
     .join("\n\n");
   code.push_str(
-    cynic_querygen::document_to_fragment_structs(
-      document_contents,
-      mina_schema,
-      &cynic_querygen::QueryGenOptions {
-        schema_module_name: "mina".to_string(),
-        schema_name: Some("mina".to_string()),
-      },
-    )?
+    cynic_querygen::document_to_fragment_structs(document_contents, mina_schema, &cynic_querygen::QueryGenOptions {
+      schema_module_name: "mina".to_string(),
+      schema_name: Some("mina".to_string()),
+    })?
     .as_str(),
   );
   // let formatted_code =

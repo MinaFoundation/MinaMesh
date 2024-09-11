@@ -1,13 +1,12 @@
 mod commands;
 mod config;
-mod errors;
+mod error;
 mod graphql;
 pub mod handlers;
 mod util;
 
 use anyhow::Result;
 use axum::{
-  body::Body,
   extract::State,
   http::StatusCode,
   response::{IntoResponse, Response},
@@ -17,7 +16,7 @@ use axum::{
 use clap::Args;
 pub use commands::*;
 pub use config::*;
-pub use errors::*;
+pub use error::*;
 pub use handlers::*;
 pub use mesh::models::{AccountIdentifier, BlockIdentifier, NetworkIdentifier};
 use paste::paste;
@@ -69,7 +68,7 @@ macro_rules! create_handler {
       ) -> Response {
         match server.$name(req).await {
           Ok(d) => (StatusCode::OK, Json(d)).into_response(),
-          Err(e) => anyhow_error_as_response(e),
+          Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
         }
       }
     }
@@ -79,7 +78,7 @@ macro_rules! create_handler {
       async fn [<handle _ $name>](State(server): State<Arc<MinaMesh>>) -> Response {
         match server.$name().await {
           Ok(d) => (StatusCode::OK, Json(d)).into_response(),
-          Err(e) => anyhow_error_as_response(e),
+          Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
         }
       }
     }
@@ -102,14 +101,6 @@ create_handler!(construction_parse, ConstructionParseRequest);
 create_handler!(construction_hash, ConstructionHashRequest);
 create_handler!(construction_submit, ConstructionSubmitRequest);
 create_handler!(call, CallRequest);
-
-// TODO
-fn anyhow_error_as_response(e: anyhow::Error) -> Response {
-  Response::builder()
-    .status(StatusCode::INTERNAL_SERVER_ERROR)
-    .body(Body::from(e.to_string()))
-    .unwrap()
-}
 
 #[derive(Debug, Args)]
 pub struct ServeArgs {
