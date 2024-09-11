@@ -3,6 +3,7 @@ RUSTFLAGS
 codegen
 coinbases
 deamon
+dotenv
 dprint
 dsherret
 dyntest
@@ -23,6 +24,7 @@ microschemas
 mina
 navroot
 nocapture
+openapi
 preprocess
 querygen
 reqwest

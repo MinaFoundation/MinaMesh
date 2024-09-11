@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use aide::scalar::Scalar;
 use anyhow::Result;
 use axum::{
   debug_handler,
@@ -27,8 +28,12 @@ pub struct ServeCommand {
 
 impl ServeCommand {
   pub async fn run(self) -> Result<()> {
+    dotenv::dotenv()?;
+    tracing_subscriber::fmt::init();
+    let scalar_handler = Scalar::new(OPENAPI_SPEC.to_string()).with_title("Mina Mesh").axum_handler();
     let mina_mesh = self.config.to_mina_mesh().await?;
     let router = Router::new()
+      .route("/", get(scalar_handler))
       .route("/account/balance", post(handle_account_balance))
       .route("/block", post(handle_block))
       .route("/call", post(handle_call))
@@ -100,3 +105,6 @@ async fn handle_implemented_methods() -> impl IntoResponse {
     "network_status",
   ])
 }
+
+static OPENAPI_SPEC: &str =
+  "https://raw.githubusercontent.com/coinbase/mesh-specifications/7f9f2f691f1ab1f7450e376d031e60d997dacbde/api.json";

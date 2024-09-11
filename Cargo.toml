@@ -13,10 +13,12 @@ cynic-querygen = "3.7.3"
 indoc = "2.0.5"
 
 [dependencies]
+aide = { version = "0.13.4", features = ["axum", "scalar"] }
 anyhow = "1.0.86"
 axum = { version = "0.7.5", features = ["macros"] }
 clap = { version = "4.5.11", features = ["derive", "env"] }
 cynic = { version = "3.7.3", features = ["http-reqwest-blocking"] }
+dotenv = "0.15.0"
 envy = "0.4.2"
 futures = "0.3.30"
 mesh = { path = "./mesh_generated" }
