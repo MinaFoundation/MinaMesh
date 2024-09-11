@@ -1,26 +1,22 @@
 // TODO: get genesis block identifier from env
 
-use crate::graphql::Block3;
-use crate::graphql::DaemonStatus3;
-use crate::graphql::QueryNetworkStatus;
-use crate::MinaMesh;
-use anyhow::Context;
-use anyhow::Result;
+use crate::{
+  graphql::{Block3, DaemonStatus3, QueryNetworkStatus},
+  MinaMesh, MinaMeshError,
+};
 use cynic::QueryBuilder;
-pub use mesh::models::BlockIdentifier;
-pub use mesh::models::NetworkStatusResponse;
-pub use mesh::models::Peer;
+pub use mesh::models::{BlockIdentifier, NetworkStatusResponse, Peer};
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/network.ml#L201
 impl MinaMesh {
-  pub async fn network_status(&self) -> Result<NetworkStatusResponse> {
+  pub async fn network_status(&self) -> Result<NetworkStatusResponse, MinaMeshError> {
     let QueryNetworkStatus {
       best_chain,
       daemon_status: DaemonStatus3 { peers },
       sync_status,
     } = self.graphql_client.send(QueryNetworkStatus::build(())).await?;
-    let blocks = best_chain.context("")?;
-    let first_block = blocks.first().context("")?;
+    let blocks = best_chain.ok_or(MinaMeshError::ChainInfoMissing)?;
+    let first_block = blocks.first().ok_or(MinaMeshError::ChainInfoMissing)?;
     let Block3 {
       protocol_state,
       state_hash,

@@ -1,124 +1,108 @@
-use crate::graphql::Account;
-use crate::graphql::AnnotatedBalance;
-use crate::graphql::Balance;
-use crate::graphql::Length;
-use crate::graphql::QueryBalance;
-use crate::graphql::QueryBalanceVariables;
-use crate::graphql::StateHash;
-use crate::MinaMesh;
-use crate::ToTokenId;
-use anyhow::Result;
+use crate::{
+  graphql::{Account, AnnotatedBalance, Balance, Length, QueryBalance, QueryBalanceVariables, StateHash},
+  MinaMesh, MinaMeshError, ToTokenId,
+};
 use cynic::QueryBuilder;
-pub use mesh::models::AccountBalanceRequest;
-pub use mesh::models::AccountBalanceResponse;
 use mesh::models::AccountIdentifier;
-pub use mesh::models::Amount;
-pub use mesh::models::BlockIdentifier;
-pub use mesh::models::Currency;
-pub use mesh::models::PartialBlockIdentifier;
+pub use mesh::models::{
+  AccountBalanceRequest, AccountBalanceResponse, Amount, BlockIdentifier, Currency, PartialBlockIdentifier,
+};
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/account.ml#L11
 impl MinaMesh {
-  pub async fn account_balance(&self, request: AccountBalanceRequest) -> Result<AccountBalanceResponse> {
+  pub async fn account_balance(&self, request: AccountBalanceRequest) -> Result<AccountBalanceResponse, MinaMeshError> {
     let AccountIdentifier { address, metadata, .. } = *request.account_identifier;
     match request.block_identifier {
-      Some(block_identifier) => block_balance(&self, address, metadata, *block_identifier).await,
-      None => frontier_balance(&self, address).await,
+      Some(block_identifier) => block_balance(self, address, metadata, *block_identifier).await,
+      None => frontier_balance(self, address).await,
     }
   }
 }
 
+// TODO: can we get the block via the hash and not the index?
 async fn block_balance(
   context: &MinaMesh,
   public_key: String,
   metadata: Option<serde_json::Value>,
   PartialBlockIdentifier { index, .. }: PartialBlockIdentifier,
-) -> Result<AccountBalanceResponse> {
-  // Get block data from the database
-  let maybe_block = sqlx::query_file!("sql/maybe_block.sql", index)
+) -> Result<AccountBalanceResponse, MinaMeshError> {
+  let block = sqlx::query_file!("sql/maybe_block.sql", index)
     .fetch_optional(&context.pg_pool)
-    .await?;
-  match maybe_block {
-    Some(block) => {
-      // has canonical height / do we really need to do a different query?
-      let maybe_account_balance_info = sqlx::query_file!(
-        "sql/maybe_account_balance_info.sql",
-        public_key,
-        index,
-        metadata.to_token_id()?
-      )
-      .fetch_optional(&context.pg_pool)
-      .await?;
-      match maybe_account_balance_info {
-        None => {
-          Ok(AccountBalanceResponse::new(
-            BlockIdentifier {
-              hash: block.state_hash,
-              index: block.height,
-            },
-            vec![Amount {
-              currency: Box::new(Currency {
-                symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
-                decimals: 9,
-                metadata: None,
-              }),
-              value: "0".to_string(),
-              metadata: Some(serde_json::json!({
-                "locked_balance": "0".to_string(),
-                "liquid_balance": "0".to_string(),
-                "total_balance": "0".to_string()
-              })),
-            }],
-          ))
-        }
-        Some(account_balance_info) => {
-          println!("B");
-          let last_relevant_command_balance = account_balance_info.balance.parse::<u64>()?;
-          let timing_info = sqlx::query_file!("sql/timing_info.sql", account_balance_info.timing_id)
-            .fetch_optional(&context.pg_pool)
-            .await?;
-          let liquid_balance = match timing_info {
-            Some(timing_info) => {
-              let incremental_balance = incremental_balance_between_slots(
-                account_balance_info.block_global_slot_since_genesis as u32,
-                block.global_slot_since_genesis as u32,
-                timing_info.cliff_time as u32,
-                timing_info.cliff_amount.parse::<u64>()?,
-                timing_info.vesting_period as u32,
-                timing_info.vesting_increment.parse::<u64>()?,
-                timing_info.initial_minimum_balance.parse::<u64>()?,
-              );
-              last_relevant_command_balance + incremental_balance
-            }
-            None => last_relevant_command_balance,
-          };
-          let total_balance = last_relevant_command_balance;
-          let locked_balance = total_balance - liquid_balance;
-          Ok(AccountBalanceResponse::new(
-            BlockIdentifier {
-              hash: block.state_hash,
-              index: block.height,
-            },
-            vec![Amount {
-              currency: Box::new(Currency {
-                symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
-                decimals: 9,
-                metadata: None,
-              }),
-              value: liquid_balance.to_string(),
-              metadata: Some(serde_json::json!({
-                "locked_balance": locked_balance.to_string(),
-                "liquid_balance": liquid_balance.to_string(),
-                "total_balance": total_balance.to_string()
-              })),
-            }],
-          ))
-        }
-      }
-    }
+    .await?
+    .ok_or(MinaMeshError::BlockMissing(index.unwrap().to_string()))?;
+  // has canonical height / do we really need to do a different query?
+  let maybe_account_balance_info = sqlx::query_file!(
+    "sql/maybe_account_balance_info.sql",
+    public_key,
+    index,
+    metadata.to_token_id()?
+  )
+  .fetch_optional(&context.pg_pool)
+  .await?;
+  match maybe_account_balance_info {
     None => {
-      // TODO: return proper error message
-      anyhow::bail!("Block not found")
+      Ok(AccountBalanceResponse::new(
+        BlockIdentifier {
+          hash: block.state_hash,
+          index: block.height,
+        },
+        vec![Amount {
+          currency: Box::new(Currency {
+            symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
+            decimals: 9,
+            metadata: None,
+          }),
+          value: "0".to_string(),
+          metadata: Some(serde_json::json!({
+            "locked_balance": "0".to_string(),
+            "liquid_balance": "0".to_string(),
+            "total_balance": "0".to_string()
+          })),
+        }],
+      ))
+    }
+    Some(account_balance_info) => {
+      println!("B");
+      let last_relevant_command_balance = account_balance_info.balance.parse::<u64>()?;
+      let timing_info = sqlx::query_file!("sql/timing_info.sql", account_balance_info.timing_id)
+        .fetch_optional(&context.pg_pool)
+        .await?;
+      let liquid_balance = match timing_info {
+        Some(timing_info) => {
+          let incremental_balance = incremental_balance_between_slots(
+            account_balance_info.block_global_slot_since_genesis as u32,
+            block.global_slot_since_genesis as u32,
+            timing_info.cliff_time as u32,
+            timing_info.cliff_amount.parse::<u64>()?,
+            timing_info.vesting_period as u32,
+            timing_info.vesting_increment.parse::<u64>()?,
+            timing_info.initial_minimum_balance.parse::<u64>()?,
+          );
+          last_relevant_command_balance + incremental_balance
+        }
+        None => last_relevant_command_balance,
+      };
+      let total_balance = last_relevant_command_balance;
+      let locked_balance = total_balance - liquid_balance;
+      Ok(AccountBalanceResponse::new(
+        BlockIdentifier {
+          hash: block.state_hash,
+          index: block.height,
+        },
+        vec![Amount {
+          currency: Box::new(Currency {
+            symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
+            decimals: 9,
+            metadata: None,
+          }),
+          value: liquid_balance.to_string(),
+          metadata: Some(serde_json::json!({
+            "locked_balance": locked_balance.to_string(),
+            "liquid_balance": liquid_balance.to_string(),
+            "total_balance": total_balance.to_string()
+          })),
+        }],
+      ))
     }
   }
 }
@@ -182,14 +166,15 @@ fn incremental_balance_between_slots(
   min_balance_at_start_slot.saturating_sub(min_balance_at_end_slot)
 }
 
-// Note: The `min_balance_at_slot` function is not provided in the original OCaml code,
-// so we'll declare it here as a separate function that needs to be implemented.
+// Note: The `min_balance_at_slot` function is not provided in the original
+// OCaml code, so we'll declare it here as a separate function that needs to be
+// implemented.
 
-async fn frontier_balance(context: &MinaMesh, public_key: String) -> Result<AccountBalanceResponse> {
+async fn frontier_balance(context: &MinaMesh, public_key: String) -> Result<AccountBalanceResponse, MinaMeshError> {
   let result = context
     .graphql_client
     .send(QueryBalance::build(QueryBalanceVariables {
-      public_key: public_key.into(),
+      public_key: public_key.clone().into(),
     }))
     .await?;
   if let QueryBalance {
@@ -209,9 +194,8 @@ async fn frontier_balance(context: &MinaMesh, public_key: String) -> Result<Acco
     let total = total_raw.parse::<u64>()?;
     let liquid = liquid_raw.parse::<u64>()?;
     let index = index_raw.parse::<i64>()?;
-    return Ok(AccountBalanceResponse::new(
-      BlockIdentifier { hash, index },
-      vec![Amount {
+    Ok(AccountBalanceResponse::new(BlockIdentifier { hash, index }, vec![
+      Amount {
         currency: Box::new(Currency {
           symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
           decimals: 9,
@@ -223,9 +207,9 @@ async fn frontier_balance(context: &MinaMesh, public_key: String) -> Result<Acco
           "liquid_balance": liquid.to_string(),
           "total_balance": total.to_string()
         })),
-      }],
-    ));
+      },
+    ]))
   } else {
-    anyhow::bail!("Account was not present")
+    Err(MinaMeshError::AccountNotFound(public_key))
   }
 }
