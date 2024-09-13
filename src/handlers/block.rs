@@ -1,59 +1,40 @@
 use crate::MinaMesh;
 use anyhow::{anyhow, Result};
-use mesh::models::BlockIdentifier;
-pub use mesh::models::{Block, BlockRequest, BlockResponse, PartialBlockIdentifier};
+pub use mesh::models::{BlockRequest, BlockResponse, PartialBlockIdentifier};
 
-// struct BlockMetadata {
-//   id: i32,
-//   block_winner_id: i32,
-//   chain_status: Option<String>,
-//   creator_id: i32,
-//   global_slot_since_genesis: i64,
-//   global_slot_since_hard_fork: i64,
-//   height: i64,
-//   last_vrf_output: String,
-//   ledger_hash: String,
-//   min_window_density: i64,
-//   next_epoch_data_id: i32,
-//   state_hash: String,
-//   sub_window_densities: Vec<i64>,
-//   timestamp: String,
-//   total_currency: String,
-//   parent_hash: String,
-//   parent_id: Option<i32>,
-//   proposed_protocol_version_id: Option<i32>,
-//   protocol_version_id: i32,
-//   snarked_ledger_hash_id: i32,
-//   staking_epoch_data_id: i32,
-//   creator: String,
-//   winner: String,
-// }
+#[derive(sqlx::Type, Debug, PartialEq, Eq)]
+#[sqlx(type_name = "chain_status_type", rename_all = "lowercase")]
+enum ChainStatus {
+  Canonical,
+  Pending,
+  Orphaned,
+}
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, sqlx::FromRow)]
 pub struct BlockMetadata {
-  id: Option<i32>,
-  block_winner_id: Option<i32>,
-  chain_status: Option<String>,
-  creator_id: Option<i32>,
-  global_slot_since_genesis: Option<i64>,
-  global_slot_since_hard_fork: Option<i64>,
-  height: Option<i64>,
-  last_vrf_output: Option<String>,
-  ledger_hash: Option<String>,
-  min_window_density: Option<i64>,
-  next_epoch_data_id: Option<i32>,
-  state_hash: Option<String>,
-  sub_window_densities: Option<Vec<i64>>,
-  timestamp: Option<String>,
-  total_currency: Option<String>,
-  parent_hash: Option<String>,
+  id: i32,
+  block_winner_id: i32,
+  chain_status: Option<ChainStatus>,
+  creator_id: i32,
+  global_slot_since_genesis: i64,
+  global_slot_since_hard_fork: i64,
+  height: i64,
+  last_vrf_output: String,
+  ledger_hash: String,
+  min_window_density: i64,
+  next_epoch_data_id: i32,
+  state_hash: String,
+  sub_window_densities: Vec<i64>,
+  timestamp: String,
+  total_currency: String,
+  parent_hash: String,
   parent_id: Option<i32>,
   proposed_protocol_version_id: Option<i32>,
-  protocol_version_id: Option<i32>,
-  snarked_ledger_hash_id: Option<i32>,
-  staking_epoch_data_id: Option<i32>,
-  creator: Option<String>,
-  winner: Option<String>,
+  protocol_version_id: i32,
+  snarked_ledger_hash_id: i32,
+  staking_epoch_data_id: i32,
+  creator: String,
+  winner: String,
 }
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7

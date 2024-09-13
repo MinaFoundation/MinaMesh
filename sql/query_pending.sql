@@ -26,7 +26,7 @@ WITH RECURSIVE
       FROM
         blocks b1
       WHERE
-        HEIGHT=(
+        b1.height=(
           SELECT
             max(b2.height)
           FROM
@@ -68,29 +68,29 @@ WITH RECURSIVE
       AND chain.chain_status<>'canonical'
   )
 SELECT
-  c.block_winner_id,
-  c.chain_status::TEXT,
-  c.creator_id,
-  c.global_slot_since_genesis,
-  c.global_slot_since_hard_fork,
-  c.height,
-  c.id,
-  c.last_vrf_output,
-  c.ledger_hash,
-  c.min_window_density,
-  c.next_epoch_data_id,
-  c.parent_hash,
-  c.parent_id,
-  c.proposed_protocol_version_id,
-  c.protocol_version_id,
-  c.snarked_ledger_hash_id,
-  c.staking_epoch_data_id,
-  c.state_hash,
-  c.sub_window_densities,
-  c.timestamp,
-  c.total_currency,
-  creator_pk.value AS creator,
-  block_winner_pk.value AS winner
+  c.block_winner_id AS "block_winner_id!",
+  c.chain_status AS "chain_status: ChainStatus",
+  c.creator_id AS "creator_id!",
+  c.global_slot_since_genesis AS "global_slot_since_genesis!",
+  c.global_slot_since_hard_fork AS "global_slot_since_hard_fork!",
+  c.height AS "height!",
+  c.id AS "id!",
+  c.last_vrf_output AS "last_vrf_output!",
+  c.ledger_hash AS "ledger_hash!",
+  c.min_window_density AS "min_window_density!",
+  c.next_epoch_data_id AS "next_epoch_data_id!",
+  c.parent_hash AS "parent_hash!",
+  c.parent_id AS "parent_id",
+  c.proposed_protocol_version_id AS "proposed_protocol_version_id",
+  c.protocol_version_id AS "protocol_version_id!",
+  c.snarked_ledger_hash_id AS "snarked_ledger_hash_id!",
+  c.staking_epoch_data_id AS "staking_epoch_data_id!",
+  c.state_hash AS "state_hash!",
+  c.sub_window_densities AS "sub_window_densities!",
+  c.timestamp AS "timestamp!",
+  c.total_currency AS "total_currency!",
+  creator_pk.value AS "creator",
+  block_winner_pk.value AS "winner"
 FROM
   chain c
   INNER JOIN public_keys creator_pk ON creator_pk.id=c.creator_id
