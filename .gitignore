@@ -3,3 +3,7 @@
 archive
 src/graphql/generated.rs
 target
+
+# direnv
+.envrc
+.direnv

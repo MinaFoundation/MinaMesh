@@ -6,6 +6,16 @@ edition = "2021"
 license = "Apache-2.0"
 description = "A Rust Server Implementation of the Mesh Spec for Mina"
 
+[workspace]
+members = [
+  "./",
+  "./mesh_generated",
+]
+default-members = [
+  "./",
+  "./mesh_generated",
+]
+
 [build-dependencies]
 anyhow = "1.0.86"
 cynic-codegen = "3.7.3"
