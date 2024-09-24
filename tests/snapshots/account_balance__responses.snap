@@ -1,0 +1,54 @@
+---
+source: tests/account_balance.rs
+expression: results
+---
+[
+    AccountBalanceResponse {
+        block_identifier: BlockIdentifier {
+            index: 371513,
+            hash: "3NKcVfwCwciiEvM1DRy6pAtVHR72fCm11adnjffnjMa8aKsKjfvP",
+        },
+        balances: [
+            Amount {
+                value: "0",
+                currency: Currency {
+                    symbol: "MINA",
+                    decimals: 9,
+                    metadata: None,
+                },
+                metadata: Some(
+                    Object {
+                        "liquid_balance": String("0"),
+                        "locked_balance": String("0"),
+                        "total_balance": String("0"),
+                    },
+                ),
+            },
+        ],
+        metadata: None,
+    },
+    AccountBalanceResponse {
+        block_identifier: BlockIdentifier {
+            index: 371513,
+            hash: "3NKcVfwCwciiEvM1DRy6pAtVHR72fCm11adnjffnjMa8aKsKjfvP",
+        },
+        balances: [
+            Amount {
+                value: "157782049419100000",
+                currency: Currency {
+                    symbol: "MINA",
+                    decimals: 9,
+                    metadata: None,
+                },
+                metadata: Some(
+                    Object {
+                        "liquid_balance": String("157782049419100000"),
+                        "locked_balance": String("0"),
+                        "total_balance": String("157782049419100000"),
+                    },
+                ),
+            },
+        ],
+        metadata: None,
+    },
+]
