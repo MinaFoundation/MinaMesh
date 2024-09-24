@@ -1,11 +1,11 @@
-// TODO: why does OCaml implementation query for the `daemon_status` and `initial_peers`?
+// TODO: why does OCaml implementation query for the `daemon_status` and
+// `initial_peers`?
+#![allow(clippy::just_underscores_and_digits)]
 
-use crate::graphql::QueryMempool;
-use crate::MinaMesh;
+use crate::{graphql::QueryMempool, MinaMesh};
 use anyhow::Result;
 use cynic::QueryBuilder;
-pub use mesh::models::MempoolResponse;
-pub use mesh::models::TransactionIdentifier;
+pub use mesh::models::{MempoolResponse, TransactionIdentifier};
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/mempool.ml#L56
 impl MinaMesh {

@@ -1,8 +1,7 @@
-use anyhow::bail;
-use anyhow::Context;
-use anyhow::Result;
 use cynic::http::ReqwestExt;
 use reqwest::Client;
+
+use crate::MinaMeshError;
 
 #[derive(Debug)]
 pub struct GraphQLClient {
@@ -18,7 +17,10 @@ impl GraphQLClient {
     }
   }
 
-  pub async fn send<ResponseData, Vars>(&self, operation: cynic::Operation<ResponseData, Vars>) -> Result<ResponseData>
+  pub async fn send<ResponseData, Vars>(
+    &self,
+    operation: cynic::Operation<ResponseData, Vars>,
+  ) -> Result<ResponseData, MinaMeshError>
   where
     Vars: serde::Serialize,
     ResponseData: serde::de::DeserializeOwned + 'static,
@@ -27,17 +29,19 @@ impl GraphQLClient {
       .client
       .post(self.mina_proxy_url.to_owned())
       .run_graphql(operation)
-      .await
-      .context("Failed to run GraphQL query")?;
+      .await?;
     if let Some(errors) = response.errors {
-      bail!(errors
-        .iter()
-        .map(|err| err.message.clone())
-        .collect::<Vec<String>>()
-        .join("\n\n"));
+      Err(MinaMeshError::GraphqlMinaQuery(
+        errors
+          .into_iter()
+          .map(|err| err.message)
+          .collect::<Vec<_>>()
+          .join("\n\n"),
+      ))
     } else if let Some(data) = response.data {
-      return Ok(data);
+      Ok(data)
+    } else {
+      Err(MinaMeshError::GraphqlMinaQuery("".to_string()))
     }
-    bail!("No data contained in GraphQL response");
   }
 }

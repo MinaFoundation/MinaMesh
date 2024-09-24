@@ -1,16 +1,16 @@
-use crate::graphql::QueryMempoolTransactions;
-use crate::graphql::QueryMempoolTransactionsVariables;
-use crate::MinaMesh;
-use anyhow::Result;
+use crate::{
+  graphql::{QueryMempoolTransactions, QueryMempoolTransactionsVariables},
+  MinaMesh, MinaMeshError,
+};
 use cynic::QueryBuilder;
-pub use mesh::models::MempoolTransactionRequest;
-pub use mesh::models::MempoolTransactionResponse;
-pub use mesh::models::Transaction;
-pub use mesh::models::TransactionIdentifier;
+pub use mesh::models::{MempoolTransactionRequest, MempoolTransactionResponse, Transaction, TransactionIdentifier};
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/mempool.ml#L137
 impl MinaMesh {
-  pub async fn mempool_transaction(&self, request: MempoolTransactionRequest) -> Result<MempoolTransactionResponse> {
+  pub async fn mempool_transaction(
+    &self,
+    request: MempoolTransactionRequest,
+  ) -> Result<MempoolTransactionResponse, MinaMeshError> {
     let QueryMempoolTransactions {
       daemon_status: _daemon_status,
       initial_peers: _initial_peers,
@@ -21,7 +21,7 @@ impl MinaMesh {
         hashes: Some(vec![request.transaction_identifier.hash.as_str()]),
       }))
       .await?;
-    let operations = pooled_user_commands.into_iter().map(|command| command.into()).collect();
+    let operations = pooled_user_commands.into_iter().map(Into::into).collect();
     Ok(MempoolTransactionResponse {
       metadata: None,
       transaction: Box::new(Transaction {
