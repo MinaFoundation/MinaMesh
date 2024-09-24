@@ -1,6 +1,7 @@
-use crate::MinaMesh;
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 pub use mesh::models::{BlockRequest, BlockResponse, PartialBlockIdentifier};
+
+use crate::MinaMesh;
 
 #[derive(sqlx::Type, Debug, PartialEq, Eq)]
 #[sqlx(type_name = "chain_status_type", rename_all = "lowercase")]
@@ -73,9 +74,7 @@ impl MinaMesh {
         .await?
         .ok_or(anyhow!(""))
     } else if let Some(index) = index {
-      let record = sqlx::query_file!("sql/max_canonical_height.sql")
-        .fetch_one(&self.pg_pool)
-        .await?;
+      let record = sqlx::query_file!("sql/max_canonical_height.sql").fetch_one(&self.pg_pool).await?;
       if index <= record.max_canonical_height.unwrap() {
         sqlx::query_file_as!(BlockMetadata, "sql/query_canonical.sql", index)
           .fetch_optional(&self.pg_pool)
@@ -93,10 +92,7 @@ impl MinaMesh {
         .await?
         .ok_or(anyhow!(""))
     } else {
-      sqlx::query_file_as!(BlockMetadata, "sql/query_best.sql")
-        .fetch_optional(&self.pg_pool)
-        .await?
-        .ok_or(anyhow!(""))
+      sqlx::query_file_as!(BlockMetadata, "sql/query_best.sql").fetch_optional(&self.pg_pool).await?.ok_or(anyhow!(""))
     }
   }
 }

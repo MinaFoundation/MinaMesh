@@ -11,12 +11,9 @@ impl ToTokenId for Option<serde_json::Value> {
   fn to_token_id(self) -> Result<String, MinaMeshError> {
     match self {
       None => Ok(DEFAULT_TOKEN_ID.to_string()),
-      Some(serde_json::Value::Object(map)) => Ok(
-        map
-          .get("token_id")
-          .map(|v| v.to_string())
-          .ok_or(MinaMeshError::JsonParse(None))?,
-      ),
+      Some(serde_json::Value::Object(map)) => {
+        Ok(map.get("token_id").map(|v| v.to_string()).ok_or(MinaMeshError::JsonParse(None))?)
+      }
       _ => Err(MinaMeshError::JsonParse(None))?,
     }
   }
