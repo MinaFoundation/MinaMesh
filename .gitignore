@@ -2,4 +2,5 @@
 .env
 archive
 src/graphql/generated.rs
+sql_scripts
 target

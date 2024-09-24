@@ -1,7 +1,7 @@
-use crate::MinaMesh;
 use anyhow::Result;
-pub use mesh::models::ConstructionDeriveRequest;
-pub use mesh::models::ConstructionDeriveResponse;
+pub use mesh::models::{ConstructionDeriveRequest, ConstructionDeriveResponse};
+
+use crate::MinaMesh;
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/construction.ml#L162
 impl MinaMesh {

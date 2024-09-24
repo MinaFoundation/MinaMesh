@@ -1,8 +1,9 @@
-use crate::{graphql::GraphQLClient, MinaMesh};
 use anyhow::Result;
 use clap::Args;
 use mesh::models::BlockIdentifier;
 use sqlx::PgPool;
+
+use crate::{MinaMesh, graphql::GraphQLClient};
 
 #[derive(Debug, Args)]
 pub struct MinaMeshConfig {
@@ -17,9 +18,9 @@ pub struct MinaMeshConfig {
 }
 
 impl MinaMeshConfig {
-  pub async fn to_mina_mesh(&self) -> Result<MinaMesh> {
+  pub async fn to_mina_mesh(self) -> Result<MinaMesh> {
     Ok(MinaMesh {
-      graphql_client: GraphQLClient::new(self.mina_proxy_url.to_owned()),
+      graphql_client: GraphQLClient::new(self.mina_proxy_url),
       pg_pool: PgPool::connect(self.database_url.as_str()).await?,
       genesis_block_identifier: BlockIdentifier::new(
         self.genesis_block_identifier_height,

@@ -1,27 +1,38 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use axum::{Json, Router, extract::State, response::IntoResponse, routing::post, serve};
+use axum::{Json, Router, extract::State, response::IntoResponse, routing::post, serve as axum_serve};
 use clap::Args;
+pub use mesh::models::AccountIdentifier;
 use paste::paste;
 use tokio::net::TcpListener;
 
-use crate::{MinaMesh, MinaMeshConfig, util::Wrapper};
+use crate::{MinaMesh, util::Wrapper};
 
 #[derive(Debug, Args)]
-#[command(about = "Start the Mina Mesh Server.")]
-pub struct ServeCommand {
-  #[command(flatten)]
-  config: MinaMeshConfig,
-  #[arg(default_value = "0.0.0.0")]
+pub struct ServeArgs {
+  #[arg(default_value_t = default_host())]
   host: String,
-  #[arg(default_value = "3000")]
+  #[arg(default_value_t = default_port())]
   port: u16,
 }
 
-impl ServeCommand {
-  pub async fn run(self) -> Result<()> {
-    let mina_mesh = self.config.to_mina_mesh().await?;
+impl Default for ServeArgs {
+  fn default() -> Self {
+    Self { host: default_host(), port: default_port() }
+  }
+}
+
+fn default_host() -> String {
+  "0.0.0.0".to_string()
+}
+
+fn default_port() -> u16 {
+  3000
+}
+
+impl MinaMesh {
+  pub async fn serve(self, ServeArgs { host, port }: ServeArgs) -> Result<()> {
     let router = Router::new()
       .route("/network/list", post(handle_network_list))
       .route("/network/status", post(handle_network_status))
@@ -39,10 +50,10 @@ impl ServeCommand {
       .route("/construction/hash", post(handle_construction_hash))
       .route("/construction/submit", post(handle_construction_submit))
       .route("/call", post(handle_call))
-      .with_state(Arc::new(mina_mesh));
-    let listener = TcpListener::bind(format!("{}:{}", self.host, self.port)).await?;
+      .with_state(Arc::new(self));
+    let listener = TcpListener::bind(format!("{}:{}", host, port)).await?;
     tracing::debug!("listening on {}", listener.local_addr()?);
-    serve(listener, router).await?;
+    axum_serve(listener, router).await?;
     Ok(())
   }
 }
@@ -50,7 +61,10 @@ impl ServeCommand {
 macro_rules! create_handler {
   ($name:ident, $request_type:ty) => {
     paste! {
-      async fn [<handle _ $name>](mina_mesh: State<Arc<MinaMesh>>, Json(req): Json<crate::$request_type>) -> impl IntoResponse {
+      async fn [<handle _ $name>](
+        mina_mesh: State<Arc<MinaMesh>>,
+        Json(req): Json<crate::$request_type>,
+      ) -> impl IntoResponse {
         Wrapper(mina_mesh.$name(req).await)
       }
     }

@@ -11,9 +11,11 @@ mod construction_preprocess;
 mod construction_submit;
 mod mempool;
 mod mempool_transaction;
+mod network_health_check;
 mod network_list;
 mod network_options;
 mod network_status;
+mod serve;
 
 pub use account_balance::*;
 pub use block::*;
@@ -31,3 +33,4 @@ pub use mempool_transaction::*;
 pub use network_list::*;
 pub use network_options::*;
 pub use network_status::*;
+pub use serve::*;

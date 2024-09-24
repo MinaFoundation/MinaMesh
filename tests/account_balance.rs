@@ -1,5 +1,7 @@
 use anyhow::Result;
-use mina_mesh::{AccountBalanceRequest, AccountIdentifier, NetworkIdentifier, PartialBlockIdentifier, ServeCommand};
+use mina_mesh::{
+  AccountBalanceRequest, AccountIdentifier, MinaMeshConfig, NetworkIdentifier, PartialBlockIdentifier, ServeCommand,
+};
 
 #[tokio::test]
 async fn first() -> Result<()> {
@@ -12,10 +14,7 @@ async fn first() -> Result<()> {
         sub_account: None,
         metadata: None,
       }),
-      block_identifier: Some(Box::new(PartialBlockIdentifier {
-        index: Some(371513),
-        hash: None,
-      })),
+      block_identifier: Some(Box::new(PartialBlockIdentifier { index: Some(371513), hash: None })),
       currencies: None,
       network_identifier: Box::new(NetworkIdentifier {
         blockchain: "mina".into(),

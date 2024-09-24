@@ -1,16 +1,18 @@
-use crate::graphql::QueryGenesisBlockIdentifier;
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use clap::Args;
-use cynic::{http::ReqwestExt, QueryBuilder};
+use cynic::{QueryBuilder, http::ReqwestExt};
+
+use crate::graphql::QueryGenesisBlockIdentifier;
 
 #[derive(Debug, Args)]
+#[command(about = "Retrieve the genesis block identifier via a proxy node GraphQL endpoint.")]
 pub struct FetchGenesisBlockIdentifierCommand {
   #[arg(long, short = 'n', default_value = "https://mainnet.minaprotocol.network/graphql")]
   proxy_node_graphql_endpoint: String,
 }
 
 impl FetchGenesisBlockIdentifierCommand {
-  pub async fn execute(&self) -> Result<()> {
+  pub async fn run(&self) -> Result<()> {
     let client = reqwest::Client::new();
     let result = client
       .post(self.proxy_node_graphql_endpoint.to_owned())
