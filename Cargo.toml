@@ -18,6 +18,7 @@ axum = "0.7.5"
 clap = { version = "4.5.11", features = ["derive", "env"] }
 cynic = { version = "3.7.3", features = ["http-reqwest-blocking"] }
 envy = "0.4.2"
+futures = "0.3.30"
 mesh = { path = "./mesh_generated" }
 paste = "1.0.15"
 reqwest = { version = "0.12.5", features = ["json", "blocking"] }

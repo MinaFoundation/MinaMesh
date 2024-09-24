@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT\n  b.block_winner_id,\n  b.chain_status::TEXT AS chain_status,\n  b.creator_id,\n  b.global_slot_since_genesis,\n  b.global_slot_since_hard_fork,\n  b.height,\n  b.id,\n  b.last_vrf_output,\n  b.ledger_hash,\n  b.min_window_density,\n  b.next_epoch_data_id,\n  b.parent_hash,\n  b.parent_id,\n  b.proposed_protocol_version_id,\n  b.protocol_version_id,\n  b.snarked_ledger_hash_id,\n  b.staking_epoch_data_id,\n  b.state_hash,\n  b.sub_window_densities,\n  b.timestamp,\n  b.total_currency,\n  pk.value AS creator,\n  bw.value AS winner\nFROM\n  blocks b\n  INNER JOIN public_keys pk ON pk.id=b.creator_id\n  INNER JOIN public_keys bw ON bw.id=b.block_winner_id\nWHERE\n  b.state_hash=$1\n",
+  "query": "SELECT\n  b.block_winner_id,\n  b.chain_status AS \"chain_status: ChainStatus\",\n  b.creator_id,\n  b.global_slot_since_genesis,\n  b.global_slot_since_hard_fork,\n  b.height,\n  b.id,\n  b.last_vrf_output,\n  b.ledger_hash,\n  b.min_window_density,\n  b.next_epoch_data_id,\n  b.parent_hash,\n  b.parent_id,\n  b.proposed_protocol_version_id,\n  b.protocol_version_id,\n  b.snarked_ledger_hash_id,\n  b.staking_epoch_data_id,\n  b.state_hash,\n  b.sub_window_densities,\n  b.timestamp,\n  b.total_currency,\n  pk.value AS creator,\n  bw.value AS winner\nFROM\n  blocks b\n  INNER JOIN public_keys pk ON pk.id=b.creator_id\n  INNER JOIN public_keys bw ON bw.id=b.block_winner_id\nWHERE\n  b.height=(\n    SELECT\n      max(b.height)\n    FROM\n      blocks b\n  )\nORDER BY\n  TIMESTAMP ASC,\n  state_hash ASC\nLIMIT\n  1\n",
   "describe": {
     "columns": [
       {
@@ -10,8 +10,19 @@
       },
       {
         "ordinal": 1,
-        "name": "chain_status",
-        "type_info": "Text"
+        "name": "chain_status: ChainStatus",
+        "type_info": {
+          "Custom": {
+            "name": "chain_status_type",
+            "kind": {
+              "Enum": [
+                "canonical",
+                "orphaned",
+                "pending"
+              ]
+            }
+          }
+        }
       },
       {
         "ordinal": 2,
@@ -120,13 +131,11 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Text"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
-      null,
+      false,
       false,
       false,
       false,
@@ -150,5 +159,5 @@
       false
     ]
   },
-  "hash": "3c0c2f8cea55de76397c2107a7d357b8f27ca1df2f412c1b761c7255942d3238"
+  "hash": "ca58a08d1bb8c6004b54630a72cdd4b45e1aa8e1b1c5aee570a9e22d59e5846d"
 }
