@@ -1,7 +1,11 @@
-use anyhow::{Result, anyhow};
+use anyhow::Result;
+use cynic::QueryBuilder;
 pub use mesh::models::{BlockRequest, BlockResponse, PartialBlockIdentifier};
 
-use crate::MinaMesh;
+use crate::{
+  MinaMesh, MinaMeshError, Wrapper,
+  graphql::{QueryBlockTransactions, QueryBlockTransactionsVariables},
+};
 
 #[derive(sqlx::Type, Debug, PartialEq, Eq)]
 #[sqlx(type_name = "chain_status_type", rename_all = "lowercase")]
@@ -40,10 +44,19 @@ pub struct BlockMetadata {
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
 impl MinaMesh {
-  pub async fn block(&self, request: BlockRequest) -> Result<BlockResponse> {
-    let _metadata = self.block_metadata(*request.block_identifier.clone());
+  pub async fn block(&self, request: BlockRequest) -> Result<BlockResponse, MinaMeshError> {
+    let block_identifier = *request.block_identifier;
+    let metadata = match self.block_metadata(&block_identifier).await? {
+      Some(metadata) => metadata,
+      None => return Err(MinaMeshError::BlockMissing(Wrapper(&block_identifier).to_string())),
+    };
+    let block_transactions = self
+      .graphql_client
+      .send(QueryBlockTransactions::build(QueryBlockTransactionsVariables { state_hash: Some(&metadata.state_hash) }))
+      .await
+      .map_err(|_| MinaMeshError::ChainInfoMissing)?;
+    println!("block_transactions: {:?}", block_transactions);
     unimplemented!()
-    // Check if the block exists (metadata is Some(...))
 
     // Fetch transactions from DB
     // Internal commands, user commands, and zkapps commands
@@ -66,33 +79,23 @@ impl MinaMesh {
 
   pub async fn block_metadata(
     &self,
-    PartialBlockIdentifier { index, hash }: PartialBlockIdentifier,
-  ) -> Result<BlockMetadata> {
+    PartialBlockIdentifier { index, hash }: &PartialBlockIdentifier,
+  ) -> Result<Option<BlockMetadata>, sqlx::Error> {
     if let (Some(index), Some(hash)) = (&index, &hash) {
       sqlx::query_file_as!(BlockMetadata, "sql/query_both.sql", hash.to_string(), index)
         .fetch_optional(&self.pg_pool)
-        .await?
-        .ok_or(anyhow!(""))
+        .await
     } else if let Some(index) = index {
       let record = sqlx::query_file!("sql/max_canonical_height.sql").fetch_one(&self.pg_pool).await?;
-      if index <= record.max_canonical_height.unwrap() {
-        sqlx::query_file_as!(BlockMetadata, "sql/query_canonical.sql", index)
-          .fetch_optional(&self.pg_pool)
-          .await?
-          .ok_or(anyhow!(""))
+      if index <= &record.max_canonical_height.unwrap() {
+        sqlx::query_file_as!(BlockMetadata, "sql/query_canonical.sql", index).fetch_optional(&self.pg_pool).await
       } else {
-        sqlx::query_file_as!(BlockMetadata, "sql/query_pending.sql", index)
-          .fetch_optional(&self.pg_pool)
-          .await?
-          .ok_or(anyhow!(""))
+        sqlx::query_file_as!(BlockMetadata, "sql/query_pending.sql", index).fetch_optional(&self.pg_pool).await
       }
     } else if let Some(hash) = &hash {
-      sqlx::query_file_as!(BlockMetadata, "sql/query_hash.sql", hash)
-        .fetch_optional(&self.pg_pool)
-        .await?
-        .ok_or(anyhow!(""))
+      sqlx::query_file_as!(BlockMetadata, "sql/query_hash.sql", hash).fetch_optional(&self.pg_pool).await
     } else {
-      sqlx::query_file_as!(BlockMetadata, "sql/query_best.sql").fetch_optional(&self.pg_pool).await?.ok_or(anyhow!(""))
+      sqlx::query_file_as!(BlockMetadata, "sql/query_best.sql").fetch_optional(&self.pg_pool).await
     }
   }
 }
