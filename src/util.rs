@@ -35,6 +35,7 @@ impl Wrapper<Option<serde_json::Value>> {
 // cspell:disable-next-line
 const DEFAULT_TOKEN_ID: &str = "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf";
 
+#[allow(clippy::to_string_trait_impl)]
 impl ToString for Wrapper<&PartialBlockIdentifier> {
   fn to_string(&self) -> String {
     match &self.0.hash {
