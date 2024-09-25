@@ -8,6 +8,15 @@ use crate::{MinaMesh, graphql::QueryNetworkId};
 impl MinaMesh {
   pub async fn network_list(&self) -> Result<NetworkListResponse> {
     let QueryNetworkId { network_id } = self.graphql_client.send(QueryNetworkId::build(())).await?;
-    Ok(NetworkListResponse::new(vec![NetworkIdentifier::new("mina".to_string(), network_id.to_string())]))
+
+    // Split the network_id into chain_id and network_id by the colon ':'
+    let parts: Vec<&str> = network_id.split(':').collect();
+
+    let (chain_id, network_id) = match parts.as_slice() {
+      [chain, network] => (chain.to_string(), network.to_string()),
+      _ => ("unknown".to_string(), "unknown".to_string()),
+    };
+
+    Ok(NetworkListResponse::new(vec![NetworkIdentifier::new(chain_id, network_id)]))
   }
 }
