@@ -14,6 +14,7 @@ harrysolovay
 indoc
 initdb
 insta
+isready
 joaosreis
 johnmarcou
 keypair
