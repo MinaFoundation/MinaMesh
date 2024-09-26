@@ -10,10 +10,12 @@ use mina_mesh::{
 async fn responses() -> Result<()> {
   let mina_mesh = MinaMeshConfig::default().to_mina_mesh().await?;
   let futures: Vec<_> = [
+    // cspell:disable
     "B62qmjJeM4Fd4FVghfhgwoE1fkEexK2Rre8WYKMnbxVwB5vtKUwvgMv",
     "B62qrQKS9ghd91shs73TCmBJRW9GzvTJK443DPx2YbqcyoLc56g1ny9",
-    // TODO: reenable
     // "B62qooos8xGyqtJGpT7eaoyGrABCf4vcAnzCtxPLNrf26M7FwAxHg1i",
+    // cspell:enable
+    // TODO: reenable
   ]
   .into_iter()
   .map(|address| {

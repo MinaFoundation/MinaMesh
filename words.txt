@@ -7,6 +7,7 @@ graphviz
 hardfork
 harrysolovay
 indoc
+initdb
 insta
 joaosreis
 johnmarcou
