@@ -1,7 +1,6 @@
-MINAMESH
-RUSTFLAGS
 codegen
 coinbases
+darklight
 deamon
 dotenv
 dprint
@@ -22,6 +21,7 @@ keypair
 lookback
 microschemas
 mina
+MINAMESH
 navroot
 nocapture
 openapi
@@ -29,6 +29,7 @@ preprocess
 querygen
 reqwest
 retriable
+RUSTFLAGS
 rustfmt
 schnorr
 secp

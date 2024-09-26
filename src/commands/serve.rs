@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use aide::scalar::Scalar;
 use anyhow::Result;
 use axum::{
   debug_handler,
@@ -13,7 +12,7 @@ use clap::Args;
 use paste::paste;
 use tokio::net::TcpListener;
 
-use crate::{util::Wrapper, MinaMesh, MinaMeshConfig};
+use crate::{playground::handle_playground, util::Wrapper, MinaMesh, MinaMeshConfig};
 
 #[derive(Debug, Args)]
 #[command(about = "Start the Mina Mesh Server.")]
@@ -24,16 +23,16 @@ pub struct ServeCommand {
   host: String,
   #[arg(default_value = "3000")]
   port: u16,
+  #[arg(long)]
+  no_playground: bool,
 }
 
 impl ServeCommand {
   pub async fn run(self) -> Result<()> {
     dotenv::dotenv()?;
     tracing_subscriber::fmt::init();
-    let scalar_handler = Scalar::new(OPENAPI_SPEC.to_string()).with_title("Mina Mesh").axum_handler();
     let mina_mesh = self.config.to_mina_mesh().await?;
-    let router = Router::new()
-      .route("/", get(scalar_handler))
+    let mut router = Router::new()
       .route("/account/balance", post(handle_account_balance))
       .route("/block", post(handle_block))
       .route("/call", post(handle_call))
@@ -52,8 +51,11 @@ impl ServeCommand {
       .route("/network/options", post(handle_network_options))
       .route("/network/status", post(handle_network_status))
       .with_state(Arc::new(mina_mesh));
+    if !self.no_playground {
+      router = router.route("/", get(handle_playground));
+    }
     let listener = TcpListener::bind(format!("{}:{}", self.host, self.port)).await?;
-    tracing::debug!("listening on {}", listener.local_addr()?);
+    tracing::info!("listening on http://{}", listener.local_addr()?);
     serve(listener, router).await?;
     Ok(())
   }
@@ -105,6 +107,3 @@ async fn handle_implemented_methods() -> impl IntoResponse {
     "network_status",
   ])
 }
-
-static OPENAPI_SPEC: &str =
-  "https://raw.githubusercontent.com/coinbase/mesh-specifications/7f9f2f691f1ab1f7450e376d031e60d997dacbde/api.json";
