@@ -13,7 +13,7 @@ cynic-querygen = "3.7.3"
 indoc = "2.0.5"
 
 [dependencies]
-aide = { version = "0.13.4", features = ["axum", "scalar"] }
+aide = { version = "0.13.4", features = ["scalar"] }
 anyhow = "1.0.86"
 axum = { version = "0.7.5", features = ["macros"] }
 clap = { version = "4.5.11", features = ["derive", "env"] }

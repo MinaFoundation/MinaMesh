@@ -14,6 +14,7 @@ enum Command {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+  dotenv::dotenv()?;
   match Command::parse() {
     Command::Serve(cmd) => cmd.run().await,
     Command::FetchGenesisBlockIdentifier(cmd) => cmd.run().await,

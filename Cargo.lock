@@ -61,18 +61,12 @@ version = "0.13.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7b0e3b97a21e41ec5c19bfd9b4fc1f7086be104f8b988681230247ffc91cc8ed"
 dependencies = [
- "axum",
- "bytes",
  "cfg-if",
- "http",
  "indexmap 2.2.6",
  "schemars",
  "serde",
  "serde_json",
- "serde_qs",
  "thiserror",
- "tower-layer",
- "tower-service",
  "tracing",
 ]
 
@@ -2353,19 +2347,6 @@ checksum = "af99884400da37c88f5e9146b7f1fd0fbcae8f6eec4e9da38b67d05486f814a6"
 dependencies = [
  "itoa",
  "serde",
-]
-
-[[package]]
-name = "serde_qs"
-version = "0.13.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd34f36fe4c5ba9654417139a9b3a20d2e1de6012ee678ad14d240c22c78d8d6"
-dependencies = [
- "axum",
- "futures",
- "percent-encoding",
- "serde",
- "thiserror",
 ]
 
 [[package]]
