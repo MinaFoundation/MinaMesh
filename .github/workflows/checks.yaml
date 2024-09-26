@@ -45,6 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dsherret/rust-toolchain-file@v1
+      - uses: extractions/setup-just@v2
       - uses: actions/cache@v4
         with:
           path: |
@@ -52,13 +53,18 @@ jobs:
             ~/.cargo/git
             target
           key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
-      - run: |
-          cargo install just
+      
+      - name: ⚙️ Setup
+        run: |
           just get-mainnet-archive-db
           just pg
           just wait-for-pg
-          just test
-          just pg-down
+      
+      - name: 🧪 Test
+        run: just test
+
+      - name: 👨‍🔧 Tear down
+        run: just pg-down
 
   rustfmt:
     runs-on: ubuntu-latest
