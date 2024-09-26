@@ -1,7 +1,13 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use axum::{extract::State, response::IntoResponse, routing::post, serve, Json, Router};
+use axum::{
+  debug_handler,
+  extract::State,
+  response::IntoResponse,
+  routing::{get, post},
+  serve, Json, Router,
+};
 use clap::Args;
 use paste::paste;
 use tokio::net::TcpListener;
@@ -23,22 +29,23 @@ impl ServeCommand {
   pub async fn run(self) -> Result<()> {
     let mina_mesh = self.config.to_mina_mesh().await?;
     let router = Router::new()
-      .route("/network/list", post(handle_network_list))
-      .route("/network/status", post(handle_network_status))
-      .route("/network/options", post(handle_network_options))
+      .route("/account/balance", post(handle_account_balance))
       .route("/block", post(handle_block))
+      .route("/call", post(handle_call))
+      .route("/construction/combine", post(handle_construction_combine))
+      .route("/construction/derive", post(handle_construction_derive))
+      .route("/construction/hash", post(handle_construction_hash))
+      .route("/construction/metadata", post(handle_construction_metadata))
+      .route("/construction/parse", post(handle_construction_parse))
+      .route("/construction/payloads", post(handle_construction_payloads))
+      .route("/construction/preprocess", post(handle_construction_preprocess))
+      .route("/construction/submit", post(handle_construction_submit))
+      .route("/implemented_methods", get(handle_implemented_methods))
       .route("/mempool", post(handle_mempool))
       .route("/mempool/transaction", post(handle_mempool_transaction))
-      .route("/account/balance", post(handle_account_balance))
-      .route("/construction/derive", post(handle_construction_derive))
-      .route("/construction/preprocess", post(handle_construction_preprocess))
-      .route("/construction/metadata", post(handle_construction_metadata))
-      .route("/construction/payloads", post(handle_construction_payloads))
-      .route("/construction/combine", post(handle_construction_combine))
-      .route("/construction/parse", post(handle_construction_parse))
-      .route("/construction/hash", post(handle_construction_hash))
-      .route("/construction/submit", post(handle_construction_submit))
-      .route("/call", post(handle_call))
+      .route("/network/list", post(handle_network_list))
+      .route("/network/options", post(handle_network_options))
+      .route("/network/status", post(handle_network_status))
       .with_state(Arc::new(mina_mesh));
     let listener = TcpListener::bind(format!("{}:{}", self.host, self.port)).await?;
     tracing::debug!("listening on {}", listener.local_addr()?);
@@ -64,19 +71,32 @@ macro_rules! create_handler {
   };
 }
 
+create_handler!(account_balance, AccountBalanceRequest);
 create_handler!(block, BlockRequest);
-create_handler!(network_list);
-create_handler!(network_status);
-create_handler!(network_options);
+create_handler!(call, CallRequest);
+create_handler!(construction_combine, ConstructionCombineRequest);
+create_handler!(construction_derive, ConstructionDeriveRequest);
+create_handler!(construction_hash, ConstructionHashRequest);
+create_handler!(construction_metadata, ConstructionMetadataRequest);
+create_handler!(construction_parse, ConstructionParseRequest);
+create_handler!(construction_payloads, ConstructionPayloadsRequest);
+create_handler!(construction_preprocess, ConstructionPreprocessRequest);
+create_handler!(construction_submit, ConstructionSubmitRequest);
 create_handler!(mempool);
 create_handler!(mempool_transaction, MempoolTransactionRequest);
-create_handler!(account_balance, AccountBalanceRequest);
-create_handler!(construction_derive, ConstructionDeriveRequest);
-create_handler!(construction_preprocess, ConstructionPreprocessRequest);
-create_handler!(construction_metadata, ConstructionMetadataRequest);
-create_handler!(construction_payloads, ConstructionPayloadsRequest);
-create_handler!(construction_combine, ConstructionCombineRequest);
-create_handler!(construction_parse, ConstructionParseRequest);
-create_handler!(construction_hash, ConstructionHashRequest);
-create_handler!(construction_submit, ConstructionSubmitRequest);
-create_handler!(call, CallRequest);
+create_handler!(network_list);
+create_handler!(network_options);
+create_handler!(network_status);
+
+#[debug_handler]
+async fn handle_implemented_methods() -> impl IntoResponse {
+  Json([
+    "account_balance",
+    "block",
+    "mempool",
+    "mempool_transaction",
+    "network_list",
+    "network_options",
+    "network_status",
+  ])
+}
