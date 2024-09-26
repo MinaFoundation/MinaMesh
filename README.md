@@ -4,7 +4,9 @@
 
 ## Overview
 
-Mina Mesh is an implementation of the [Coinbase Mesh specification](https://docs.cdp.coinbase.com/mesh/docs/welcome) for the [Mina blockchain](https://minaprotocol.com/).
+Mina Mesh is an implementation of the
+[Coinbase Mesh specification](https://docs.cdp.coinbase.com/mesh/docs/welcome) for the
+[Mina blockchain](https://minaprotocol.com/).
 
 ## Building
 
@@ -24,7 +26,8 @@ target/debug/mina_mesh
 
 ### Setup PostgreSQL with Latest Mainnet Archive DB
 
-To set up the testing environment with a working PostgreSQL database, use the predefined `just` steps:
+To set up the testing environment with a working PostgreSQL database, use the predefined `just`
+steps:
 
 ```bash
 just get-mainnet-archive-db
@@ -45,13 +48,14 @@ just test
 ### Managing PostgreSQL
 
 - **Stop PostgreSQL**: To stop the PostgreSQL instance:
-  
+
   ```bash
   just pg-down
   ```
 
-- **Restart PostgreSQL**: To restart without reinitializing the database (useful if the database is already set up):
-  
+- **Restart PostgreSQL**: To restart without reinitializing the database (useful if the database is
+  already set up):
+
   ```bash
   just pg-up
   ```
