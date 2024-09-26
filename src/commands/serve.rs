@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use axum::{Json, Router, extract::State, response::IntoResponse, routing::post, serve};
+use axum::{extract::State, response::IntoResponse, routing::post, serve, Json, Router};
 use clap::Args;
 use paste::paste;
 use tokio::net::TcpListener;
 
-use crate::{MinaMesh, MinaMeshConfig, util::Wrapper};
+use crate::{util::Wrapper, MinaMesh, MinaMeshConfig};
 
 #[derive(Debug, Args)]
 #[command(about = "Start the Mina Mesh Server.")]

@@ -1,6 +1,6 @@
-use anyhow::{Result, bail};
+use anyhow::{bail, Result};
 use clap::Args;
-use cynic::{QueryBuilder, http::ReqwestExt};
+use cynic::{http::ReqwestExt, QueryBuilder};
 
 use crate::graphql::QueryGenesisBlockIdentifier;
 

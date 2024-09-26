@@ -8,6 +8,14 @@
     }
   ],
   "enableGlobDot": true,
-  "dictionaries": ["project-words"],
-  "ignorePaths": [".git", ".sqlx", "mesh-generated", "target"]
+  "dictionaries": ["project-words", "rust"],
+  "ignorePaths": [
+    ".git/**",
+    ".sqlx/**",
+    "mesh_generated/**",
+    "src/graphql/schema/mina_schema.graphql",
+    "sql/**",
+    "target/**"
+  ],
+  "useGitignore": true
 }

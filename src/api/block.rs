@@ -3,8 +3,8 @@ use cynic::QueryBuilder;
 pub use mesh::models::{BlockRequest, BlockResponse, PartialBlockIdentifier};
 
 use crate::{
-  MinaMesh, MinaMeshError, Wrapper,
   graphql::{QueryBlockTransactions, QueryBlockTransactionsVariables},
+  MinaMesh, MinaMeshError, Wrapper,
 };
 
 #[derive(sqlx::Type, Debug, PartialEq, Eq)]

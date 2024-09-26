@@ -101,9 +101,7 @@ pub enum PartialReason {
 
 impl MinaMeshError {
   pub fn error_code(&self) -> u8 {
-    match self {
-      _ => unimplemented!(),
-    }
+    unimplemented!();
   }
 
   pub fn description(&self) -> String {
@@ -114,15 +112,11 @@ impl MinaMeshError {
   }
 
   pub fn is_retriable(&self) -> bool {
-    match self {
-      _ => unimplemented!(),
-    }
+    unimplemented!();
   }
 
   pub fn context(&self) -> Option<String> {
-    match self {
-      _ => unimplemented!(),
-    }
+    unimplemented!();
   }
 }
 
