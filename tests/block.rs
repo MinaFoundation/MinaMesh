@@ -1,7 +1,7 @@
 use std::sync::OnceLock;
 
 use anyhow::Result;
-use futures::{StreamExt, stream::FuturesUnordered};
+use futures::{stream::FuturesUnordered, StreamExt};
 use mina_mesh::{BlockMetadata, MinaMeshConfig, PartialBlockIdentifier};
 
 #[tokio::test]

@@ -3,7 +3,7 @@ use clap::Args;
 use mesh::models::BlockIdentifier;
 use sqlx::PgPool;
 
-use crate::{MinaMesh, graphql::GraphQLClient};
+use crate::{graphql::GraphQLClient, MinaMesh};
 
 #[derive(Debug, Args)]
 pub struct MinaMeshConfig {

@@ -2,7 +2,7 @@ use anyhow::Result;
 use cynic::QueryBuilder;
 pub use mesh::models::{NetworkIdentifier, NetworkListResponse};
 
-use crate::{MinaMesh, graphql::QueryNetworkId};
+use crate::{graphql::QueryNetworkId, MinaMesh};
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/network.ml#L162
 impl MinaMesh {
