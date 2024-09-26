@@ -3,6 +3,7 @@ mod commands;
 mod config;
 mod error;
 mod graphql;
+mod playground;
 mod util;
 
 pub use api::*;

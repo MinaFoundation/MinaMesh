@@ -12,7 +12,7 @@ use clap::Args;
 use paste::paste;
 use tokio::net::TcpListener;
 
-use crate::{util::Wrapper, MinaMesh, MinaMeshConfig};
+use crate::{playground::handle_playground, util::Wrapper, MinaMesh, MinaMeshConfig};
 
 #[derive(Debug, Args)]
 #[command(about = "Start the Mina Mesh Server.")]
@@ -23,12 +23,17 @@ pub struct ServeCommand {
   host: String,
   #[arg(default_value = "3000")]
   port: u16,
+  #[arg(env, long)]
+  playground: bool,
+  #[arg(env = "RUST_ENV", long)]
+  rust_env: String,
 }
 
 impl ServeCommand {
   pub async fn run(self) -> Result<()> {
+    tracing_subscriber::fmt::init();
     let mina_mesh = self.config.to_mina_mesh().await?;
-    let router = Router::new()
+    let mut router = Router::new()
       .route("/account/balance", post(handle_account_balance))
       .route("/block", post(handle_block))
       .route("/call", post(handle_call))
@@ -47,8 +52,11 @@ impl ServeCommand {
       .route("/network/options", post(handle_network_options))
       .route("/network/status", post(handle_network_status))
       .with_state(Arc::new(mina_mesh));
+    if self.rust_env == "development" || self.playground {
+      router = router.route("/", get(handle_playground));
+    }
     let listener = TcpListener::bind(format!("{}:{}", self.host, self.port)).await?;
-    tracing::debug!("listening on {}", listener.local_addr()?);
+    tracing::info!("listening on http://{}", listener.local_addr()?);
     serve(listener, router).await?;
     Ok(())
   }

@@ -15,6 +15,7 @@
     "mesh_generated/**",
     "src/graphql/schema/mina_schema.graphql",
     "sql/**",
+    "static/scalar.standalone.min.js",
     "target/**"
   ],
   "useGitignore": true
