@@ -29,7 +29,6 @@ pub struct ServeCommand {
 
 impl ServeCommand {
   pub async fn run(self) -> Result<()> {
-    dotenv::dotenv()?;
     tracing_subscriber::fmt::init();
     let mina_mesh = self.config.to_mina_mesh().await?;
     let mut router = Router::new()
