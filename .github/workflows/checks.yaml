@@ -53,17 +53,14 @@ jobs:
             ~/.cargo/git
             target
           key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
-      
-      - name: ⚙️ Setup
+      - name: Setup
         run: |
           just get-mainnet-archive-db
           just pg
           just wait-for-pg
-      
-      - name: 🧪 Test
+      - name: Test
         run: just test
-
-      - name: 👨‍🔧 Tear down
+      - name: Tear down
         run: just pg-down
 
   rustfmt:
