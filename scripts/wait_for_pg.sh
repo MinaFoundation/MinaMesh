@@ -9,7 +9,7 @@ PG_HOST="${1:-localhost}"
 PG_PORT="${2:-5432}"
 
 # Wait for PostgreSQL to become available
-until pg_isready -h "$PG_HOST" -p "$PG_PORT"; do
+until pg_is_ready -h "$PG_HOST" -p "$PG_PORT"; do
   echo "Waiting for PostgreSQL to become available at ${PG_HOST}:${PG_PORT}..."
   sleep 1
 done

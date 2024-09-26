@@ -2,7 +2,7 @@ MINAMESH
 RUSTFLAGS
 codegen
 coinbases
-deamon's
+deamon
 dprint
 dsherret
 dyntest
@@ -16,6 +16,7 @@ initdb
 insta
 joaosreis
 johnmarcou
+loopback
 microschemas
 mina
 navroot
@@ -32,3 +33,4 @@ thiserror
 walkdir
 webroot
 zkapp
+zkapps

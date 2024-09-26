@@ -10,12 +10,12 @@
   "enableGlobDot": true,
   "dictionaries": ["project-words", "rust"],
   "ignorePaths": [
-    ".git/**",
-    ".sqlx/**",
-    "mesh-generated/**",
+    ".git/**/*",
+    ".sqlx/**/*",
+    "mesh-generated/**/*",
     "src/graphql/schema/mina_schema.graphql",
-    "sql/**",
-    "target/**"
+    "sql/**/*",
+    "target/**/*"
   ],
   "useGitignore": true
 }
