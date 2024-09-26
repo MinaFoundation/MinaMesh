@@ -12,7 +12,7 @@
   "ignorePaths": [
     ".git/**",
     ".sqlx/**",
-    "mesh-generated/**",
+    "mesh_generated/**",
     "src/graphql/schema/mina_schema.graphql",
     "sql/**",
     "target/**"
