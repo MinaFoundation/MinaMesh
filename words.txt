@@ -16,7 +16,8 @@ initdb
 insta
 joaosreis
 johnmarcou
-loopback
+keypair
+lookback
 microschemas
 mina
 navroot
@@ -26,10 +27,14 @@ querygen
 reqwest
 retriable
 rustfmt
+schnorr
+secp
 snarked
 sqltools
 sqlx
 thiserror
+urlencode
+utxo
 walkdir
 webroot
 zkapp
