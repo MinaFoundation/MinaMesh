@@ -1,0 +1,23 @@
+services:
+  mina-mesh:
+    container_name: mina-mesh
+    image: mina-mesh
+    build: .
+    # command: serve --rust-env development
+    entrypoint: /bin/sh
+    command: [ -c, tail -f /dev/null ]
+    environment:
+      - DATABASE_URL=postgres://mina:whatever@mina-archive-db:5432/archive
+      - RUST_LOG=debug,error,mina_mesh=info
+      - RUST_ENV=production
+
+  mina-archive-db:
+    container_name: mina-archive-db
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=whatever
+      - POSTGRES_USER=mina
+    volumes:
+      - ./sql_scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
