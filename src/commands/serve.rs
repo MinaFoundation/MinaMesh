@@ -53,7 +53,6 @@ impl ServeCommand {
       .with_state(Arc::new(mina_mesh));
     if self.playground {
       router = router.route("/", get(handle_playground));
-      tracing::info!("playground enabled");
     }
     let listener = TcpListener::bind(format!("{}:{}", self.host, self.port)).await?;
     tracing::info!("listening on http://{}", listener.local_addr()?);
