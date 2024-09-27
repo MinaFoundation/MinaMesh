@@ -23,10 +23,9 @@ pub struct ServeCommand {
   host: String,
   #[arg(default_value = "3000")]
   port: u16,
-  #[arg(env, long)]
+  /// Whether to enable the playground.
+  #[arg(env = "PLAYGROUND", long)]
   playground: bool,
-  #[arg(env = "RUST_ENV", long)]
-  rust_env: String,
 }
 
 impl ServeCommand {
@@ -52,7 +51,7 @@ impl ServeCommand {
       .route("/network/options", post(handle_network_options))
       .route("/network/status", post(handle_network_status))
       .with_state(Arc::new(mina_mesh));
-    if self.rust_env == "development" || self.playground {
+    if self.playground {
       router = router.route("/", get(handle_playground));
     }
     let listener = TcpListener::bind(format!("{}:{}", self.host, self.port)).await?;

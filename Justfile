@@ -18,3 +18,8 @@ wait-for-pg:
 
 test:
   SNAP_CHECK=1 cargo test
+
+setup-archive-db:
+  just get-mainnet-archive-db
+  just pg
+  just wait-for-pg
