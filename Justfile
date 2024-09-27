@@ -1,5 +1,5 @@
 pg:
-  docker run -d --name mina-archive-db -p 5432:5432 -v $(pwd)/sql_scripts:/docker-entrypoint-initdb.d -e POSTGRES_PASSWORD=whatever -e POSTGRES_USER=mina postgres
+  docker run -d --name mina-archive-db -p 5555:5432 -v $(pwd)/sql_scripts:/docker-entrypoint-initdb.d -e POSTGRES_PASSWORD=whatever -e POSTGRES_USER=mina postgres
 
 pg-up:
   docker start mina-archive-db
@@ -18,3 +18,8 @@ wait-for-pg:
 
 test:
   SNAP_CHECK=1 cargo test
+
+setup-archive-db:
+  just get-mainnet-archive-db
+  just pg
+  just wait-for-pg
