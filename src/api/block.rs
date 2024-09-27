@@ -1,21 +1,14 @@
 use anyhow::Result;
 use cynic::QueryBuilder;
 pub use mesh::models::{BlockRequest, BlockResponse, PartialBlockIdentifier};
+use serde::Serialize;
 
 use crate::{
-  graphql::{QueryBlockTransactions, QueryBlockTransactionsVariables},
-  MinaMesh, MinaMeshError, Wrapper,
+  graphql::{QueryBlockTransactions, QueryBlockTransactionsVariables, UserCommand},
+  ChainStatus, MinaMesh, MinaMeshError, Wrapper,
 };
 
-#[derive(sqlx::Type, Debug, PartialEq, Eq)]
-#[sqlx(type_name = "chain_status_type", rename_all = "lowercase")]
-enum ChainStatus {
-  Canonical,
-  Pending,
-  Orphaned,
-}
-
-#[derive(Debug, PartialEq, Eq, sqlx::FromRow)]
+#[derive(Debug, PartialEq, Eq, sqlx::FromRow, Serialize)]
 pub struct BlockMetadata {
   id: i32,
   block_winner_id: i32,
@@ -44,37 +37,53 @@ pub struct BlockMetadata {
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
 impl MinaMesh {
-  pub async fn block(&self, request: BlockRequest) -> Result<BlockResponse, MinaMeshError> {
+  // pub async fn block(&self, request: BlockRequest) -> Result<BlockResponse,
+  // MinaMeshError> {
+  pub async fn block(&self, request: BlockRequest) -> Result<BlockMetadata, MinaMeshError> {
     let block_identifier = *request.block_identifier;
     let metadata = match self.block_metadata(&block_identifier).await? {
       Some(metadata) => metadata,
       None => return Err(MinaMeshError::BlockMissing(Wrapper(&block_identifier).to_string())),
     };
-    let block_transactions = self
-      .graphql_client
-      .send(QueryBlockTransactions::build(QueryBlockTransactionsVariables { state_hash: Some(&metadata.state_hash) }))
-      .await
-      .map_err(|_| MinaMeshError::ChainInfoMissing)?;
-    println!("block_transactions: {:?}", block_transactions);
-    unimplemented!()
+    Ok(metadata)
 
-    // Fetch transactions from DB
-    // Internal commands, user commands, and zkapps commands
+    // let user_commands = self.user_commands(&metadata).await?;
+    // println!("block_transactions: {:?}", user_commands);
 
-    // SQL command -> Rosetta/mesh transaction
-    // Each command will originate multiple atomic Rosetta/mesh operations
+    // // TODO: what else here?:
+    // //   - Fetch transactions from DB
+    // //   - SQL command -> Rosetta/mesh transaction
+    // //   - Each command will originate multiple atomic Rosetta/mesh
+    // operations
 
-    // Populate the block response from the fetched metadata, if any.
+    // let transactions = user_commands
+    //   .into_iter()
+    //   .map(|user_commands|
+    // Transaction::new(TransactionIdentifier::new(user_commands.hash.0),
+    // vec![]))   .collect();
 
     // Ok(BlockResponse {
     //   block: Some(Box::new(Block::new(
-    //     BlockIdentifier::new(0, "".to_string()),
-    //     BlockIdentifier::new(0, "".to_string()),
-    //     0,
-    //     vec![],
+    //     BlockIdentifier::new(metadata.height, metadata.state_hash),
+    //     // TODO: parent block height
+    //     BlockIdentifier::new(0, metadata.parent_hash),
+    //     metadata.timestamp.parse()?,
+    //     transactions,
     //   ))),
     //   other_transactions: Some(vec![]),
     // })
+  }
+
+  // Do we also need internal and zkapps commands?
+  pub async fn user_commands(
+    &self,
+    BlockMetadata { state_hash, .. }: &BlockMetadata,
+  ) -> Result<Vec<UserCommand>, MinaMeshError> {
+    let QueryBlockTransactions { block } = self
+      .graphql_client
+      .send(QueryBlockTransactions::build(QueryBlockTransactionsVariables { state_hash: Some(state_hash) }))
+      .await?;
+    Ok(block.transactions.user_commands)
   }
 
   pub async fn block_metadata(

@@ -4,7 +4,7 @@ use cynic::http::CynicReqwestError;
 use sqlx::Error as SqlxError;
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq)]
 pub enum MinaMeshError {
   #[error("SQL failure")]
   Sql(String),
@@ -85,7 +85,7 @@ pub enum MinaMeshError {
   TransactionSubmitExpired,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum PartialReason {
   LengthMismatch,
   FeePayerAndSourceMismatch,
