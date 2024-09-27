@@ -57,7 +57,7 @@ You can enable a playground mode, which provides a simplified testing interface,
 `--playground` flag:
 
 ```bash
-target/debug/mina_mesh serve --playground
+cargo run -- serve --playground
 ```
 
 When enabled, you can access the playground at the root URL (`/`).
