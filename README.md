@@ -39,7 +39,7 @@ Use the predefined `just` commands to set up and start the PostgreSQL database:
 just setup-archive-db
 ```
 
-> Note: This process sets up the PosrgreSQL docker using the latest mainnet archive database.
+> Note: This process sets up the PostgreSQL docker using the latest mainnet archive database.
 
 2. **Run the Mina Mesh Server**
 
