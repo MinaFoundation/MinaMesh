@@ -50,6 +50,7 @@ impl ServeCommand {
       .route("/network/list", post(handle_network_list))
       .route("/network/options", post(handle_network_options))
       .route("/network/status", post(handle_network_status))
+      .route("/search/transactions", post(handle_search_transactions))
       .with_state(Arc::new(mina_mesh));
     if self.playground {
       router = router.route("/", get(handle_playground));
@@ -94,6 +95,7 @@ create_handler!(mempool_transaction, MempoolTransactionRequest);
 create_handler!(network_list);
 create_handler!(network_options);
 create_handler!(network_status);
+create_handler!(search_transactions, SearchTransactionsRequest);
 
 #[debug_handler]
 async fn handle_implemented_methods() -> impl IntoResponse {
