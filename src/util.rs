@@ -4,7 +4,7 @@ use axum::{
   http::StatusCode,
   response::{IntoResponse, Response},
 };
-use mesh::models::PartialBlockIdentifier;
+use mesh::models::{Amount, Currency, PartialBlockIdentifier};
 use serde::Serialize;
 
 use crate::MinaMeshError;

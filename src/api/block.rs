@@ -1,6 +1,9 @@
 use anyhow::Result;
-use mesh::models::{Block, BlockIdentifier, Operation, OperationIdentifier, Transaction, TransactionIdentifier};
-pub use mesh::models::{BlockRequest, BlockResponse, PartialBlockIdentifier};
+use mesh::models::{
+  AccountIdentifier, Block, BlockIdentifier, Currency, Operation, OperationIdentifier, Transaction,
+  TransactionIdentifier,
+};
+pub use mesh::models::{Amount, BlockRequest, BlockResponse, PartialBlockIdentifier};
 use serde::Serialize;
 use sqlx::FromRow;
 
@@ -59,19 +62,27 @@ impl MinaMesh {
   // pub async fn block(&self, request: BlockRequest) -> Result<BlockResponse,
   // MinaMeshError> {
   pub async fn block(&self, request: BlockRequest) -> Result<BlockResponse, MinaMeshError> {
-    let block_identifier = *request.block_identifier;
-    let metadata = match self.block_metadata(&block_identifier).await? {
+    let partial_block_identifier = *request.block_identifier;
+    let metadata = match self.block_metadata(&partial_block_identifier).await? {
       Some(metadata) => metadata,
-      None => return Err(MinaMeshError::BlockMissing(Wrapper(&block_identifier).to_string())),
+      None => return Err(MinaMeshError::BlockMissing(Wrapper(&partial_block_identifier).to_string())),
     };
-    let parent_block_metadata = sqlx::query_file_as!(BlockMetadata, "sql/query_id.sql", metadata.parent_id.unwrap())
-      .fetch_optional(&self.pg_pool)
-      .await?;
+    let parent_block_metadata = match &metadata.parent_id {
+      Some(parent_id) => {
+        sqlx::query_file_as!(BlockMetadata, "sql/query_id.sql", parent_id).fetch_optional(&self.pg_pool).await?
+      }
+      None => None,
+    };
+    let block_identifier = BlockIdentifier::new(metadata.height, metadata.state_hash.clone());
+    let parent_block_identifier = match parent_block_metadata {
+      Some(block_metadata) => BlockIdentifier::new(block_metadata.height, block_metadata.state_hash),
+      None => block_identifier.clone(),
+    };
     let user_commands = self.user_commands(&metadata).await?;
     Ok(BlockResponse {
       block: Some(Box::new(Block::new(
-        BlockIdentifier::new(metadata.height, metadata.state_hash),
-        BlockIdentifier::new(parent_block_metadata.height, parent_block_metadata.state_hash),
+        block_identifier,
+        parent_block_identifier,
         metadata.timestamp.parse()?,
         user_commands,
       ))),
@@ -103,44 +114,41 @@ impl MinaMesh {
   }
 
   fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Operation> {
-    let operations = Vec::new();
+    let mut operations = Vec::new();
     if metadata.fee != "0" {
       operations.push(Operation {
-        operation_identifier: OperationIdentifier::new(0),
-        amount: metadata.fee,
-        account: AccountIdentifier::new(metadata.fee_payer),
-        status: metadata.status,
+        operation_identifier: Box::new(OperationIdentifier::new(0)),
+        amount: Wrapper(Some(metadata.fee.clone())).into(),
+        account: Some(Box::new(AccountIdentifier::new(metadata.fee_payer.clone()))),
+        status: Some(metadata.status.to_string()),
         related_operations: None,
         coin_change: None,
         r#type: "".to_string(), // TODO: get the correct type
         metadata: None,         // TODO: get the correct metadata
       });
     }
-    match metadata.failure_reason {
-      Some(failure_reason) => {}
+    match &metadata.failure_reason {
+      Some(_failure_reason) => {}
       None => {
-        match metadata.creation_fee {
-          Some(creation_fee) => {
-            operations.push(Operation {
-              operation_identifier: OperationIdentifier::new(1),
-              amount: metadata.creation_fee,
-              account: AccountIdentifier::new(metadata.receiver),
-              status: metadata.status,
-              related_operations: None,
-              coin_change: None,
-              r#type: "".to_string(), // TODO: get the correct type
-              metadata: None,         // TODO: get the correct metadata
-            });
-          }
-          None => {}
+        if let Some(creation_fee) = &metadata.creation_fee {
+          operations.push(Operation {
+            operation_identifier: Box::new(OperationIdentifier::new(1)),
+            amount: Wrapper(Some(creation_fee.to_owned())).into(),
+            account: Some(Box::new(AccountIdentifier::new(metadata.receiver.clone()))),
+            status: Some(metadata.status.to_string()),
+            related_operations: None,
+            coin_change: None,
+            r#type: "".to_string(), // TODO: get the correct type
+            metadata: None,         // TODO: get the correct metadata
+          });
         }
         match metadata.command_type {
           CommandType::Delegation => {
             operations.push(Operation {
-              operation_identifier: OperationIdentifier::new(2),
+              operation_identifier: Box::new(OperationIdentifier::new(2)),
               amount: None,
-              account: AccountIdentifier::new(metadata.source),
-              status: metadata.status,
+              account: Some(Box::new(AccountIdentifier::new(metadata.source.clone()))),
+              status: Some(metadata.status.to_string()),
               related_operations: None,
               coin_change: None,
               r#type: "".to_string(), // TODO: get the correct type
@@ -149,45 +157,53 @@ impl MinaMesh {
           }
           CommandType::Payment => {
             operations.push(Operation {
-              operation_identifier: OperationIdentifier::new(2),
-              amount: metadata.amount,
-              account: AccountIdentifier::new(metadata.source),
-              status: metadata.status,
+              operation_identifier: Box::new(OperationIdentifier::new(2)),
+              amount: Wrapper(metadata.amount.clone()).into(),
+              account: Some(Box::new(AccountIdentifier::new(metadata.source.clone()))),
+              status: Some(metadata.status.to_string()),
               related_operations: None,
               coin_change: None,
               r#type: "".to_string(), // TODO: get the correct type
               metadata: None,         // TODO: get the correct metadata
             });
             operations.push(Operation {
-              operation_identifier: OperationIdentifier::new(3),
-              amount: metadata.amount,
-              account: AccountIdentifier::new(metadata.receiver),
-              status: metadata.status,
+              operation_identifier: Box::new(OperationIdentifier::new(3)),
+              amount: Wrapper(metadata.amount.clone()).into(),
+              account: Some(Box::new(AccountIdentifier::new(metadata.receiver.clone()))),
+              status: Some(metadata.status.to_string()),
               related_operations: None,
               coin_change: None,
               r#type: "".to_string(), // TODO: get the correct type
               metadata: None,         // TODO: get the correct metadata
             });
           }
-        }
+        };
       }
     }
+    operations
   }
 
   // Do we also need internal and zkapps commands?
   pub async fn user_commands(&self, metadata: &BlockMetadata) -> Result<Vec<Transaction>, MinaMeshError> {
-    sqlx::query_file_as!(
-      UserCommandMetadata,
-      "sql/user_commands.sql",
-      metadata.id,
-      "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf" /* TODO: use default token value, check how to best
-                                                            * handle this */
+    Ok(
+      sqlx::query_file_as!(
+        UserCommandMetadata,
+        "sql/user_commands.sql",
+        metadata.id,
+        "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf" /* TODO: use default token value, check how to best
+                                                              * handle this */
+      )
+      .fetch_all(&self.pg_pool)
+      .await?
+      .into_iter()
+      .map(|item| {
+        Transaction::new(
+          TransactionIdentifier::new(item.hash.clone()),
+          Self::user_command_metadata_to_operations(&item),
+        )
+      })
+      .collect(),
     )
-    .fetch_all(&self.pg_pool)
-    .await?
-    .into_iter()
-    .map(|x| Transaction::new(TransactionIdentifier::new(x.hash), user_command_metadata_to_operations(x)))
-    .collect()
   }
 
   pub async fn block_metadata(

@@ -22,3 +22,13 @@ pub enum TransactionStatus {
   Applied,
   Failed,
 }
+
+impl ToString for TransactionStatus {
+  fn to_string(&self) -> String {
+    match self {
+      Self::Applied => "Applied",
+      Self::Failed => "Failed",
+    }
+    .to_string()
+  }
+}
