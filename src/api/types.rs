@@ -8,3 +8,17 @@ pub enum ChainStatus {
   Pending,
   Orphaned,
 }
+
+#[derive(Type, Debug, PartialEq, Eq, Serialize)]
+#[sqlx(type_name = "command_type", rename_all = "lowercase")]
+pub enum CommandType {
+  Payment,
+  Delegation,
+}
+
+#[derive(Type, Debug, PartialEq, Eq, Serialize)]
+#[sqlx(type_name = "transaction_status", rename_all = "lowercase")]
+pub enum TransactionStatus {
+  Applied,
+  Failed,
+}

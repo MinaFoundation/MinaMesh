@@ -1,9 +1,19 @@
 SELECT
-  u.*,
+  u.id,
+  u.command_type AS "command_type: CommandType",
+  u.fee_payer_id,
+  u.source_id,
+  u.receiver_id,
+  u.nonce,
+  u.amount,
+  u.fee,
+  u.valid_until,
+  u.memo,
+  u.hash,
   pk_payer.value AS fee_payer,
   pk_source.value AS source,
   pk_receiver.value AS receiver,
-  buc.status,
+  buc.status AS "status: TransactionStatus",
   buc.failure_reason,
   ac.creation_fee
 FROM
@@ -48,7 +58,4 @@ FROM
   LEFT JOIN tokens AS t ON ai_receiver.token_id=t.id
 WHERE
   buc.block_id=$1
-  AND (
-    t.value=$2
-    OR t.id IS NULL
-  )
+  AND t.value=$2
