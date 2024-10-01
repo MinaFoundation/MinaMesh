@@ -41,20 +41,20 @@ impl MinaMesh {
 
   // TODO: use default token value, check how to best handle this
   pub async fn user_commands(&self, metadata: &BlockMetadata) -> Result<Vec<Transaction>, MinaMeshError> {
-    Ok(
-      sqlx::query_file_as!(
-        UserCommandMetadata,
-        "sql/user_commands.sql",
-        metadata.id,
-        // cspell:disable-next-line
-        "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"
-      )
-      .fetch_all(&self.pg_pool)
-      .await?
+    let metadata = sqlx::query_file_as!(
+      UserCommandMetadata,
+      "sql/user_commands.sql",
+      metadata.id,
+      // cspell:disable-next-line
+      "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"
+    )
+    .fetch_all(&self.pg_pool)
+    .await?;
+    let transactions = metadata
       .into_iter()
       .map(|item| Transaction::new(TransactionIdentifier::new(item.hash.clone()), Wrapper(&item).into()))
-      .collect(),
-    )
+      .collect();
+    Ok(transactions)
   }
 
   pub async fn block_metadata(
