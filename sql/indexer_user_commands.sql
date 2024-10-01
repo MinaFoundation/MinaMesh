@@ -21,7 +21,7 @@ blocks AS (
 user_command_info AS (
     SELECT DISTINCT ON (buc.block_id, buc.user_command_id, buc.sequence_no)
         u.id,
-        u.command_type,
+        u.command_type AS "command_type: UserCommandType",
         u.fee_payer_id,
         u.source_id,
         u.receiver_id,
@@ -33,10 +33,10 @@ user_command_info AS (
         u.hash,
         buc.block_id,
         buc.sequence_no,
-        buc.status,
+        buc.status AS "status: TransactionStatus",
         buc.failure_reason,
         b.state_hash,
-        b.chain_status,
+        b.chain_status AS "chain_status: ChainStatus",
         b.height
     FROM user_commands AS u
     INNER JOIN blocks_user_commands AS buc
@@ -75,7 +75,7 @@ FROM id_count,
         SELECT *
         FROM user_command_info
         ORDER BY block_id, id, sequence_no
-        LIMIT 5 OFFSET 0
+        LIMIT $8 OFFSET $9
     ) AS u
 INNER JOIN public_keys AS pk_payer
     ON u.fee_payer_id = pk_payer.id
@@ -91,7 +91,7 @@ LEFT JOIN accounts_created AS ac
     ON
         u.block_id = ac.block_id
         AND ai_receiver.id = ac.account_identifier_id
-        AND u.status = 'applied'
+        AND u."status: TransactionStatus" = 'applied'
         AND u.sequence_no
         = (SELECT LEAST(
             (
