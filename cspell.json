@@ -16,7 +16,11 @@
     "src/graphql/schema/mina_schema.graphql",
     "sql/**",
     "static/scalar.standalone.min.js",
-    "target/**"
+    "target/**",
+    "flake.*",
+    "nix/**",
+    ".gitignore"
   ],
-  "useGitignore": true
+  "useGitignore": true,
+  "enabled": true
 }
