@@ -12,6 +12,7 @@
       ];
       packages = with pkgs; [
         nixd # Nix language server
+        nixfmt # Nix formatter
         cargo-watch
         config.process-compose.cargo-doc-live.outputs.package
       ];
