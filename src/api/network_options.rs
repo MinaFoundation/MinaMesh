@@ -1,7 +1,7 @@
 // TODO: double-check the data is correct
 // TODO: why do long string literals in the error metadata break rustfmt?
 
-pub use mesh::models::{Allow, Case, Error, NetworkOptionsResponse, OperationStatus, Version};
+use mesh::models::{Allow, Case, Error, NetworkOptionsResponse, OperationStatus, Version};
 
 use crate::{MinaMesh, MinaMeshError};
 

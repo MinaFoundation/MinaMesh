@@ -1,12 +1,15 @@
 use anyhow::Result;
 use mesh::models::{
-  AccountIdentifier, Block, BlockIdentifier, Operation, OperationIdentifier, Transaction, TransactionIdentifier,
+  AccountIdentifier, Block, BlockIdentifier, BlockRequest, BlockResponse, Operation, OperationIdentifier,
+  PartialBlockIdentifier, Transaction, TransactionIdentifier,
 };
-pub use mesh::models::{BlockRequest, BlockResponse, PartialBlockIdentifier};
 use serde::Serialize;
 use sqlx::FromRow;
 
-use crate::{ChainStatus, CommandType, MinaMesh, MinaMeshError, TransactionStatus, Wrapper};
+use crate::{
+  ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationStatus, OperationType, TransactionStatus,
+  UserCommandType, Wrapper,
+};
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
 impl MinaMesh {
@@ -28,6 +31,7 @@ impl MinaMesh {
       None => block_identifier.clone(),
     };
     let user_commands = self.user_commands(&metadata).await?;
+    // let internal_commands = self.internal_commands(&metadata).await?;
     Ok(BlockResponse {
       block: Some(Box::new(Block::new(
         block_identifier,
@@ -41,20 +45,31 @@ impl MinaMesh {
 
   // TODO: use default token value, check how to best handle this
   pub async fn user_commands(&self, metadata: &BlockMetadata) -> Result<Vec<Transaction>, MinaMeshError> {
-    let metadata = sqlx::query_file_as!(
-      UserCommandMetadata,
-      "sql/user_commands.sql",
-      metadata.id,
-      // cspell:disable-next-line
-      "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"
-    )
-    .fetch_all(&self.pg_pool)
-    .await?;
+    let metadata = sqlx::query_file_as!(UserCommandMetadata, "sql/user_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
+      .fetch_all(&self.pg_pool)
+      .await?;
     let transactions = metadata
       .into_iter()
-      .map(|item| Transaction::new(TransactionIdentifier::new(item.hash.clone()), Wrapper(&item).into()))
+      .map(|item| {
+        Transaction::new(TransactionIdentifier::new(item.hash.clone()), user_command_metadata_to_operations(&item))
+      })
       .collect();
     Ok(transactions)
+  }
+
+  pub async fn internal_commands(&self, metadata: &BlockMetadata) -> Result<Vec<Transaction>, MinaMeshError> {
+    // let metadata =
+    //   sqlx::query_file_as!(InternalCommandMetadata, "sql/internal_commands.sql",
+    // metadata.id, DEFAULT_TOKEN_ID)     .fetch_all(&self.pg_pool)
+    //     .await?;
+    // let transactions = metadata
+    //   .into_iter()
+    //   .map(|item| {
+    //     Transaction::new(TransactionIdentifier::new(item.hash.clone()),
+    // internal_command_metadata_to_operation(&item))   })
+    //   .collect();
+    // Ok(transactions)
+    unimplemented!();
   }
 
   pub async fn block_metadata(
@@ -109,7 +124,7 @@ pub struct BlockMetadata {
 
 #[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
 pub struct UserCommandMetadata {
-  command_type: CommandType,
+  command_type: UserCommandType,
   nonce: i64,
   amount: Option<String>,
   fee: String,
@@ -124,73 +139,156 @@ pub struct UserCommandMetadata {
   creation_fee: Option<String>,
 }
 
-impl From<Wrapper<&UserCommandMetadata>> for Vec<Operation> {
-  fn from(Wrapper(metadata): Wrapper<&UserCommandMetadata>) -> Self {
-    let mut operations = Vec::new();
-    if metadata.fee != "0" {
+#[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
+pub struct InternalCommandMetadata {
+  command_type: InternalCommandType,
+  receiver: String,
+  fee: String,
+  hash: String,
+  creation_fee: Option<String>,
+  sequence_no: i32,
+  secondary_sequence_no: i32,
+  coinbase_receiver: Option<String>,
+}
+
+fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Operation> {
+  let mut operations = Vec::new();
+  if metadata.fee != "0" {
+    operations.push(Operation {
+      operation_identifier: Box::new(OperationIdentifier::new(0)),
+      amount: Wrapper(Some(metadata.fee.clone())).into(),
+      account: Some(Box::new(AccountIdentifier::new(metadata.fee_payer.clone()))),
+      status: Some(OperationStatus::Success.to_string()),
+      related_operations: None,
+      coin_change: None,
+      r#type: Wrapper(OperationType::FeePayment).to_snake_case(),
+      metadata: None, // TODO: get the correct metadata
+    });
+  }
+  if metadata.failure_reason.is_none() {
+    if let Some(creation_fee) = &metadata.creation_fee {
       operations.push(Operation {
-        operation_identifier: Box::new(OperationIdentifier::new(0)),
-        amount: Wrapper(Some(metadata.fee.clone())).into(),
-        account: Some(Box::new(AccountIdentifier::new(metadata.fee_payer.clone()))),
-        status: Some(metadata.status.to_string()),
+        operation_identifier: Box::new(OperationIdentifier::new(1)),
+        amount: Wrapper(Some(creation_fee.to_owned())).into(),
+        account: Some(Box::new(AccountIdentifier::new(metadata.receiver.clone()))),
+        status: Some(OperationStatus::from(metadata.status.clone()).to_string()),
         related_operations: None,
         coin_change: None,
-        r#type: "".to_string(), // TODO: get the correct type
-        metadata: None,         // TODO: get the correct metadata
+        r#type: Wrapper(OperationType::AccountCreationFeeViaPayment).to_snake_case(),
+        metadata: None, // TODO: get the correct metadata
       });
     }
-    if metadata.failure_reason.is_none() {
-      if let Some(creation_fee) = &metadata.creation_fee {
+    match metadata.command_type {
+      UserCommandType::Delegation => {
         operations.push(Operation {
-          operation_identifier: Box::new(OperationIdentifier::new(1)),
-          amount: Wrapper(Some(creation_fee.to_owned())).into(),
-          account: Some(Box::new(AccountIdentifier::new(metadata.receiver.clone()))),
-          status: Some(metadata.status.to_string()),
+          operation_identifier: Box::new(OperationIdentifier::new(2)),
+          amount: None,
+          account: Some(Box::new(AccountIdentifier::new(metadata.source.clone()))),
+          status: Some(OperationStatus::from(metadata.status.clone()).to_string()),
           related_operations: None,
           coin_change: None,
-          r#type: "".to_string(), // TODO: get the correct type
-          metadata: None,         // TODO: get the correct metadata
+          r#type: Wrapper(OperationType::DelegateChange).to_snake_case(),
+          metadata: None, // TODO: get the correct metadata
         });
       }
-      match metadata.command_type {
-        CommandType::Delegation => {
-          operations.push(Operation {
+      UserCommandType::Payment => {
+        operations.extend_from_slice(&[
+          Operation {
             operation_identifier: Box::new(OperationIdentifier::new(2)),
-            amount: None,
+            amount: Wrapper(metadata.amount.clone()).into(), // TODO: negate value
             account: Some(Box::new(AccountIdentifier::new(metadata.source.clone()))),
-            status: Some(metadata.status.to_string()),
+            status: Some(OperationStatus::from(metadata.status.clone()).to_string()),
             related_operations: None,
             coin_change: None,
-            r#type: "".to_string(), // TODO: get the correct type
-            metadata: None,         // TODO: get the correct metadata
-          });
-        }
-        CommandType::Payment => {
-          operations.extend_from_slice(&[
-            Operation {
-              operation_identifier: Box::new(OperationIdentifier::new(2)),
-              amount: Wrapper(metadata.amount.clone()).into(),
-              account: Some(Box::new(AccountIdentifier::new(metadata.source.clone()))),
-              status: Some(metadata.status.to_string()),
-              related_operations: None,
-              coin_change: None,
-              r#type: "".to_string(), // TODO: get the correct type
-              metadata: None,         // TODO: get the correct metadata
-            },
-            Operation {
-              operation_identifier: Box::new(OperationIdentifier::new(3)),
-              amount: Wrapper(metadata.amount.clone()).into(),
-              account: Some(Box::new(AccountIdentifier::new(metadata.receiver.clone()))),
-              status: Some(metadata.status.to_string()),
-              related_operations: None,
-              coin_change: None,
-              r#type: "".to_string(), // TODO: get the correct type
-              metadata: None,         // TODO: get the correct metadata
-            },
-          ]);
-        }
-      };
-    }
-    operations
+            r#type: Wrapper(OperationType::PaymentSourceDec).to_snake_case(),
+            metadata: None, // TODO: get the correct metadata
+          },
+          Operation {
+            operation_identifier: Box::new(OperationIdentifier::new(3)),
+            amount: Wrapper(metadata.amount.clone()).into(),
+            account: Some(Box::new(AccountIdentifier::new(metadata.receiver.clone()))),
+            status: Some(OperationStatus::from(metadata.status.clone()).to_string()),
+            related_operations: None,
+            coin_change: None,
+            r#type: Wrapper(OperationType::PaymentReceiverInc).to_snake_case(),
+            metadata: None, // TODO: get the correct metadata
+          },
+        ]);
+      }
+    };
   }
+  operations
 }
+
+fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) -> Result<Vec<Operation>, MinaMeshError> {
+  let mut operations = Vec::new();
+  if let Some(creation_fee) = &metadata.creation_fee {
+    operations.push(Operation {
+      operation_identifier: Box::new(OperationIdentifier::new(0)),
+      amount: Wrapper(Some(creation_fee.clone())).into(),
+      account: Some(Box::new(AccountIdentifier::new(metadata.receiver.clone()))),
+      status: Some(OperationStatus::Success.to_string()),
+      related_operations: None,
+      coin_change: None,
+      r#type: Wrapper(OperationType::AccountCreationFeeViaFeeReceiver).to_snake_case(),
+      metadata: None, // TODO: get the correct metadata
+    });
+  }
+
+  match metadata.command_type {
+    InternalCommandType::Coinbase => {
+      operations.push(Operation {
+        operation_identifier: Box::new(OperationIdentifier::new(2)),
+        amount: Wrapper(Some(metadata.fee.clone())).into(),
+        account: Some(Box::new(AccountIdentifier::new(metadata.receiver.clone()))),
+        status: Some(OperationStatus::Success.to_string()),
+        related_operations: None,
+        coin_change: None,
+        r#type: Wrapper(OperationType::CoinbaseInc).to_snake_case(),
+        metadata: None, // TODO: get the correct metadata
+      });
+    }
+    InternalCommandType::FeeTransfer => {
+      operations.push(Operation {
+        operation_identifier: Box::new(OperationIdentifier::new(2)),
+        amount: Wrapper(Some(metadata.fee.clone())).into(),
+        account: Some(Box::new(AccountIdentifier::new(metadata.receiver.clone()))), // TODO: token id
+        status: Some(OperationStatus::Success.to_string()),
+        related_operations: None,
+        coin_change: None,
+        r#type: Wrapper(OperationType::FeeReceiverInc).to_snake_case(),
+        metadata: None, // TODO: get the correct metadata
+      });
+    }
+    InternalCommandType::FeeTransferViaCoinbase => {
+      if let Some(coinbase_receiver) = &metadata.coinbase_receiver {
+        operations.push(Operation {
+          operation_identifier: Box::new(OperationIdentifier::new(2)),
+          amount: Wrapper(Some(metadata.fee.clone())).into(),
+          account: Some(Box::new(AccountIdentifier::new(metadata.receiver.clone()))), // TODO: token id
+          status: Some(OperationStatus::Success.to_string()),
+          related_operations: None,
+          coin_change: None,
+          r#type: Wrapper(OperationType::FeeReceiverInc).to_snake_case(),
+          metadata: None, // TODO: get the correct metadata
+        });
+        operations.push(Operation {
+          operation_identifier: Box::new(OperationIdentifier::new(3)),
+          amount: Wrapper(Some(metadata.fee.clone())).into(), // TODO: negate value
+          account: Some(Box::new(AccountIdentifier::new(coinbase_receiver.clone()))), // TODO: token id
+          status: Some(OperationStatus::Success.to_string()),
+          related_operations: None,
+          coin_change: None,
+          r#type: Wrapper(OperationType::FeePayerDec).to_snake_case(),
+          metadata: None, // TODO: get the correct metadata
+        });
+      } else {
+        return Err(MinaMeshError::InvariantViolation);
+      }
+    }
+  }
+  Ok(operations)
+}
+
+// cspell:disable-next-line
+static DEFAULT_TOKEN_ID: &str = "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf";

@@ -4,7 +4,8 @@ use anyhow::Result;
 use futures::{stream::FuturesUnordered, StreamExt};
 use insta::assert_debug_snapshot;
 use mina_mesh::{
-  BlockRequest, BlockResponse, MinaMeshConfig, MinaMeshError, NetworkIdentifier, PartialBlockIdentifier,
+  models::{BlockRequest, BlockResponse, NetworkIdentifier, PartialBlockIdentifier},
+  MinaMeshConfig, MinaMeshError,
 };
 
 #[tokio::test]

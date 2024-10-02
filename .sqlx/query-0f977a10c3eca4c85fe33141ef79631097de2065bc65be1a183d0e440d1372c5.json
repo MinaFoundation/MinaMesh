@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "WITH\n  internal_commands_cte AS (\n    SELECT DISTINCT\n      ON (\n        i.hash,\n        i.command_type,\n        bic.sequence_no,\n        bic.secondary_sequence_no\n      ) i.*,\n      ac.creation_fee,\n      pk.value AS receiver,\n      bic.sequence_no,\n      bic.secondary_sequence_no\n    FROM\n      internal_commands AS i\n      INNER JOIN blocks_internal_commands AS bic ON i.id=bic.internal_command_id\n      INNER JOIN public_keys AS pk ON i.receiver_id=pk.id\n      INNER JOIN account_identifiers AS ai ON i.receiver_id=ai.public_key_id\n      LEFT JOIN accounts_created AS ac ON ai.id=ac.account_identifier_id\n      AND bic.block_id=ac.block_id\n      AND bic.sequence_no=(\n        SELECT\n          least(\n            (\n              SELECT\n                min(bic2.sequence_no)\n              FROM\n                blocks_internal_commands AS bic2\n                INNER JOIN internal_commands AS ic2 ON bic2.internal_command_id=ic2.id\n              WHERE\n                i.receiver_id=ic2.receiver_id\n                AND bic2.block_id=bic.block_id\n                AND bic2.status='applied'\n            ),\n            (\n              SELECT\n                min(buc2.sequence_no)\n              FROM\n                blocks_user_commands AS buc2\n                INNER JOIN user_commands AS uc2 ON buc2.user_command_id=uc2.id\n              WHERE\n                i.receiver_id=uc2.receiver_id\n                AND buc2.block_id=bic.block_id\n                AND buc2.status='applied'\n            )\n          )\n      )\n      INNER JOIN tokens AS t ON ai.token_id=t.id\n    WHERE\n      bic.block_id=$1\n      AND t.value=$2\n  )\nSELECT\n  ic.command_type AS \"command_type: InternalCommandType\",\n  ic.hash,\n  ic.creation_fee,\n  ic.receiver,\n  ic.sequence_no,\n  ic.secondary_sequence_no,\n  ic.fee,\n  coinbase_receiver_pk.value AS coinbase_receiver\nFROM\n  internal_commands_cte AS ic\n  LEFT JOIN internal_commands_cte AS ic_coinbase_receiver ON ic.command_type='fee_transfer_via_coinbase'\n  AND ic_coinbase_receiver.command_type='coinbase'\n  LEFT JOIN public_keys AS coinbase_receiver_pk ON ic_coinbase_receiver.receiver_id=coinbase_receiver_pk.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "command_type: InternalCommandType",
+        "type_info": {
+          "Custom": {
+            "name": "internal_command_type",
+            "kind": {
+              "Enum": [
+                "fee_transfer_via_coinbase",
+                "fee_transfer",
+                "coinbase"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "creation_fee",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "receiver",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "sequence_no",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "secondary_sequence_no",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "fee",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "coinbase_receiver",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "0f977a10c3eca4c85fe33141ef79631097de2065bc65be1a183d0e440d1372c5"
+}

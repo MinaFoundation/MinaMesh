@@ -4,6 +4,7 @@ use axum::{
   http::StatusCode,
   response::{IntoResponse, Response},
 };
+use convert_case::{Case, Casing};
 use mesh::models::{Amount, Currency, PartialBlockIdentifier};
 use serde::Serialize;
 
@@ -50,4 +51,10 @@ impl ToString for Wrapper<&PartialBlockIdentifier> {
 
 pub fn default_mina_proxy_url() -> String {
   "https://mainnet.minaprotocol.network/graphql".to_string()
+}
+
+impl<T: ToString> Wrapper<T> {
+  pub fn to_snake_case(&self) -> String {
+    self.0.to_string().to_case(Case::Snake)
+  }
 }

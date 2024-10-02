@@ -28,9 +28,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -59,9 +59,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -90,9 +90,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -130,9 +130,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -161,9 +161,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -192,9 +192,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -232,9 +232,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -263,9 +263,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -294,9 +294,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -334,9 +334,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -365,9 +365,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -396,9 +396,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -436,9 +436,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -467,9 +467,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -498,9 +498,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -538,9 +538,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -569,9 +569,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -600,9 +600,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -640,9 +640,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -671,9 +671,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -702,9 +702,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -742,9 +742,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -773,9 +773,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -804,9 +804,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -844,9 +844,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -875,9 +875,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -906,9 +906,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -946,9 +946,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -977,9 +977,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1008,9 +1008,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1048,9 +1048,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1079,9 +1079,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1110,9 +1110,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1150,9 +1150,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1181,9 +1181,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1212,9 +1212,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1252,9 +1252,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1283,9 +1283,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1314,9 +1314,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1354,9 +1354,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1385,9 +1385,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1416,9 +1416,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1456,9 +1456,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1487,9 +1487,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1518,9 +1518,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1558,9 +1558,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1589,9 +1589,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1620,9 +1620,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1660,9 +1660,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1691,9 +1691,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1722,9 +1722,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1762,9 +1762,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1793,9 +1793,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1824,9 +1824,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1864,9 +1864,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1895,9 +1895,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1926,9 +1926,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1966,9 +1966,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -1997,9 +1997,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2028,9 +2028,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2068,9 +2068,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2099,9 +2099,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2130,9 +2130,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2170,9 +2170,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2201,9 +2201,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2232,9 +2232,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2272,9 +2272,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2303,9 +2303,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2334,9 +2334,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2374,9 +2374,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2405,9 +2405,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2436,9 +2436,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2476,9 +2476,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "fee_payment",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2507,9 +2507,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_source_dec",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {
@@ -2538,9 +2538,9 @@ Some(
                                         network_index: None,
                                     },
                                     related_operations: None,
-                                    type: "",
+                                    type: "payment_receiver_inc",
                                     status: Some(
-                                        "Applied",
+                                        "Success",
                                     ),
                                     account: Some(
                                         AccountIdentifier {

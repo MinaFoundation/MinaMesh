@@ -1,7 +1,7 @@
 // TODO: get genesis block identifier from env
 
 use cynic::QueryBuilder;
-pub use mesh::models::{BlockIdentifier, NetworkStatusResponse, Peer};
+use mesh::models::{BlockIdentifier, NetworkStatusResponse, Peer};
 
 use crate::{
   graphql::{Block3, DaemonStatus3, QueryNetworkStatus},

@@ -1,5 +1,5 @@
 SELECT
-  u.command_type AS "command_type: CommandType",
+  u.command_type AS "command_type: UserCommandType",
   u.nonce,
   u.amount,
   u.fee,

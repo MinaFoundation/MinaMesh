@@ -1,5 +1,5 @@
 use cynic::QueryBuilder;
-pub use mesh::models::{MempoolTransactionRequest, MempoolTransactionResponse, Transaction, TransactionIdentifier};
+use mesh::models::{MempoolTransactionRequest, MempoolTransactionResponse, Transaction, TransactionIdentifier};
 
 use crate::{
   graphql::{QueryMempoolTransactions, QueryMempoolTransactionsVariables},

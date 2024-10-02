@@ -1,7 +1,7 @@
 use cynic::QueryBuilder;
-use mesh::models::AccountIdentifier;
-pub use mesh::models::{
-  AccountBalanceRequest, AccountBalanceResponse, Amount, BlockIdentifier, Currency, PartialBlockIdentifier,
+use mesh::models::{
+  AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, Amount, BlockIdentifier, Currency,
+  PartialBlockIdentifier,
 };
 
 use crate::{

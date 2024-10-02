@@ -1,5 +1,5 @@
 use anyhow::Result;
-pub use mesh::models::{ConstructionPreprocessRequest, ConstructionPreprocessResponse};
+use mesh::models::{ConstructionPreprocessRequest, ConstructionPreprocessResponse};
 
 use crate::MinaMesh;
 

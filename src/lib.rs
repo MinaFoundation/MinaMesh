@@ -1,4 +1,4 @@
-pub mod api;
+mod api;
 mod commands;
 mod config;
 mod error;
@@ -10,13 +10,13 @@ pub use api::*;
 pub use commands::*;
 pub use config::*;
 pub use error::*;
-pub use mesh::models::{AccountIdentifier, BlockIdentifier, NetworkIdentifier};
+pub use mesh::models;
 use sqlx::PgPool;
-pub use util::Wrapper;
+pub(crate) use util::Wrapper;
 
 #[derive(Debug)]
 pub struct MinaMesh {
   pub graphql_client: graphql::GraphQLClient,
   pub pg_pool: PgPool,
-  pub genesis_block_identifier: BlockIdentifier,
+  pub genesis_block_identifier: models::BlockIdentifier,
 }

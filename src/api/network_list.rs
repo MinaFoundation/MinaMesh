@@ -1,6 +1,6 @@
 use anyhow::Result;
 use cynic::QueryBuilder;
-pub use mesh::models::{NetworkIdentifier, NetworkListResponse};
+use mesh::models::{NetworkIdentifier, NetworkListResponse};
 
 use crate::{graphql::QueryNetworkId, MinaMesh};
 
