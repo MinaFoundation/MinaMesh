@@ -2,6 +2,7 @@ use std::sync::OnceLock;
 
 use anyhow::Result;
 use futures::{stream::FuturesUnordered, StreamExt};
+use insta::assert_debug_snapshot;
 use mina_mesh::{
   BlockRequest, BlockResponse, MinaMeshConfig, MinaMeshError, NetworkIdentifier, PartialBlockIdentifier,
 };
@@ -20,6 +21,7 @@ async fn specified() -> Result<()> {
     }
     maybe_prev = Some(resolved);
   }
+  assert_debug_snapshot!(maybe_prev);
   Ok(())
 }
 
