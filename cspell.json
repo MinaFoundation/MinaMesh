@@ -18,7 +18,8 @@
     "static/scalar.standalone.min.js",
     "target/**",
     "flake.*",
-    "nix/**"
+    "nix/**",
+    ".gitignore"
   ],
   "useGitignore": true,
   "enabled": true
