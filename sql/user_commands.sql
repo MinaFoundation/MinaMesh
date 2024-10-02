@@ -14,8 +14,8 @@ SELECT
   pk_source.value AS source,
   pk_receiver.value AS receiver,
   buc.status AS "status: TransactionStatus",
-  buc.failure_reason,
-  ac.creation_fee
+  buc.failure_reason AS "failure_reason?",
+  ac.creation_fee AS "creation_fee?"
 FROM
   user_commands AS u
   INNER JOIN blocks_user_commands AS buc ON u.id=buc.user_command_id
