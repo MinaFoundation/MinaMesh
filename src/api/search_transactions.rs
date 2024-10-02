@@ -137,6 +137,7 @@ impl MinaMesh {
   ) -> Result<SearchTransactionsResponse, MinaMeshError> {
     let user_commands = self.fetch_user_commands(&req).await?;
     let user_commands_len = user_commands.len();
+    let next_offset = req.offset.unwrap_or(0) + user_commands_len as i64;
 
     // Extract the total count from the first user command, or default to 0
     let user_commands_total_count = user_commands.first().and_then(|uc| uc.total_count).unwrap_or(0);
@@ -147,7 +148,10 @@ impl MinaMesh {
     let response = SearchTransactionsResponse {
       transactions: user_commands_bt,
       total_count: user_commands_total_count,
-      next_offset: Some(req.offset.unwrap_or(0) + user_commands_len as i64),
+      next_offset: match next_offset {
+        offset if offset < user_commands_total_count => Some(offset),
+        _ => None,
+      },
     };
 
     Ok(response)
@@ -170,7 +174,7 @@ impl MinaMesh {
       None => None,
     };
     let address = req.address.as_ref();
-    let limit = req.limit.unwrap_or(5);
+    let limit = req.limit.unwrap_or(100);
     let offset = req.offset.unwrap_or(0);
 
     let user_commands = sqlx::query_file_as!(
