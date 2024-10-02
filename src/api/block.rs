@@ -109,11 +109,7 @@ pub struct BlockMetadata {
 
 #[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
 pub struct UserCommandMetadata {
-  id: i32,
   command_type: CommandType,
-  fee_payer_id: i32,
-  source_id: i32,
-  receiver_id: i32,
   nonce: i64,
   amount: Option<String>,
   fee: String,

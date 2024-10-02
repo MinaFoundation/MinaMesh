@@ -1,9 +1,5 @@
 SELECT
-  u.id,
   u.command_type AS "command_type: CommandType",
-  u.fee_payer_id,
-  u.source_id,
-  u.receiver_id,
   u.nonce,
   u.amount,
   u.fee,
