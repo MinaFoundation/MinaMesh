@@ -69,7 +69,7 @@ SELECT
     pk_payer.value AS fee_payer,
     pk_source.value AS source,
     pk_receiver.value AS receiver,
-    ac.creation_fee
+    COALESCE(ac.creation_fee, '0') AS creation_fee
 FROM id_count,
     (
         SELECT *
