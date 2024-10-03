@@ -8,6 +8,9 @@ Mina Mesh is an implementation of the
 
 ## Installation
 
+Ensure you have the Rust toolchain installed. If you do not, see
+[installation instructions here](https://www.rust-lang.org/tools/install).
+
 ```sh
 # Install the mina-mesh executable
 cargo install mina-mesh
