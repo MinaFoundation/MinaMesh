@@ -4,8 +4,6 @@ use axum::{
   http::StatusCode,
   response::{IntoResponse, Response},
 };
-use convert_case::{Case, Casing};
-use mesh::models::{Amount, Currency, PartialBlockIdentifier};
 use serde::Serialize;
 
 use crate::MinaMeshError;
@@ -36,25 +34,6 @@ impl Wrapper<Option<serde_json::Value>> {
 // cspell:disable-next-line
 const DEFAULT_TOKEN_ID: &str = "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf";
 
-#[allow(clippy::to_string_trait_impl)]
-impl ToString for Wrapper<&PartialBlockIdentifier> {
-  fn to_string(&self) -> String {
-    match &self.0.hash {
-      Some(hash) => hash.to_owned(),
-      None => match self.0.index {
-        Some(index) => index.to_string(),
-        None => "latest".to_string(),
-      },
-    }
-  }
-}
-
 pub fn default_mina_proxy_url() -> String {
   "https://mainnet.minaprotocol.network/graphql".to_string()
-}
-
-impl<T: ToString> Wrapper<T> {
-  pub fn to_snake_case(&self) -> String {
-    self.0.to_string().to_case(Case::Snake)
-  }
 }

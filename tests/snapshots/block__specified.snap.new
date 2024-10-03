@@ -1,0 +1,12 @@
+---
+source: tests/block.rs
+assertion_line: 25
+expression: maybe_prev
+---
+Some(
+    Err(
+        Sql(
+            "error occurred while decoding column 2: unexpected null; try decoding as an `Option`",
+        ),
+    ),
+)
