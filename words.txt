@@ -24,6 +24,7 @@ keypair
 lookback
 microschemas
 mina
+minafoundation
 navroot
 nocapture
 openapi
