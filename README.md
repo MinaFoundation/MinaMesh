@@ -15,22 +15,22 @@ Ensure you have the Rust toolchain installed. If you do not, see
 # Install the mina-mesh executable
 cargo install mina-mesh
 
-# Confirm installation successful
+# Confirm the installation was successful
 mina-mesh --help
 ```
 
 ## Fetch Genesis Block Identifier
 
-Before running the server, we must first write genesis block identifier information to our `.env`
-file.
+The server depends on two environment variables (the genesis block identifier hash and index). We
+can retrieve these using the `fetch-genesis-block-identifier` command.
 
 ```sh
 mina-mesh fetch-genesis-block-identifier >> .env
 ```
 
-> Note: this command utilizes a default GraphQL endpoint
-> ("https://mainnet.minaprotocol.network/graphql"). You can override this default by specifying a
-> `PROXY_URL` in your `.env` file.
+> Note: all commands utilize a default GraphQL endpoint
+> ("https://mainnet.minaprotocol.network/graphql"). You can override this default by specifying the
+> `PROXY_URL`.
 
 ## Instantiate the Server
 
@@ -53,3 +53,16 @@ mina-mesh serve --playground --database-url postgres://mina:whatever@localhost:5
 
 Then visit [`http://0.0.0.0:3000`](http://0.0.0.0:3000) for an interactive playground with which you
 can explore and test endpoints.
+
+## Code of Conduct
+
+Everyone interacting in this repo is expected to follow the [code of conduct](CODE_OF_CONDUCT.md).
+
+## Contributing
+
+Contributions are welcome and appreciated! Check out the [contributing guide](CONTRIBUTING.md)
+before you dive in.
+
+## License
+
+Mina Mesh is [Apache licensed](LICENSE).
