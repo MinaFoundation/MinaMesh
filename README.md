@@ -39,11 +39,11 @@ The server depends on several environment variables.
 mina-mesh serve --playground
 ```
 
-> Note: you may want to exclude the `--playground` flag in production. This will disable the
-> playground, which renders when the server's root `/` route receives a GET request.
+> Note: the presence of the `--playground` flag enables the serving of an OpenAPI playground in
+> response to `GET /`. To disable this endpoint, omit the `--playground` flag.
 
-Then visit [`http://0.0.0.0:3000`](http://0.0.0.0:3000) for an interactive playground with which you
-can explore and test endpoints.
+Visit [`http://0.0.0.0:3000`](http://0.0.0.0:3000) for an interactive playground with which you can
+explore and test endpoints.
 
 ## Code of Conduct
 
