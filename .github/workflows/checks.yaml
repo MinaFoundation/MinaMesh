@@ -41,7 +41,7 @@ jobs:
       - run: RUSTFLAGS="-D warnings" cargo clippy --all-targets
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: minafoundation-xlarge-runners
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
