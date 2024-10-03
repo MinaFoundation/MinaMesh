@@ -47,3 +47,7 @@ impl ToString for Wrapper<&PartialBlockIdentifier> {
     }
   }
 }
+
+pub fn default_mina_proxy_url() -> String {
+  "https://mainnet.minaprotocol.network/graphql".to_string()
+}

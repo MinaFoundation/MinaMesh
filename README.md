@@ -1,110 +1,59 @@
 # Mina Mesh
 
-[![checks](https://github.com/MinaFoundation/MinaMesh/actions/workflows/checks.yaml/badge.svg)](https://github.com/MinaFoundation/MinaMesh/actions/workflows/checks.yaml)
-
-## Overview
-
 Mina Mesh is an implementation of the
 [Coinbase Mesh specification](https://docs.cdp.coinbase.com/mesh/docs/welcome) for the
 [Mina blockchain](https://minaprotocol.com/).
 
-## Building
+> Note: Mina Mesh is WIP and should not yet be used in production.
 
-To build the project:
+## Installation
 
-```bash
-cargo build
+Ensure you have the Rust toolchain installed. If you do not, see
+[installation instructions here](https://www.rust-lang.org/tools/install).
+
+```sh
+# Install the mina-mesh executable
+cargo install mina-mesh
+
+# Confirm the installation was successful
+mina-mesh --help
 ```
 
-The binary will be available at:
+## Environment
 
-```bash
-target/debug/mina_mesh
-```
+The server depends on several environment variables.
 
-## Running
+- `MINAMESH_PROXY_URL`: a Mina proxy (GraphQL) endpoint. The default is
+  `https://mainnet.minaprotocol.network/graphql`.
+- `MINAMESH_ARCHIVE_DATABASE_URL`: a connection string referencing a Mina archive database.
+- `MINAMESH_GENESIS_BLOCK_IDENTIFIER_HEIGHT` and `MINAMESH_GENESIS_BLOCK_IDENTIFIER_STATE_HASH`: we
+  can retrieve these using the `fetch-genesis-block-identifier` command.
 
-Mina Mesh requires access to a PostgreSQL Archive database and a Mina GraphQL endpoint. By default,
-the configuration points to the mainnet, making it easy to get started. You can override the
-configuration by either passing arguments or setting environment variables via a `.env` file (an
-example is provided as `.env.example`).
-
-### Quick Start with Mainnet
-
-1. **Set up the PostgreSQL Archive Database**
-
-Use the predefined `just` commands to set up and start the PostgreSQL database:
-
-```bash
-just setup-archive-db
-```
-
-> Note: This process sets up the PostgreSQL docker using the latest mainnet archive database.
-
-2. **Run the Mina Mesh Server**
-
-To start the server with default settings (mainnet configuration):
-
-```bash
-target/debug/mina_mesh serve
-```
-
-The server will listen on `0.0.0.0:3000` by default.
-
-### Playground Mode
-
-You can enable a playground mode, which provides a simplified testing interface, by adding the
-`--playground` flag:
-
-```bash
-cargo run -- serve --playground
-```
-
-When enabled, you can access the playground at the root URL (`/`).
-
-### Configuration
-
-Mina Mesh can be configured through command-line options or by using environment variables. For
-convenience, you can use a `.env` file. To get started, copy the provided `.env.example`:
-
-```bash
-cp .env.example .env
-```
-
-Then modify the `.env` file to suit your environment. The available configurations include:
-
-- **Mina GraphQL Endpoint**: `MINA_PROXY_URL` (default:
-  `https://mainnet.minaprotocol.network/graphql`)
-- **PostgreSQL Archive Database URL**: `MINA_ARCHIVE_DATABASE_URL` (default:
-  `postgres://mina:whatever@localhost:5432/archive`)
-- **Genesis Block Identifier**: `MINA_GENESIS_BLOCK_IDENTIFIER_HEIGHT`,
-  `MINA_GENESIS_BLOCK_IDENTIFIER_STATE_HASH`
-
-> You can also pass these options as arguments to `mina_mesh serve` to override the defaults.
-
-## Testing
-
-Running the tests requires having Archive database available [see:
-[Quick Start with Mainnet](#quick-start-with-mainnet)]. Once the setup is complete you can run tests
-using:
-
-```bash
-just test
-```
-
-### Managing PostgreSQL
-
-- **Stop PostgreSQL**: To stop the PostgreSQL instance:
-
-  ```bash
-  just pg-down
+  ```sh
+  mina-mesh fetch-genesis-block-identifier >> .env
   ```
 
-- **Restart PostgreSQL**: To restart without reinitializing the database (useful if the database is
-  already set up):
+## Instantiate the Server
 
-  ```bash
-  just pg-up
-  ```
+```sh
+mina-mesh serve --playground
+```
 
-> You only need to reinitialize the database if you want the latest data dump.
+> Note: the presence of the `--playground` flag enables the serving of an OpenAPI playground in
+> response to `GET /`. To disable this endpoint, omit the `--playground` flag.
+
+Visit [`http://0.0.0.0:3000`](http://0.0.0.0:3000) for an interactive playground with which you can
+explore and test endpoints.
+
+## Code of Conduct
+
+Everyone interacting in this repo is expected to follow the [code of conduct](CODE_OF_CONDUCT.md).
+
+## Contributing
+
+Contributions are welcome and appreciated! Check out the [contributing guide](CONTRIBUTING.md)
+before you dive in.
+
+## License
+
+Mina Mesh is [Apache licensed](LICENSE).
