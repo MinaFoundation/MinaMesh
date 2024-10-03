@@ -31,9 +31,13 @@ impl MinaMesh {
       Some(block_metadata) => BlockIdentifier::new(block_metadata.height, block_metadata.state_hash),
       None => block_identifier.clone(),
     };
-    let (mut user_commands, internal_commands) =
-      tokio::try_join!(self.user_commands(&metadata), self.internal_commands(&metadata))?;
+    let (mut user_commands, internal_commands, zkapp_commands) = tokio::try_join!(
+      self.user_commands(&metadata),
+      self.internal_commands(&metadata),
+      self.zkapp_commands(&metadata)
+    )?;
     user_commands.extend(internal_commands.into_iter());
+    user_commands.extend(zkapp_commands.into_iter());
     Ok(BlockResponse {
       block: Some(Box::new(Block::new(
         block_identifier,
@@ -68,6 +72,20 @@ impl MinaMesh {
       .into_iter()
       .map(|item| {
         internal_command_metadata_to_operation(&item)
+          .map(|operation| Transaction::new(TransactionIdentifier::new(item.hash.clone()), operation))
+      })
+      .collect::<Result<Vec<Transaction>, MinaMeshError>>()?;
+    Ok(transactions)
+  }
+
+  pub async fn zkapp_commands(&self, metadata: &BlockMetadata) -> Result<Vec<Transaction>, MinaMeshError> {
+    let metadata = sqlx::query_file_as!(ZkappCommandMetadata, "sql/zkapp_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
+      .fetch_all(&self.pg_pool)
+      .await?;
+    let transactions = metadata
+      .into_iter()
+      .map(|item| {
+        zkapp_command_metadata_to_operation(&item)
           .map(|operation| Transaction::new(TransactionIdentifier::new(item.hash.clone()), operation))
       })
       .collect::<Result<Vec<Transaction>, MinaMeshError>>()?;
@@ -153,6 +171,42 @@ pub struct InternalCommandMetadata {
   coinbase_receiver: Option<String>,
 }
 
+#[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
+pub struct ZkappCommandMetadata {
+  id: i64,
+  memo: Option<String>,
+  hash: String,
+  fee_payer: String,
+  fee: String,
+  valid_until: Option<i64>,
+  nonce: i64,
+  sequence_no: i64,
+  status: TransactionStatus,
+  failure_reasons: Option<Vec<String>>,
+}
+
+#[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
+pub struct ZkappAccountUpdateMetadata {
+  account_identifier_id: i32,
+  update_id: i32,
+  balance_change: String,
+  increment_nonce: bool,
+  events_id: i32,
+  actions_id: i32,
+  call_data_id: i32,
+  call_depth: i32,
+  zkapp_network_precondition_id: i32,
+  zkapp_account_precondition_id: i32,
+  zkapp_valid_while_precondition_id: Option<i32>,
+  use_full_commitment: bool,
+  implicit_account_creation_fee: bool,
+  may_use_token: String,
+  authorization_kind: String,
+  verification_key_hash_id: Option<i32>,
+  account: String,
+  token: String,
+}
+
 fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Operation> {
   let mut operations = Vec::new();
   if metadata.fee != "0" {
@@ -223,6 +277,11 @@ fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) ->
     }
   }
   Ok(operations)
+}
+
+// TODO: implement
+fn zkapp_command_metadata_to_operation(_metadata: &ZkappCommandMetadata) -> Result<Vec<Operation>, MinaMeshError> {
+  Ok(Vec::new())
 }
 
 fn operation(
