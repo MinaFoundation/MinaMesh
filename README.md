@@ -23,17 +23,20 @@ mina-mesh --help
 
 The server depends on several environment variables.
 
-### Mina Proxy (GraphQL) URL
+### `MINAMESH_PROXY_URL`: Mina Proxy (GraphQL) URL
 
-All commands utilize a default GraphQL endpoint `https://mainnet.minaprotocol.network/graphql`. This
-can be overridden via `PROXY_URL`.
+All commands utilize a Mina proxy (GraphQL) endpoint. The default is
+`https://mainnet.minaprotocol.network/graphql`.
 
-### Archive DB Connection String
+### `MINAMESH_DATABASE_URL`: Mina Archive Connection String
 
-Mina Mesh depends on a Postgres connection string for an archive database. This is specified as
-`DATABASE_URL`.
+Mina Mesh depends on a connection (and therefore connection string) to a Mina archive database.
 
 ### Genesis Block Identifier Hash and Index
+
+#### `MINAMESH_GENESIS_BLOCK_IDENTIFIER_HEIGHT`
+
+### `MINAMESH_GENESIS_BLOCK_IDENTIFIER_STATE_HASH`
 
 We can retrieve these using the `fetch-genesis-block-identifier` command.
 
