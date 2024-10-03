@@ -19,24 +19,29 @@ cargo install mina-mesh
 mina-mesh --help
 ```
 
-## Fetch Genesis Block Identifier
+## Environment
 
-The server depends on two environment variables (the genesis block identifier hash and index). We
-can retrieve these using the `fetch-genesis-block-identifier` command.
+The server depends on several environment variables.
+
+### Mina Proxy (GraphQL) URL
+
+All commands utilize a default GraphQL endpoint `https://mainnet.minaprotocol.network/graphql`. This
+can be overridden via `PROXY_URL`.
+
+### Archive DB Connection String
+
+Mina Mesh depends on a Postgres connection string for an archive database. This is specified as
+`DATABASE_URL`.
+
+### Genesis Block Identifier Hash and Index
+
+We can retrieve these using the `fetch-genesis-block-identifier` command.
 
 ```sh
 mina-mesh fetch-genesis-block-identifier >> .env
 ```
 
-> Note: all commands utilize a default GraphQL endpoint
-> ("https://mainnet.minaprotocol.network/graphql"). You can override this default by specifying the
-> `PROXY_URL`.
-
 ## Instantiate the Server
-
-Mina Mesh depends on a Postgres connection string for an archive database.
-
-Ensure that you also specify an archive `DATABASE_URL` in your `.env`.
 
 ```sh
 mina-mesh serve --playground
@@ -44,12 +49,6 @@ mina-mesh serve --playground
 
 > Note: you may want to exclude the `--playground` flag in production. This will disable the
 > playground, which renders when the server's root `/` route receives a GET request.
-
-Alternatively, you can supply the archive database URL via the command line.
-
-```sh
-mina-mesh serve --playground --database-url postgres://mina:whatever@localhost:5432/archive
-```
 
 Then visit [`http://0.0.0.0:3000`](http://0.0.0.0:3000) for an interactive playground with which you
 can explore and test endpoints.
