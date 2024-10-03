@@ -1,110 +1,52 @@
 # Mina Mesh
 
-[![checks](https://github.com/MinaFoundation/MinaMesh/actions/workflows/checks.yaml/badge.svg)](https://github.com/MinaFoundation/MinaMesh/actions/workflows/checks.yaml)
-
-## Overview
-
 Mina Mesh is an implementation of the
 [Coinbase Mesh specification](https://docs.cdp.coinbase.com/mesh/docs/welcome) for the
 [Mina blockchain](https://minaprotocol.com/).
 
-## Building
+> Note: Mina Mesh is WIP and should not yet be used in production.
 
-To build the project:
+## Installation
 
-```bash
-cargo build
+```sh
+# Install the mina-mesh executable
+cargo install mina-mesh
+
+# Confirm installation successful
+mina-mesh --help
 ```
 
-The binary will be available at:
+## Fetch Genesis Block Identifier
 
-```bash
-target/debug/mina_mesh
+Before running the server, we must first write genesis block identifier information to our `.env`
+file.
+
+```sh
+mina-mesh fetch-genesis-block-identifier >> .env
 ```
 
-## Running
+> Note: this command utilizes a default GraphQL endpoint
+> ("https://mainnet.minaprotocol.network/graphql"). You can override this default by specifying a
+> `PROXY_URL` in your `.env` file.
 
-Mina Mesh requires access to a PostgreSQL Archive database and a Mina GraphQL endpoint. By default,
-the configuration points to the mainnet, making it easy to get started. You can override the
-configuration by either passing arguments or setting environment variables via a `.env` file (an
-example is provided as `.env.example`).
+## Instantiate the Server
 
-### Quick Start with Mainnet
+Mina Mesh depends on a Postgres connection string for an archive database.
 
-1. **Set up the PostgreSQL Archive Database**
+Ensure that you also specify an archive `DATABASE_URL` in your `.env`.
 
-Use the predefined `just` commands to set up and start the PostgreSQL database:
-
-```bash
-just setup-archive-db
+```sh
+mina-mesh serve --playground
 ```
 
-> Note: This process sets up the PostgreSQL docker using the latest mainnet archive database.
+> Note: you may want to exclude the `--playground` flag in production. This will disable the
+> playground, which renders when the server's root `/` route receives a GET request.
 
-2. **Run the Mina Mesh Server**
+Alternatively, you can supply the archive database URL via the command line.
 
-To start the server with default settings (mainnet configuration):
-
-```bash
-target/debug/mina_mesh serve
+```sh
+mina-mesh serve --playground --database-url postgres://mina:whatever@localhost:5432/archive
 ```
 
-The server will listen on `0.0.0.0:3000` by default.
-
-### Playground Mode
-
-You can enable a playground mode, which provides a simplified testing interface, by adding the
-`--playground` flag:
-
-```bash
-cargo run -- serve --playground
-```
-
-When enabled, you can access the playground at the root URL (`/`).
-
-### Configuration
-
-Mina Mesh can be configured through command-line options or by using environment variables. For
-convenience, you can use a `.env` file. To get started, copy the provided `.env.example`:
-
-```bash
-cp .env.example .env
-```
-
-Then modify the `.env` file to suit your environment. The available configurations include:
-
-- **Mina GraphQL Endpoint**: `MINA_PROXY_URL` (default:
-  `https://mainnet.minaprotocol.network/graphql`)
-- **PostgreSQL Archive Database URL**: `MINA_ARCHIVE_DATABASE_URL` (default:
-  `postgres://mina:whatever@localhost:5432/archive`)
-- **Genesis Block Identifier**: `MINA_GENESIS_BLOCK_IDENTIFIER_HEIGHT`,
-  `MINA_GENESIS_BLOCK_IDENTIFIER_STATE_HASH`
-
-> You can also pass these options as arguments to `mina_mesh serve` to override the defaults.
-
-## Testing
-
-Running the tests requires having Archive database available [see:
-[Quick Start with Mainnet](#quick-start-with-mainnet)]. Once the setup is complete you can run tests
-using:
-
-```bash
-just test
-```
-
-### Managing PostgreSQL
-
-- **Stop PostgreSQL**: To stop the PostgreSQL instance:
-
-  ```bash
-  just pg-down
-  ```
-
-- **Restart PostgreSQL**: To restart without reinitializing the database (useful if the database is
-  already set up):
-
-  ```bash
-  just pg-up
-  ```
-
-> You only need to reinitialize the database if you want the latest data dump.
+Then visit [`http://0.0.0.0:3000`](http://0.0.0.0:3000) for an interactive playground with which you
+can explore and test endpoints.
