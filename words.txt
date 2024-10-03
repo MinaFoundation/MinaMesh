@@ -42,5 +42,6 @@ urlencode
 utxo
 walkdir
 webroot
+xlarge
 zkapp
 zkapps
