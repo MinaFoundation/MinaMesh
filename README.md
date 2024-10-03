@@ -19,6 +19,8 @@ cargo install mina-mesh
 mina-mesh --help
 ```
 
+> Note: Mina Mesh is not yet published to crates.io. The first publish will soon be underway.
+
 ## Environment
 
 The server depends on several environment variables.
