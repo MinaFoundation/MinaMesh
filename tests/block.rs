@@ -38,8 +38,11 @@ fn specified_identifiers() -> &'static [PartialBlockIdentifier; 3] {
 
 #[tokio::test]
 async fn unspecified() -> Result<()> {
-  let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
-  let result = mina_mesh.block_metadata(&PartialBlockIdentifier { hash: None, index: None }).await;
-  assert!(result.is_ok());
+  let response = MinaMeshConfig::from_env()
+    .to_mina_mesh()
+    .await?
+    .block_metadata(&PartialBlockIdentifier { hash: None, index: None })
+    .await;
+  assert!(response.is_ok());
   Ok(())
 }

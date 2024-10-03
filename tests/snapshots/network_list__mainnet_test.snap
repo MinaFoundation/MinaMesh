@@ -1,9 +1,11 @@
 ---
 source: tests/network_list.rs
-expression: network_identifier
+expression: "&response.network_identifiers"
 ---
-NetworkIdentifier {
-    blockchain: "mina",
-    network: "mainnet",
-    sub_network_identifier: None,
-}
+[
+    NetworkIdentifier {
+        blockchain: "mina",
+        network: "mainnet",
+        sub_network_identifier: None,
+    },
+]
