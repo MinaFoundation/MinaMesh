@@ -5,7 +5,7 @@ pub use mesh::models::{BlockTransaction, Operation, SearchTransactionsRequest, S
 use serde_json::json;
 use sqlx::{FromRow, Type};
 
-pub use crate::{MinaMesh, MinaMeshError};
+pub use crate::{util::Wrapper, MinaMesh, MinaMeshError};
 
 #[derive(Type, Debug)]
 #[sqlx(type_name = "chain_status_type", rename_all = "lowercase")]
@@ -126,10 +126,10 @@ impl std::fmt::Display for OperationType {
   }
 }
 
-const MINA_DEFAULT_TOKEN_ID: &str = "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf";
-
 impl UserCommand {
   pub fn into_block_transaction(self) -> BlockTransaction {
+    let default_token_id = Wrapper(None).to_token_id().unwrap();
+
     // Construct BlockIdentifier from UserCommand
     let block_identifier =
       BlockIdentifier { index: self.height.unwrap_or_default(), hash: self.state_hash.unwrap_or_default() };
@@ -152,7 +152,7 @@ impl UserCommand {
       status: Some(self.status.to_status()),
       account: Some(Box::new(AccountIdentifier {
         address: self.fee_payer.clone(),
-        metadata: Some(json!({ "token_id": MINA_DEFAULT_TOKEN_ID })),
+        metadata: Some(json!({ "token_id": default_token_id })),
         sub_account: None,
       })),
       amount: Some(Box::new(Amount {
@@ -177,7 +177,7 @@ impl UserCommand {
             status: Some(self.status.to_status()),
             account: Some(Box::new(AccountIdentifier {
               address: self.receiver.clone(),
-              metadata: Some(json!({ "token_id": MINA_DEFAULT_TOKEN_ID })),
+              metadata: Some(json!({ "token_id": default_token_id })),
               sub_account: None,
             })),
             amount: Some(Box::new(Amount {
@@ -205,7 +205,7 @@ impl UserCommand {
           status: Some(self.status.to_status()),
           account: Some(Box::new(AccountIdentifier {
             address: self.source.clone(),
-            metadata: Some(json!({ "token_id": MINA_DEFAULT_TOKEN_ID })),
+            metadata: Some(json!({ "token_id": default_token_id })),
             sub_account: None,
           })),
           amount: Some(Box::new(Amount {
@@ -227,7 +227,7 @@ impl UserCommand {
                 status: Some(self.status.to_status()),
                 account: Some(Box::new(AccountIdentifier {
                     address: self.receiver.clone(),
-                    metadata: Some(json!({ "token_id": MINA_DEFAULT_TOKEN_ID })),
+                    metadata: Some(json!({ "token_id": default_token_id })),
                     sub_account: None,
                 })),
                 amount: Some(Box::new(Amount {
@@ -248,7 +248,7 @@ impl UserCommand {
           status: Some(self.status.to_status()),
           account: Some(Box::new(AccountIdentifier {
             address: self.source.clone(),
-            metadata: Some(json!({ "token_id": MINA_DEFAULT_TOKEN_ID })),
+            metadata: Some(json!({ "token_id": default_token_id })),
             sub_account: None,
           })),
           amount: None,
