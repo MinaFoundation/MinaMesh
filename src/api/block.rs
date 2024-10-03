@@ -8,8 +8,8 @@ use serde::Serialize;
 use sqlx::FromRow;
 
 use crate::{
-  ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationStatus, OperationType, TransactionStatus,
-  UserCommandType,
+  util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationStatus, OperationType,
+  TransactionStatus, UserCommandType,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
@@ -245,6 +245,3 @@ fn operation(
     metadata: None, // TODO: get the correct metadata
   }
 }
-
-// cspell:disable-next-line
-static DEFAULT_TOKEN_ID: &str = "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf";

@@ -20,8 +20,8 @@ impl<T: Serialize, E: ToString> IntoResponse for Wrapper<Result<T, E>> {
 }
 
 impl Wrapper<Option<serde_json::Value>> {
-  pub fn to_token_id(self) -> Result<String, MinaMeshError> {
-    match self.0 {
+  pub fn to_token_id(&self) -> Result<String, MinaMeshError> {
+    match &self.0 {
       None => Ok(DEFAULT_TOKEN_ID.to_string()),
       Some(serde_json::Value::Object(map)) => {
         Ok(map.get("token_id").map(|v| v.to_string()).ok_or(MinaMeshError::JsonParse(None))?)
