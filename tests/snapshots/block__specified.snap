@@ -2567,6 +2567,126 @@ Some(
                             related_transactions: None,
                             metadata: None,
                         },
+                        Transaction {
+                            transaction_identifier: TransactionIdentifier {
+                                hash: "5JtyT69gceMuEzmyjbEMZ6E9oTiQwaDjoVyZRM7Ggfm8mbtdGceK",
+                            },
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "fee_receiver_inc",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qktPtDFWG8ciSsd6eEPr7S7HuiGaouqDhfPT7H84DPp9mCgTHjwE",
+                                            sub_account: None,
+                                            metadata: None,
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "232055000",
+                                            currency: Currency {
+                                                symbol: "mina",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
+                            related_transactions: None,
+                            metadata: None,
+                        },
+                        Transaction {
+                            transaction_identifier: TransactionIdentifier {
+                                hash: "5Ju2teejDK5Q2ea1P21dPTdnnqt5c8QmSL1Tpf8PVr2SmLQzA3KY",
+                            },
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "coinbase_inc",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qktPtDFWG8ciSsd6eEPr7S7HuiGaouqDhfPT7H84DPp9mCgTHjwE",
+                                            sub_account: None,
+                                            metadata: None,
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "720000000000",
+                                            currency: Currency {
+                                                symbol: "mina",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
+                            related_transactions: None,
+                            metadata: None,
+                        },
+                        Transaction {
+                            transaction_identifier: TransactionIdentifier {
+                                hash: "5JuMZ2QrMWkpQuCFEw9iPVS8zXQkmR1g3LHg4a33xdmUCHEJRQho",
+                            },
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "fee_receiver_inc",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qktPtDFWG8ciSsd6eEPr7S7HuiGaouqDhfPT7H84DPp9mCgTHjwE",
+                                            sub_account: None,
+                                            metadata: None,
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "715607016",
+                                            currency: Currency {
+                                                symbol: "mina",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
+                            related_transactions: None,
+                            metadata: None,
+                        },
                     ],
                     metadata: None,
                 },

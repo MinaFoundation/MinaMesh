@@ -53,7 +53,7 @@ WITH
 SELECT
   ic.command_type AS "command_type: InternalCommandType",
   ic.hash,
-  ic.creation_fee,
+  ic.creation_fee AS "creation_fee?",
   ic.receiver,
   ic.sequence_no,
   ic.secondary_sequence_no,
