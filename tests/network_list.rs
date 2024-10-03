@@ -5,7 +5,7 @@ use mina_mesh::MinaMeshConfig;
 #[tokio::test]
 async fn mainnet_test() -> Result<()> {
   // Create a MinaMesh instance using the default configuration
-  let mina_mesh = MinaMeshConfig::default().to_mina_mesh().await?;
+  let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
 
   // Call the network_list function
   let result = mina_mesh.network_list().await?;

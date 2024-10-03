@@ -4,24 +4,17 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in library",
+      "name": "Debug Cargo tests",
       "cargo": {
-        "args": [
-          "test",
-          "--no-run",
-          "--lib",
-          "--package=${workspaceFolderBasename}"
-        ],
-        "filter": {
-          "name": "${workspaceFolderBasename}",
-          "kind": "lib"
-        }
+        "args": ["test", "--no-run", "--lib"]
       },
       "args": ["--nocapture"],
       "cwd": "${workspaceFolder}",
       "env": {
         "RUST_LOG": "debug"
-      }
+      },
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal"
     }
   ]
 }

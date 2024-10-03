@@ -56,6 +56,7 @@ jobs:
           key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
       - name: Setup
         run: |
+          cp .env.example .env
           just get-mainnet-archive-db
           just pg
           just wait-for-pg

@@ -25,7 +25,7 @@ The server depends on several environment variables.
 
 - `MINAMESH_PROXY_URL`: a Mina proxy (GraphQL) endpoint. The default is
   `https://mainnet.minaprotocol.network/graphql`.
-- `MINAMESH_DATABASE_URL`: a connection string referencing a Mina archive database.
+- `MINAMESH_ARCHIVE_DATABASE_URL`: a connection string referencing a Mina archive database.
 - `MINAMESH_GENESIS_BLOCK_IDENTIFIER_HEIGHT` and `MINAMESH_GENESIS_BLOCK_IDENTIFIER_STATE_HASH`: we
   can retrieve these using the `fetch-genesis-block-identifier` command.
 

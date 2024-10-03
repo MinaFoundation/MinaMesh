@@ -6,7 +6,7 @@ use mina_mesh::{BlockMetadata, MinaMeshConfig, PartialBlockIdentifier};
 
 #[tokio::test]
 async fn specified() -> Result<()> {
-  let mina_mesh = MinaMeshConfig::default().to_mina_mesh().await?;
+  let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
   let mut metadata_futures =
     specified_identifiers().iter().map(|item| mina_mesh.block_metadata(item)).collect::<FuturesUnordered<_>>();
   let mut maybe_prev: Option<Option<BlockMetadata>> = None;
@@ -38,7 +38,7 @@ fn specified_identifiers() -> &'static [PartialBlockIdentifier; 3] {
 
 #[tokio::test]
 async fn unspecified() -> Result<()> {
-  let mina_mesh = MinaMeshConfig::default().to_mina_mesh().await?;
+  let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
   let result = mina_mesh.block_metadata(&PartialBlockIdentifier { hash: None, index: None }).await;
   assert!(result.is_ok());
   Ok(())

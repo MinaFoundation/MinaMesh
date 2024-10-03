@@ -2,12 +2,12 @@ use anyhow::{bail, Result};
 use clap::Args;
 use cynic::{http::ReqwestExt, QueryBuilder};
 
-use crate::graphql::QueryGenesisBlockIdentifier;
+use crate::{graphql::QueryGenesisBlockIdentifier, util::default_mina_proxy_url};
 
 #[derive(Debug, Args)]
 #[command(about = "Retrieve the genesis block identifier via a proxy node GraphQL endpoint.")]
 pub struct FetchGenesisBlockIdentifierCommand {
-  #[arg(long, short = 'n', default_value = "https://mainnet.minaprotocol.network/graphql")]
+  #[arg(long, env = "MINAMESH_PROXY_URL", default_value_t = default_mina_proxy_url())]
   proxy_url: String,
 }
 
@@ -18,8 +18,8 @@ impl FetchGenesisBlockIdentifierCommand {
     if let Some(inner) = result.data {
       let genesis_block_hash = inner.genesis_block.state_hash.0;
       let genesis_block_index = inner.genesis_block.protocol_state.consensus_state.block_height.0;
-      println!("MINAMESH_GENESIS_BLOCK_HASH = {}", genesis_block_hash);
-      println!("MINAMESH_GENESIS_BLOCK_INDEX = {}", genesis_block_index);
+      println!("MINAMESH_GENESIS_BLOCK_IDENTIFIER_STATE_HASH = {genesis_block_hash}");
+      println!("MINAMESH_GENESIS_BLOCK_IDENTIFIER_HEIGHT = {genesis_block_index}");
     } else {
       bail!("No genesis block identifier found in the response");
     }

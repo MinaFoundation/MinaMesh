@@ -8,7 +8,7 @@ use mina_mesh::{
 
 #[tokio::test]
 async fn responses() -> Result<()> {
-  let mina_mesh = MinaMeshConfig::default().to_mina_mesh().await?;
+  let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
   let futures: Vec<_> = [
     // cspell:disable
     "B62qmjJeM4Fd4FVghfhgwoE1fkEexK2Rre8WYKMnbxVwB5vtKUwvgMv",
