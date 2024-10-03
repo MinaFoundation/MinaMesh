@@ -1,3 +1,4 @@
+use bs58;
 use mesh::models::{
   AccountIdentifier, Amount, BlockIdentifier, Currency, OperationIdentifier, Transaction, TransactionIdentifier,
 };
@@ -127,8 +128,21 @@ impl std::fmt::Display for OperationType {
 }
 
 impl UserCommand {
+  pub fn decoded_memo(&self) -> Option<String> {
+    let memo = self.memo.clone().unwrap_or_else(|| "".to_string());
+    match bs58::decode(memo).into_vec() {
+      Ok(decoded_bytes) => {
+        let cleaned = &decoded_bytes[3 .. decoded_bytes[2] as usize + 3];
+        Some(String::from_utf8_lossy(&cleaned).to_string())
+      }
+      Err(_) => None,
+    }
+  }
+
   pub fn into_block_transaction(self) -> BlockTransaction {
     let default_token_id = Wrapper(None).to_token_id().unwrap();
+    let decoded_memo = self.decoded_memo().unwrap_or_else(|| "".to_string());
+    let amt = self.amount.clone().unwrap_or_else(|| "0".to_string());
 
     // Construct BlockIdentifier from UserCommand
     let block_identifier =
@@ -142,8 +156,6 @@ impl UserCommand {
 
     // Index for operations
     let mut operation_index = 0;
-
-    let amt = self.amount.clone().unwrap_or_else(|| "0".to_string());
 
     // Operation 1: Fee Payment
     operations.push(Operation {
@@ -264,7 +276,10 @@ impl UserCommand {
       transaction_identifier: Box::new(transaction_identifier),
       operations,
       related_transactions: None,
-      metadata: None,
+      metadata: match decoded_memo.as_str() {
+        "" => None,
+        _ => Some(json!({ "memo": decoded_memo })),
+      },
     };
 
     // Construct BlockTransaction
