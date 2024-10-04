@@ -1524,7 +1524,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mina_mesh"
+name = "mina-mesh"
 version = "0.0.0"
 dependencies = [
  "aide",
