@@ -1,5 +1,5 @@
 use anyhow::Result;
-use mesh::models::{ConstructionCombineRequest, ConstructionCombineResponse};
+use coinbase_mesh::models::{ConstructionCombineRequest, ConstructionCombineResponse};
 
 use crate::MinaMesh;
 

@@ -1,7 +1,7 @@
 // TODO: get genesis block identifier from env
 
+use coinbase_mesh::models::{BlockIdentifier, NetworkStatusResponse, Peer};
 use cynic::QueryBuilder;
-use mesh::models::{BlockIdentifier, NetworkStatusResponse, Peer};
 
 use crate::{
   graphql::{Block3, DaemonStatus3, QueryNetworkStatus},

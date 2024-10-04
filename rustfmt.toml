@@ -1,6 +1,5 @@
 edition = "2021"
 group_imports = "StdExternalCrate"
-ignore = ["mesh_generated/src/**"]
 imports_granularity = "Crate"
 max_width = 120
 newline_style = "Unix"

@@ -7,12 +7,12 @@ mod playground;
 mod types;
 mod util;
 
+pub use coinbase_mesh::models;
+use coinbase_mesh::models::BlockIdentifier;
 pub use commands::*;
 pub use config::*;
 pub use error::*;
 use graphql::GraphQLClient;
-pub use mesh::models;
-use mesh::models::BlockIdentifier;
 use sqlx::PgPool;
 pub use types::*;
 

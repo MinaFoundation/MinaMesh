@@ -1,9 +1,9 @@
 use anyhow::Result;
-use convert_case::{Case, Casing};
-use mesh::models::{
+use coinbase_mesh::models::{
   AccountIdentifier, Amount, Block, BlockIdentifier, BlockRequest, BlockResponse, Currency, Operation,
   OperationIdentifier, PartialBlockIdentifier, Transaction, TransactionIdentifier,
 };
+use convert_case::{Case, Casing};
 use serde::Serialize;
 use sqlx::FromRow;
 

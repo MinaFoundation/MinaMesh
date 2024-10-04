@@ -17,13 +17,13 @@ aide = { version = "0.13.4", features = ["scalar"] }
 anyhow = "1.0.86"
 axum = { version = "0.7.5", features = ["macros"] }
 clap = { version = "4.5.11", features = ["derive", "env"] }
+coinbase-mesh = "0.1.0"
 convert_case = "0.6.0"
 cynic = { version = "3.7.3", features = ["http-reqwest-blocking"] }
 derive_more = { version = "1.0.0", features = ["full"] }
 dotenv = "0.15.0"
 envy = "0.4.2"
 futures = "0.3.30"
-mesh = { path = "./mesh_generated" }
 paste = "1.0.15"
 reqwest = { version = "0.12.5", features = ["json", "blocking"] }
 serde = { version = "1.0.204", features = ["derive"] }

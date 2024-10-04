@@ -1,5 +1,7 @@
+use coinbase_mesh::models::{
+  MempoolTransactionRequest, MempoolTransactionResponse, Transaction, TransactionIdentifier,
+};
 use cynic::QueryBuilder;
-use mesh::models::{MempoolTransactionRequest, MempoolTransactionResponse, Transaction, TransactionIdentifier};
 
 use crate::{
   graphql::{QueryMempoolTransactions, QueryMempoolTransactionsVariables},

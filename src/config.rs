@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::{Args, Parser};
-use mesh::models::BlockIdentifier;
+use coinbase_mesh::models::BlockIdentifier;
 use sqlx::PgPool;
 
 use crate::{graphql::GraphQLClient, util::default_mina_proxy_url, MinaMesh};
