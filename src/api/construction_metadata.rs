@@ -1,5 +1,5 @@
 use anyhow::Result;
-pub use mesh::models::{ConstructionMetadataRequest, ConstructionMetadataResponse};
+use mesh::models::{ConstructionMetadataRequest, ConstructionMetadataResponse};
 
 use crate::MinaMesh;
 

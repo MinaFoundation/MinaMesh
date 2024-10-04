@@ -24,6 +24,7 @@ keypair
 lookback
 microschemas
 mina
+minafoundation
 navroot
 nocapture
 openapi
@@ -42,5 +43,6 @@ urlencode
 utxo
 walkdir
 webroot
+xlarge
 zkapp
 zkapps

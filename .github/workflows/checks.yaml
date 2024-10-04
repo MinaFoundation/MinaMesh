@@ -54,16 +54,12 @@ jobs:
             ~/.cargo/git
             target
           key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
-      - name: Setup
-        run: |
-          cp .env.example .env
-          just get-mainnet-archive-db
-          just pg
-          just wait-for-pg
       - name: Test
-        run: just test
-      - name: Tear down
-        run: just pg-down
+        run: |
+          sed "s|postgres://mina:whatever@localhost:5432/archive|$MINAMESH_ARCHIVE_DATABASE_URL|g" .env.example > .env
+          just test
+        env:
+          MINAMESH_ARCHIVE_DATABASE_URL: ${{ secrets.MINAMESH_ARCHIVE_DATABASE_URL }}
 
   rustfmt:
     runs-on: ubuntu-latest

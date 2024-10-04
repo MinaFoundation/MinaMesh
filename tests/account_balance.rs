@@ -2,8 +2,10 @@ use anyhow::Result;
 use futures::future::try_join_all;
 use insta::assert_debug_snapshot;
 use mina_mesh::{
-  AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, MinaMeshConfig, NetworkIdentifier,
-  PartialBlockIdentifier,
+  models::{
+    AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, NetworkIdentifier, PartialBlockIdentifier,
+  },
+  MinaMeshConfig,
 };
 
 #[tokio::test]

@@ -1,5 +1,5 @@
 use anyhow::Result;
-pub use mesh::models::{ConstructionHashRequest, TransactionIdentifier};
+use mesh::models::{ConstructionHashRequest, TransactionIdentifier};
 
 use crate::MinaMesh;
 

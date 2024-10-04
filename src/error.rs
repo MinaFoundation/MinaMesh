@@ -1,10 +1,11 @@
 use std::num::ParseIntError;
 
 use cynic::http::CynicReqwestError;
+use serde_json::Error as SerdeError;
 use sqlx::Error as SqlxError;
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq)]
 pub enum MinaMeshError {
   #[error("SQL failure")]
   Sql(String),
@@ -85,7 +86,7 @@ pub enum MinaMeshError {
   TransactionSubmitExpired,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum PartialReason {
   LengthMismatch,
   FeePayerAndSourceMismatch,
@@ -135,5 +136,13 @@ impl From<ParseIntError> for MinaMeshError {
 impl From<CynicReqwestError> for MinaMeshError {
   fn from(value: CynicReqwestError) -> Self {
     MinaMeshError::GraphqlMinaQuery(value.to_string())
+  }
+}
+
+// TODO: this isn't necessarily accurate, as we use this for a serialization
+// errors as well.
+impl From<SerdeError> for MinaMeshError {
+  fn from(value: SerdeError) -> Self {
+    MinaMeshError::JsonParse(Some(value.to_string()))
   }
 }

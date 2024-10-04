@@ -64,7 +64,7 @@ impl ServeCommand {
 macro_rules! create_handler {
   ($name:ident, $request_type:ty) => {
     paste! {
-      async fn [<handle _ $name>](mina_mesh: State<Arc<MinaMesh>>, Json(req): Json<crate::$request_type>) -> impl IntoResponse {
+      async fn [<handle _ $name>](mina_mesh: State<Arc<MinaMesh>>, Json(req): Json<crate::models::$request_type>) -> impl IntoResponse {
         Wrapper(mina_mesh.$name(req).await)
       }
     }

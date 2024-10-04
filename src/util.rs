@@ -4,7 +4,6 @@ use axum::{
   http::StatusCode,
   response::{IntoResponse, Response},
 };
-use mesh::models::PartialBlockIdentifier;
 use serde::Serialize;
 
 use crate::MinaMeshError;
@@ -21,8 +20,8 @@ impl<T: Serialize, E: ToString> IntoResponse for Wrapper<Result<T, E>> {
 }
 
 impl Wrapper<Option<serde_json::Value>> {
-  pub fn to_token_id(self) -> Result<String, MinaMeshError> {
-    match self.0 {
+  pub fn to_token_id(&self) -> Result<String, MinaMeshError> {
+    match &self.0 {
       None => Ok(DEFAULT_TOKEN_ID.to_string()),
       Some(serde_json::Value::Object(map)) => {
         Ok(map.get("token_id").map(|v| v.to_string()).ok_or(MinaMeshError::JsonParse(None))?)
@@ -33,20 +32,7 @@ impl Wrapper<Option<serde_json::Value>> {
 }
 
 // cspell:disable-next-line
-const DEFAULT_TOKEN_ID: &str = "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf";
-
-#[allow(clippy::to_string_trait_impl)]
-impl ToString for Wrapper<&PartialBlockIdentifier> {
-  fn to_string(&self) -> String {
-    match &self.0.hash {
-      Some(hash) => hash.to_owned(),
-      None => match self.0.index {
-        Some(index) => index.to_string(),
-        None => "latest".to_string(),
-      },
-    }
-  }
-}
+pub const DEFAULT_TOKEN_ID: &str = "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf";
 
 pub fn default_mina_proxy_url() -> String {
   "https://mainnet.minaprotocol.network/graphql".to_string()

@@ -1,11 +1,17 @@
 SELECT
-  u.*,
+  u.command_type AS "command_type: UserCommandType",
+  u.nonce,
+  u.amount,
+  u.fee,
+  u.valid_until,
+  u.memo,
+  u.hash,
   pk_payer.value AS fee_payer,
   pk_source.value AS source,
   pk_receiver.value AS receiver,
-  buc.status,
-  buc.failure_reason,
-  ac.creation_fee
+  buc.status AS "status: TransactionStatus",
+  buc.failure_reason AS "failure_reason?",
+  ac.creation_fee AS "creation_fee?"
 FROM
   user_commands AS u
   INNER JOIN blocks_user_commands AS buc ON u.id=buc.user_command_id
@@ -48,7 +54,4 @@ FROM
   LEFT JOIN tokens AS t ON ai_receiver.token_id=t.id
 WHERE
   buc.block_id=$1
-  AND (
-    t.value=$2
-    OR t.id IS NULL
-  )
+  AND t.value=$2

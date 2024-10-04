@@ -1,11 +1,13 @@
 SELECT
-  zc.*,
+  zc.id,
+  zc.memo,
+  zc.hash,
   pk_fee_payer.value AS fee_payer,
   zfpb.fee,
   zfpb.valid_until,
   zfpb.nonce,
   bzc.sequence_no,
-  bzc.status,
+  bzc.status AS "status: TransactionStatus",
   ARRAY(
     SELECT
       unnest(zauf.failures)

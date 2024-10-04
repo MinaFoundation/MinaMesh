@@ -4,7 +4,7 @@
 
 use anyhow::Result;
 use cynic::QueryBuilder;
-pub use mesh::models::{MempoolResponse, TransactionIdentifier};
+use mesh::models::{MempoolResponse, TransactionIdentifier};
 
 use crate::{graphql::QueryMempool, MinaMesh};
 

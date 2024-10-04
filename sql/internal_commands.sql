@@ -51,7 +51,13 @@ WITH
       AND t.value=$2
   )
 SELECT
-  ic.*,
+  ic.command_type AS "command_type: InternalCommandType",
+  ic.hash,
+  ic.creation_fee AS "creation_fee?",
+  ic.receiver,
+  ic.sequence_no,
+  ic.secondary_sequence_no,
+  ic.fee,
   coinbase_receiver_pk.value AS coinbase_receiver
 FROM
   internal_commands_cte AS ic

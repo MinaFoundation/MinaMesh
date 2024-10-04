@@ -17,6 +17,7 @@
     "sql/**",
     "static/scalar.standalone.min.js",
     "target/**",
+    "tests/snapshots",
     "flake.*",
     "nix/**",
     ".gitignore"

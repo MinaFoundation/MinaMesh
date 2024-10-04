@@ -1,5 +1,5 @@
 use anyhow::Result;
-pub use mesh::models::{CallRequest, CallResponse};
+use mesh::models::{CallRequest, CallResponse};
 
 use crate::MinaMesh;
 
