@@ -47,6 +47,30 @@ mina-mesh serve --playground
 Visit [`http://0.0.0.0:3000`](http://0.0.0.0:3000) for an interactive playground with which you can
 explore and test endpoints.
 
+## Development Dependencies
+
+- **Rust Toolchain**: The project is written in Rust, so you'll need the Rust compiler and package
+  manager (`cargo`). Follow the [installation instructions](https://www.rust-lang.org/tools/install)
+  if you haven't already.
+
+- **dprint**: We use `dprint` for formatting various file types (e.g., JSON, Markdown, TOML, SQL).
+  To install `dprint`, you can use `cargo`.
+
+- **sql-formatter**: The project uses `sql-formatter` to format SQL files, which is invoked through
+  `dprint`. To install `sql-formatter`, use `npm`:
+
+  ```sh
+  npm install -g sql-formatter
+  ```
+
+- **VSCode Extensions** (Optional but Recommended): If you use VSCode, the project includes a
+  `.vscode/settings.json` file to help standardize the development experience. We recommend
+  installing the following extensions:
+  - [dprint](https://marketplace.visualstudio.com/items?itemName=dprint.dprint)
+  - [Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+  - [Rust Analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+  - [SQLTools](https://marketplace.visualstudio.com/items?itemName=mtxr.sqltools)
+
 ## Code of Conduct
 
 Everyone interacting in this repo is expected to follow the [code of conduct](CODE_OF_CONDUCT.md).
