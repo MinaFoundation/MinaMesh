@@ -1,4 +1,3 @@
-use bs58;
 use mesh::models::{
   AccountIdentifier, Amount, BlockIdentifier, Currency, OperationIdentifier, Transaction, TransactionIdentifier,
 };
@@ -234,24 +233,23 @@ impl UserCommand {
 
         // Operation 4: Payment Receiver Increment
         operations.push(Operation {
-          operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
-          r#type: OperationType::PaymentReceiverIncrement.to_string(),
-          status: Some(self.status.to_status()),
-          account: Some(Box::new(AccountIdentifier {
-            address: self.receiver.clone(),
-            metadata: Some(json!({ "token_id": default_token_id })),
-            sub_account: None,
-          })),
-          amount: Some(Box::new(Amount {
-            value: amt, // Positive value for the payment amount
-            metadata: None,
-            currency: Box::new(Currency { symbol: "MINA".to_string(), decimals: 9, metadata: None }),
-          })),
-          coin_change: None,
-          metadata: None,
-          // Relate to the previous source decrement
-          related_operations: Some(vec![OperationIdentifier { index: operation_index - 1, network_index: None }]),
-        });
+                operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
+                r#type: OperationType::PaymentReceiverIncrement.to_string(),
+                status: Some(self.status.to_status()),
+                account: Some(Box::new(AccountIdentifier {
+                    address: self.receiver.clone(),
+                    metadata: Some(json!({ "token_id": default_token_id })),
+                    sub_account: None,
+                })),
+                amount: Some(Box::new(Amount {
+                    value: amt, // Positive value for the payment amount
+                    metadata: None,
+                    currency: Box::new(Currency { symbol: "MINA".to_string(), decimals: 9, metadata: None }),
+                })),
+                coin_change: None,
+                metadata: None,
+                related_operations: Some(vec![OperationIdentifier { index: operation_index - 1, network_index: None }]), // Relate to the previous source decrement
+            });
       }
       UserCommandType::Delegation => {
         // Operation 3: Delegate Change
