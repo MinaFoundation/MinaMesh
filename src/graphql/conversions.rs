@@ -1,4 +1,6 @@
-use mesh::models::{AccountIdentifier, Amount, Currency, Operation, OperationIdentifier, SyncStatus as MeshSyncStatus};
+use coinbase_mesh::models::{
+  AccountIdentifier, Amount, Currency, Operation, OperationIdentifier, SyncStatus as MeshSyncStatus,
+};
 
 use super::{PublicKey, SyncStatus, UserCommand};
 

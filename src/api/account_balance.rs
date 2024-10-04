@@ -1,8 +1,8 @@
-use cynic::QueryBuilder;
-use mesh::models::{
+use coinbase_mesh::models::{
   AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, Amount, BlockIdentifier, Currency,
   PartialBlockIdentifier,
 };
+use cynic::QueryBuilder;
 
 use crate::{
   graphql::{Account, AnnotatedBalance, Balance, Length, QueryBalance, QueryBalanceVariables, StateHash},

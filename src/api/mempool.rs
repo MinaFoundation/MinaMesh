@@ -3,8 +3,8 @@
 #![allow(clippy::just_underscores_and_digits)]
 
 use anyhow::Result;
+use coinbase_mesh::models::{MempoolResponse, TransactionIdentifier};
 use cynic::QueryBuilder;
-use mesh::models::{MempoolResponse, TransactionIdentifier};
 
 use crate::{graphql::QueryMempool, MinaMesh};
 

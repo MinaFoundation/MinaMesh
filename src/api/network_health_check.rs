@@ -1,6 +1,6 @@
 use anyhow::Result;
+use coinbase_mesh::models::NetworkIdentifier;
 use cynic::QueryBuilder;
-use mesh::models::NetworkIdentifier;
 
 use crate::{graphql::QueryNetworkId, MinaMesh};
 
