@@ -3,68 +3,11 @@ use coinbase_mesh::models::{
   SearchTransactionsRequest, SearchTransactionsResponse, Transaction, TransactionIdentifier,
 };
 use serde_json::json;
-use sqlx::{FromRow, Type};
+use sqlx::FromRow;
 
-pub use crate::{util::Wrapper, MinaMesh, MinaMeshError};
-
-#[derive(Type, Debug)]
-#[sqlx(type_name = "chain_status_type", rename_all = "lowercase")]
-pub enum ChainStatus {
-  Canonical,
-  Pending,
-  Orphaned,
-}
-
-impl std::fmt::Display for ChainStatus {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    match self {
-      ChainStatus::Canonical => write!(f, "canonical"),
-      ChainStatus::Pending => write!(f, "pending"),
-      ChainStatus::Orphaned => write!(f, "orphaned"),
-    }
-  }
-}
-
-#[derive(Debug, Type)]
-#[sqlx(type_name = "user_command_type", rename_all = "lowercase")]
-pub enum UserCommandType {
-  Payment,
-  Delegation,
-}
-
-impl std::fmt::Display for UserCommandType {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    match self {
-      UserCommandType::Payment => write!(f, "payment"),
-      UserCommandType::Delegation => write!(f, "delegation"),
-    }
-  }
-}
-
-#[derive(Type, Debug)]
-#[sqlx(type_name = "transaction_status", rename_all = "lowercase")]
-pub enum TransactionStatus {
-  Applied,
-  Failed,
-}
-
-impl std::fmt::Display for TransactionStatus {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    match self {
-      TransactionStatus::Applied => write!(f, "applied"),
-      TransactionStatus::Failed => write!(f, "failed"),
-    }
-  }
-}
-
-impl TransactionStatus {
-  pub fn to_status(&self) -> String {
-    match self {
-      TransactionStatus::Applied => "Success".to_string(),
-      TransactionStatus::Failed => "Failed".to_string(),
-    }
-  }
-}
+use crate::{
+  util::DEFAULT_TOKEN_ID, ChainStatus, MinaMesh, MinaMeshError, OperationStatus, TransactionStatus, UserCommandType,
+};
 
 #[derive(Debug, FromRow)]
 pub struct UserCommand {
@@ -140,9 +83,10 @@ impl UserCommand {
   }
 
   pub fn into_block_transaction(self) -> BlockTransaction {
-    let default_token_id = Wrapper(None).to_token_id().unwrap();
+    let default_token_id = DEFAULT_TOKEN_ID;
     let decoded_memo = self.decoded_memo().unwrap_or_default();
     let amt = self.amount.clone().unwrap_or_else(|| "0".to_string());
+    let operation_status = OperationStatus::from(self.status);
 
     // Construct BlockIdentifier from UserCommand
     let block_identifier =
@@ -161,7 +105,7 @@ impl UserCommand {
     operations.push(Operation {
       operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
       r#type: OperationType::FeePayment.to_string(),
-      status: Some(self.status.to_status()),
+      status: Some(operation_status.to_string()),
       account: Some(Box::new(AccountIdentifier {
         address: self.fee_payer.clone(),
         metadata: Some(json!({ "token_id": default_token_id })),
@@ -186,7 +130,7 @@ impl UserCommand {
           operations.push(Operation {
             operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
             r#type: OperationType::AccountCreationFeeViaPayment.to_string(),
-            status: Some(self.status.to_status()),
+            status: Some(operation_status.to_string()),
             account: Some(Box::new(AccountIdentifier {
               address: self.receiver.clone(),
               metadata: Some(json!({ "token_id": default_token_id })),
@@ -214,7 +158,7 @@ impl UserCommand {
         operations.push(Operation {
           operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
           r#type: OperationType::PaymentSourceDecrement.to_string(),
-          status: Some(self.status.to_status()),
+          status: Some(operation_status.to_string()),
           account: Some(Box::new(AccountIdentifier {
             address: self.source.clone(),
             metadata: Some(json!({ "token_id": default_token_id })),
@@ -236,7 +180,7 @@ impl UserCommand {
         operations.push(Operation {
                 operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
                 r#type: OperationType::PaymentReceiverIncrement.to_string(),
-                status: Some(self.status.to_status()),
+                status: Some(operation_status.to_string()),
                 account: Some(Box::new(AccountIdentifier {
                     address: self.receiver.clone(),
                     metadata: Some(json!({ "token_id": default_token_id })),
@@ -257,7 +201,7 @@ impl UserCommand {
         operations.push(Operation {
           operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
           r#type: OperationType::DelegateChange.to_string(),
-          status: Some(self.status.to_status()),
+          status: Some(operation_status.to_string()),
           account: Some(Box::new(AccountIdentifier {
             address: self.source.clone(),
             metadata: Some(json!({ "token_id": default_token_id })),
