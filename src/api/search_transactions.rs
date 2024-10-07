@@ -1,7 +1,7 @@
-use mesh::models::{
-  AccountIdentifier, Amount, BlockIdentifier, Currency, OperationIdentifier, Transaction, TransactionIdentifier,
+use coinbase_mesh::models::{
+  AccountIdentifier, Amount, BlockIdentifier, BlockTransaction, Currency, Operation, OperationIdentifier,
+  SearchTransactionsRequest, SearchTransactionsResponse, Transaction, TransactionIdentifier,
 };
-pub use mesh::models::{BlockTransaction, Operation, SearchTransactionsRequest, SearchTransactionsResponse};
 use serde_json::json;
 use sqlx::{FromRow, Type};
 
@@ -93,6 +93,7 @@ pub struct UserCommand {
   pub creation_fee: Option<String>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum OperationType {
   FeePayment,

@@ -14,8 +14,6 @@ pub use commands::*;
 pub use config::*;
 pub use error::*;
 use graphql::GraphQLClient;
-pub use mesh::models;
-use mesh::models::BlockIdentifier;
 pub use operation::*;
 use sqlx::PgPool;
 pub use types::*;

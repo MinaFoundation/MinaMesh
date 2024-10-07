@@ -1,5 +1,5 @@
+use coinbase_mesh::models::{AccountIdentifier, Amount, Currency, Operation, OperationIdentifier};
 use convert_case::{Case, Casing};
-use mesh::models::{AccountIdentifier, Amount, Currency, Operation, OperationIdentifier};
 
 use crate::{OperationStatus, OperationType, TransactionStatus};
 
