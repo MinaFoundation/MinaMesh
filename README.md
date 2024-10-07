@@ -13,11 +13,15 @@ Ensure you have the Rust toolchain installed. If you do not, see
 
 ```sh
 # Install
-cargo install mina_mesh
+cargo install mina_mesh@0.1.0-beta.1
 
 # Confirm installation
 mina-mesh --help
 ```
+
+> Note: the version specifier is necessary when installing from the `beta` release channel. The
+> latest version can be found on
+> [`mina_mesh`'s crates.io page](https://crates.io/crates/mina_mesh/versions).
 
 ## Environment
 
