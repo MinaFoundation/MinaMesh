@@ -1,13 +1,12 @@
 use coinbase_mesh::models::{
-  AccountIdentifier, Amount, BlockIdentifier, BlockTransaction, Currency, Operation, OperationIdentifier,
-  SearchTransactionsRequest, SearchTransactionsResponse, Transaction, TransactionIdentifier,
+  AccountIdentifier, BlockIdentifier, BlockTransaction, SearchTransactionsRequest, SearchTransactionsResponse,
+  Transaction, TransactionIdentifier,
 };
-use convert_case::{Case, Casing};
 use serde_json::json;
 use sqlx::FromRow;
 
 use crate::{
-  util::DEFAULT_TOKEN_ID, ChainStatus, MinaMesh, MinaMeshError, OperationStatus, OperationType, TransactionStatus,
+  operation, util::DEFAULT_TOKEN_ID, ChainStatus, MinaMesh, MinaMeshError, OperationType, TransactionStatus,
   UserCommandType,
 };
 
@@ -51,17 +50,11 @@ impl UserCommand {
   }
 
   pub fn into_block_transaction(self) -> BlockTransaction {
-    let default_token_id = DEFAULT_TOKEN_ID;
     let decoded_memo = self.decoded_memo().unwrap_or_default();
     let amt = self.amount.clone().unwrap_or_else(|| "0".to_string());
-    let operation_status = OperationStatus::from(self.status);
-
     // Construct BlockIdentifier from UserCommand
     let block_identifier =
       BlockIdentifier { index: self.height.unwrap_or_default(), hash: self.state_hash.unwrap_or_default() };
-
-    // Construct TransactionIdentifier from UserCommand hash
-    let transaction_identifier = TransactionIdentifier { hash: self.hash.clone() };
 
     // Create a series of operations for the transaction
     let mut operations = Vec::new();
@@ -70,24 +63,19 @@ impl UserCommand {
     let mut operation_index = 0;
 
     // Operation 1: Fee Payment
-    operations.push(Operation {
-      operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
-      r#type: OperationType::FeePayment.to_string().to_case(Case::Snake),
-      status: Some(operation_status.to_string()),
-      account: Some(Box::new(AccountIdentifier {
+    operations.push(operation(
+      operation_index,
+      Some(&format!("-{}", self.fee.unwrap_or_else(|| "0".to_string()))),
+      AccountIdentifier {
         address: self.fee_payer.clone(),
-        metadata: Some(json!({ "token_id": default_token_id })),
+        metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
         sub_account: None,
-      })),
-      amount: Some(Box::new(Amount {
-        value: format!("-{}", self.fee.unwrap_or_else(|| "0".to_string())), // Negative value for fee
-        metadata: None,
-        currency: Box::new(Currency { symbol: "MINA".to_string(), decimals: 9, metadata: None }),
-      })),
-      coin_change: None,
-      metadata: None,
-      related_operations: None,
-    });
+      },
+      OperationType::FeePayment,
+      Some(&self.status),
+      None,
+      None,
+    ));
 
     operation_index += 1;
 
@@ -95,24 +83,19 @@ impl UserCommand {
     if let Some(creation_fee) = &self.creation_fee {
       if let Ok(fee_value) = creation_fee.parse::<i64>() {
         if fee_value > 0 {
-          operations.push(Operation {
-            operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
-            r#type: OperationType::AccountCreationFeeViaPayment.to_string().to_case(Case::Snake),
-            status: Some(operation_status.to_string()),
-            account: Some(Box::new(AccountIdentifier {
+          operations.push(operation(
+            operation_index,
+            Some(&format!("-{}", creation_fee)),
+            AccountIdentifier {
               address: self.receiver.clone(),
-              metadata: Some(json!({ "token_id": default_token_id })),
+              metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
               sub_account: None,
-            })),
-            amount: Some(Box::new(Amount {
-              value: format!("-{}", creation_fee),
-              metadata: None,
-              currency: Box::new(Currency { symbol: "MINA".to_string(), decimals: 9, metadata: None }),
-            })),
-            coin_change: None,
-            metadata: None,
-            related_operations: None,
-          });
+            },
+            OperationType::AccountCreationFeeViaPayment,
+            Some(&self.status),
+            None,
+            None,
+          ));
 
           operation_index += 1;
         }
@@ -123,69 +106,59 @@ impl UserCommand {
     match self.command_type {
       UserCommandType::Payment => {
         // Operation 3: Payment Source Decrement
-        operations.push(Operation {
-          operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
-          r#type: OperationType::PaymentSourceDec.to_string().to_case(Case::Snake),
-          status: Some(operation_status.to_string()),
-          account: Some(Box::new(AccountIdentifier {
+        operations.push(operation(
+          operation_index,
+          Some(&format!("-{}", amt)),
+          AccountIdentifier {
             address: self.source.clone(),
-            metadata: Some(json!({ "token_id": default_token_id })),
+            metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
             sub_account: None,
-          })),
-          amount: Some(Box::new(Amount {
-            value: format!("-{}", amt), // Negative value for the payment amount
-            metadata: None,
-            currency: Box::new(Currency { symbol: "MINA".to_string(), decimals: 9, metadata: None }),
-          })),
-          coin_change: None,
-          metadata: None,
-          related_operations: None,
-        });
+          },
+          OperationType::PaymentSourceDec,
+          Some(&self.status),
+          None,
+          None,
+        ));
 
         operation_index += 1;
 
         // Operation 4: Payment Receiver Increment
-        operations.push(Operation {
-                operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
-                r#type: OperationType::PaymentReceiverInc.to_string().to_case(Case::Snake),
-                status: Some(operation_status.to_string()),
-                account: Some(Box::new(AccountIdentifier {
-                    address: self.receiver.clone(),
-                    metadata: Some(json!({ "token_id": default_token_id })),
-                    sub_account: None,
-                })),
-                amount: Some(Box::new(Amount {
-                    value: amt, // Positive value for the payment amount
-                    metadata: None,
-                    currency: Box::new(Currency { symbol: "MINA".to_string(), decimals: 9, metadata: None }),
-                })),
-                coin_change: None,
-                metadata: None,
-                related_operations: Some(vec![OperationIdentifier { index: operation_index - 1, network_index: None }]), // Relate to the previous source decrement
-            });
+        operations.push(operation(
+          operation_index,
+          Some(&amt),
+          AccountIdentifier {
+            address: self.receiver.clone(),
+            metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
+            sub_account: None,
+          },
+          OperationType::PaymentReceiverInc,
+          Some(&self.status),
+          Some(vec![operation_index - 1]),
+          None,
+        ));
       }
+
       UserCommandType::Delegation => {
         // Operation 3: Delegate Change
-        operations.push(Operation {
-          operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
-          r#type: OperationType::DelegateChange.to_string().to_case(Case::Snake),
-          status: Some(operation_status.to_string()),
-          account: Some(Box::new(AccountIdentifier {
+        operations.push(operation(
+          operation_index,
+          None,
+          AccountIdentifier {
             address: self.source.clone(),
-            metadata: Some(json!({ "token_id": default_token_id })),
+            metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
             sub_account: None,
-          })),
-          amount: None,
-          coin_change: None,
-          metadata: Some(json!({ "delegate_change_target": self.receiver.clone() })),
-          related_operations: None,
-        });
+          },
+          OperationType::DelegateChange,
+          Some(&self.status),
+          None,
+          Some(json!({ "delegate_change_target": self.receiver.clone() })),
+        ));
       }
     }
 
     // Construct Transaction
     let transaction = Transaction {
-      transaction_identifier: Box::new(transaction_identifier),
+      transaction_identifier: Box::new(TransactionIdentifier::new(self.hash)),
       operations,
       related_transactions: None,
       metadata: match decoded_memo.as_str() {
