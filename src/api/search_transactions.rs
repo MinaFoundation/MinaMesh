@@ -2,11 +2,13 @@ use coinbase_mesh::models::{
   AccountIdentifier, Amount, BlockIdentifier, BlockTransaction, Currency, Operation, OperationIdentifier,
   SearchTransactionsRequest, SearchTransactionsResponse, Transaction, TransactionIdentifier,
 };
+use convert_case::{Case, Casing};
 use serde_json::json;
 use sqlx::FromRow;
 
 use crate::{
-  util::DEFAULT_TOKEN_ID, ChainStatus, MinaMesh, MinaMeshError, OperationStatus, TransactionStatus, UserCommandType,
+  util::DEFAULT_TOKEN_ID, ChainStatus, MinaMesh, MinaMeshError, OperationStatus, OperationType, TransactionStatus,
+  UserCommandType,
 };
 
 #[derive(Debug, FromRow)]
@@ -34,40 +36,6 @@ pub struct UserCommand {
   pub source: String,
   pub receiver: String,
   pub creation_fee: Option<String>,
-}
-
-#[allow(dead_code)]
-#[derive(Debug)]
-pub enum OperationType {
-  FeePayment,
-  PaymentSourceDecrement,
-  PaymentReceiverIncrement,
-  DelegateChange,
-  FeePayerDecrement,
-  AccountCreationFeeViaPayment,
-  AccountCreationFeeViaFeeReceiver,
-  ZkappFeePayerDecrement,
-  ZkappBalanceUpdate,
-  FeeReceiverIncrement,
-  CoinbaseIncrement,
-}
-
-impl std::fmt::Display for OperationType {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    match self {
-      OperationType::FeePayment => write!(f, "fee_payment"),
-      OperationType::AccountCreationFeeViaPayment => write!(f, "account_creation_fee_via_payment"),
-      OperationType::PaymentSourceDecrement => write!(f, "payment_source_dec"),
-      OperationType::PaymentReceiverIncrement => write!(f, "payment_receiver_inc"),
-      OperationType::DelegateChange => write!(f, "delegate_change"),
-      OperationType::FeePayerDecrement => write!(f, "fee_payer_dec"),
-      OperationType::AccountCreationFeeViaFeeReceiver => write!(f, "account_creation_fee_via_fee_receiver"),
-      OperationType::ZkappFeePayerDecrement => write!(f, "zkapp_fee_payer_dec"),
-      OperationType::ZkappBalanceUpdate => write!(f, "zkapp_balance_update"),
-      OperationType::FeeReceiverIncrement => write!(f, "fee_receiver_inc"),
-      OperationType::CoinbaseIncrement => write!(f, "coinbase_inc"),
-    }
-  }
 }
 
 impl UserCommand {
@@ -104,7 +72,7 @@ impl UserCommand {
     // Operation 1: Fee Payment
     operations.push(Operation {
       operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
-      r#type: OperationType::FeePayment.to_string(),
+      r#type: OperationType::FeePayment.to_string().to_case(Case::Snake),
       status: Some(operation_status.to_string()),
       account: Some(Box::new(AccountIdentifier {
         address: self.fee_payer.clone(),
@@ -129,7 +97,7 @@ impl UserCommand {
         if fee_value > 0 {
           operations.push(Operation {
             operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
-            r#type: OperationType::AccountCreationFeeViaPayment.to_string(),
+            r#type: OperationType::AccountCreationFeeViaPayment.to_string().to_case(Case::Snake),
             status: Some(operation_status.to_string()),
             account: Some(Box::new(AccountIdentifier {
               address: self.receiver.clone(),
@@ -157,7 +125,7 @@ impl UserCommand {
         // Operation 3: Payment Source Decrement
         operations.push(Operation {
           operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
-          r#type: OperationType::PaymentSourceDecrement.to_string(),
+          r#type: OperationType::PaymentSourceDec.to_string().to_case(Case::Snake),
           status: Some(operation_status.to_string()),
           account: Some(Box::new(AccountIdentifier {
             address: self.source.clone(),
@@ -179,7 +147,7 @@ impl UserCommand {
         // Operation 4: Payment Receiver Increment
         operations.push(Operation {
                 operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
-                r#type: OperationType::PaymentReceiverIncrement.to_string(),
+                r#type: OperationType::PaymentReceiverInc.to_string().to_case(Case::Snake),
                 status: Some(operation_status.to_string()),
                 account: Some(Box::new(AccountIdentifier {
                     address: self.receiver.clone(),
@@ -200,7 +168,7 @@ impl UserCommand {
         // Operation 3: Delegate Change
         operations.push(Operation {
           operation_identifier: Box::new(OperationIdentifier { index: operation_index, network_index: None }),
-          r#type: OperationType::DelegateChange.to_string(),
+          r#type: OperationType::DelegateChange.to_string().to_case(Case::Snake),
           status: Some(operation_status.to_string()),
           account: Some(Box::new(AccountIdentifier {
             address: self.source.clone(),
