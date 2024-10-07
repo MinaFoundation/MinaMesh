@@ -12,14 +12,12 @@ Ensure you have the Rust toolchain installed. If you do not, see
 [installation instructions here](https://www.rust-lang.org/tools/install).
 
 ```sh
-# Install the mina-mesh executable
-cargo install mina-mesh
+# Install
+cargo install mina_mesh
 
-# Confirm the installation was successful
+# Confirm installation
 mina-mesh --help
 ```
-
-> Note: Mina Mesh is not yet published to crates.io. The first publish will soon be underway.
 
 ## Environment
 
