@@ -52,14 +52,8 @@ impl UserCommand {
   pub fn into_block_transaction(self) -> BlockTransaction {
     let decoded_memo = self.decoded_memo().unwrap_or_default();
     let amt = self.amount.clone().unwrap_or_else(|| "0".to_string());
-    // Construct BlockIdentifier from UserCommand
-    let block_identifier =
-      BlockIdentifier { index: self.height.unwrap_or_default(), hash: self.state_hash.unwrap_or_default() };
 
-    // Create a series of operations for the transaction
     let mut operations = Vec::new();
-
-    // Index for operations
     let mut operation_index = 0;
 
     // Operation 1: Fee Payment
@@ -156,7 +150,7 @@ impl UserCommand {
       }
     }
 
-    // Construct Transaction
+    let block_identifier = BlockIdentifier::new(self.height.unwrap_or_default(), self.state_hash.unwrap_or_default());
     let transaction = Transaction {
       transaction_identifier: Box::new(TransactionIdentifier::new(self.hash)),
       operations,
@@ -166,9 +160,7 @@ impl UserCommand {
         _ => Some(json!({ "memo": decoded_memo })),
       },
     };
-
-    // Construct BlockTransaction
-    BlockTransaction { block_identifier: Box::new(block_identifier), transaction: Box::new(transaction) }
+    BlockTransaction::new(block_identifier, transaction)
   }
 }
 
