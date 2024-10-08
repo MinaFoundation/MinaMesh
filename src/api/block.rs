@@ -182,6 +182,9 @@ pub struct ZkappCommandMetadata {
   sequence_no: i64,
   status: TransactionStatus,
   failure_reasons: Option<Vec<String>>,
+  balance_change: String,
+  account: String,
+  token: String,
 }
 
 #[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
@@ -341,5 +344,9 @@ fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) ->
 
 // TODO: implement
 fn zkapp_command_metadata_to_operation(_metadata: &ZkappCommandMetadata) -> Result<Vec<Operation>, MinaMeshError> {
+  // Go through each zkapp command in the vector
+
+  // Produce the final transaction response regarding this zkapp command
+
   Ok(Vec::new())
 }
