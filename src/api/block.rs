@@ -81,13 +81,34 @@ impl MinaMesh {
     let metadata = sqlx::query_file_as!(ZkappCommandMetadata, "sql/zkapp_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
       .fetch_all(&self.pg_pool)
       .await?;
-    let transactions = metadata
-      .into_iter()
-      .map(|item| {
-        zkapp_command_metadata_to_operation(&item)
-          .map(|operation| Transaction::new(TransactionIdentifier::new(item.hash.clone()), operation))
-      })
-      .collect::<Result<Vec<Transaction>, MinaMeshError>>()?;
+    let mut transactions = Vec::new();
+    let mut operations = Vec::new();
+    let mut current_txn_identifier = TransactionIdentifier::new(metadata[0].hash.clone());
+    for item in metadata {
+      if current_txn_identifier.hash != item.hash {
+        transactions.push(Transaction::new(current_txn_identifier, operations));
+        operations = Vec::new();
+        current_txn_identifier = TransactionIdentifier::new(item.hash.clone());
+      }
+      operations.push(operation(
+        operations.len() as i64,
+        Some(&item.fee),
+        &AccountIdentifier::new(item.fee_payer.clone()),
+        OperationType::ZkappFeePayerDec,
+        None,
+        None,
+        None,
+      ));
+      operations.push(operation(
+        operations.len() as i64,
+        Some(&item.balance_change),
+        &AccountIdentifier::new(item.account.clone()),
+        OperationType::ZkappBalanceUpdate,
+        None,
+        None,
+        None,
+      ));
+    }
     Ok(transactions)
   }
 
@@ -340,13 +361,4 @@ fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) ->
     }
   }
   Ok(operations)
-}
-
-// TODO: implement
-fn zkapp_command_metadata_to_operation(_metadata: &ZkappCommandMetadata) -> Result<Vec<Operation>, MinaMeshError> {
-  // Go through each zkapp command in the vector
-
-  // Produce the final transaction response regarding this zkapp command
-
-  Ok(Vec::new())
 }
