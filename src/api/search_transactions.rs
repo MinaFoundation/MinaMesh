@@ -52,6 +52,21 @@ impl UserCommand {
   pub fn into_block_transaction(self) -> BlockTransaction {
     let decoded_memo = self.decoded_memo().unwrap_or_default();
     let amt = self.amount.clone().unwrap_or_else(|| "0".to_string());
+    let receiver_account_id = &AccountIdentifier {
+      address: self.receiver.clone(),
+      metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
+      sub_account: None,
+    };
+    let source_account_id = &AccountIdentifier {
+      address: self.source,
+      metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
+      sub_account: None,
+    };
+    let fee_payer_account_id = &AccountIdentifier {
+      address: self.fee_payer,
+      metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
+      sub_account: None,
+    };
 
     let mut operations = Vec::new();
     let mut operation_index = 0;
@@ -60,11 +75,7 @@ impl UserCommand {
     operations.push(operation(
       operation_index,
       Some(&format!("-{}", self.fee.unwrap_or_else(|| "0".to_string()))),
-      AccountIdentifier {
-        address: self.fee_payer.clone(),
-        metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-        sub_account: None,
-      },
+      fee_payer_account_id,
       OperationType::FeePayment,
       Some(&self.status),
       None,
@@ -78,11 +89,7 @@ impl UserCommand {
       operations.push(operation(
         operation_index,
         Some(&format!("-{}", creation_fee)),
-        AccountIdentifier {
-          address: self.receiver.clone(),
-          metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-          sub_account: None,
-        },
+        receiver_account_id,
         OperationType::AccountCreationFeeViaPayment,
         Some(&self.status),
         None,
@@ -99,11 +106,7 @@ impl UserCommand {
         operations.push(operation(
           operation_index,
           Some(&format!("-{}", amt)),
-          AccountIdentifier {
-            address: self.source.clone(),
-            metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-            sub_account: None,
-          },
+          source_account_id,
           OperationType::PaymentSourceDec,
           Some(&self.status),
           None,
@@ -116,11 +119,7 @@ impl UserCommand {
         operations.push(operation(
           operation_index,
           Some(&amt),
-          AccountIdentifier {
-            address: self.receiver.clone(),
-            metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-            sub_account: None,
-          },
+          receiver_account_id,
           OperationType::PaymentReceiverInc,
           Some(&self.status),
           Some(vec![operation_index - 1]),
@@ -133,15 +132,11 @@ impl UserCommand {
         operations.push(operation(
           operation_index,
           None,
-          AccountIdentifier {
-            address: self.source.clone(),
-            metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-            sub_account: None,
-          },
+          source_account_id,
           OperationType::DelegateChange,
           Some(&self.status),
           None,
-          Some(json!({ "delegate_change_target": self.receiver.clone() })),
+          Some(json!({ "delegate_change_target": self.receiver })),
         ));
       }
     }

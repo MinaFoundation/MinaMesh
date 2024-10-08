@@ -207,12 +207,16 @@ pub struct ZkappAccountUpdateMetadata {
 }
 
 fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Operation> {
+  let fee_payer_account_id = &AccountIdentifier::new(metadata.fee_payer.clone());
+  let receiver_account_id = &AccountIdentifier::new(metadata.receiver.clone());
+  let source_account_id = &AccountIdentifier::new(metadata.source.clone());
+
   let mut operations = Vec::new();
   if metadata.fee != "0" {
     operations.push(operation(
       0,
       Some(&metadata.fee),
-      AccountIdentifier::new(metadata.fee_payer.clone()),
+      fee_payer_account_id,
       OperationType::FeePayment,
       None,
       None,
@@ -224,7 +228,7 @@ fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Op
       operations.push(operation(
         1,
         Some(creation_fee),
-        AccountIdentifier::new(metadata.receiver.clone()),
+        receiver_account_id,
         OperationType::AccountCreationFeeViaPayment,
         Some(&metadata.status),
         None,
@@ -236,7 +240,7 @@ fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Op
         operations.push(operation(
           2,
           None,
-          AccountIdentifier::new(metadata.source.clone()),
+          source_account_id,
           OperationType::DelegateChange,
           Some(&metadata.status),
           None,
@@ -248,7 +252,7 @@ fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Op
           operation(
             2,
             metadata.amount.as_ref(),
-            AccountIdentifier::new(metadata.source.clone()),
+            source_account_id,
             OperationType::PaymentSourceDec,
             Some(&metadata.status),
             None,
@@ -257,7 +261,7 @@ fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Op
           operation(
             3,
             metadata.amount.as_ref(),
-            AccountIdentifier::new(metadata.receiver.clone()),
+            receiver_account_id,
             OperationType::PaymentReceiverInc,
             Some(&metadata.status),
             None,
@@ -271,12 +275,13 @@ fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Op
 }
 
 fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) -> Result<Vec<Operation>, MinaMeshError> {
+  let receiver_account_id = &AccountIdentifier::new(metadata.receiver.clone());
   let mut operations = Vec::new();
   if let Some(creation_fee) = &metadata.creation_fee {
     operations.push(operation(
       0,
       Some(creation_fee),
-      AccountIdentifier::new(metadata.receiver.clone()),
+      receiver_account_id,
       OperationType::AccountCreationFeeViaFeeReceiver,
       None,
       None,
@@ -288,7 +293,7 @@ fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) ->
       operations.push(operation(
         2,
         Some(&metadata.fee),
-        AccountIdentifier::new(metadata.receiver.clone()),
+        receiver_account_id,
         OperationType::CoinbaseInc,
         None,
         None,
@@ -299,7 +304,7 @@ fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) ->
       operations.push(operation(
         2,
         Some(&metadata.fee),
-        AccountIdentifier::new(metadata.receiver.clone()),
+        receiver_account_id,
         OperationType::FeeReceiverInc,
         None,
         None,
@@ -311,7 +316,7 @@ fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) ->
         operations.push(operation(
           2,
           Some(&metadata.fee),
-          AccountIdentifier::new(metadata.receiver.clone()),
+          receiver_account_id,
           OperationType::FeeReceiverInc,
           None,
           None,
@@ -320,7 +325,7 @@ fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) ->
         operations.push(operation(
           3,
           Some(&metadata.fee),
-          AccountIdentifier::new(coinbase_receiver.to_string()),
+          &AccountIdentifier::new(coinbase_receiver.to_string()),
           OperationType::FeePayerDec,
           None,
           None,
