@@ -7,9 +7,6 @@ use thiserror::Error;
 
 #[derive(Error, Debug, PartialEq)]
 pub enum MinaMeshError {
-  #[error("Invalid transaction status: '{0}'. Valid are 'applied' and 'failed'")]
-  InvalidTransactionStatus(String),
-
   #[error("SQL failure")]
   Sql(String),
 

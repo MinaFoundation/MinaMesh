@@ -45,7 +45,11 @@ impl MinaMesh {
     let status = match req.status.as_deref() {
       Some("applied") => Some(TransactionStatus::Applied),
       Some("failed") => Some(TransactionStatus::Failed),
-      Some(other) => return Err(MinaMeshError::InvalidTransactionStatus(other.to_string())),
+      Some(other) => {
+        return Err(MinaMeshError::Exception(
+          format!("Invalid transaction status: '{other}'. Valid are 'applied' and 'failed'").to_string(),
+        ))
+      }
       None => None,
     };
     let success_status = match req.success {
