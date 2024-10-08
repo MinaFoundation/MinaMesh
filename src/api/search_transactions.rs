@@ -10,6 +10,89 @@ use crate::{
   UserCommandType,
 };
 
+impl MinaMesh {
+  pub async fn search_transactions(
+    &self,
+    req: SearchTransactionsRequest,
+  ) -> Result<SearchTransactionsResponse, MinaMeshError> {
+    let user_commands = self.fetch_user_commands(&req).await?;
+    let user_commands_len = user_commands.len();
+    let next_offset = req.offset.unwrap_or(0) + user_commands_len as i64;
+
+    // Extract the total count from the first user command, or default to 0
+    let user_commands_total_count = user_commands.first().and_then(|uc| uc.total_count).unwrap_or(0);
+
+    // Map user commands into block transactions
+    let user_commands_bt = user_commands.into_iter().map(|uc| uc.into_block_transaction()).collect();
+
+    let response = SearchTransactionsResponse {
+      transactions: user_commands_bt,
+      total_count: user_commands_total_count,
+      next_offset: match next_offset {
+        offset if offset < user_commands_total_count => Some(offset),
+        _ => None,
+      },
+    };
+
+    Ok(response)
+  }
+
+  pub async fn fetch_user_commands(&self, req: &SearchTransactionsRequest) -> Result<Vec<UserCommand>, MinaMeshError> {
+    let max_block = req.max_block;
+    let txn_hash = req.transaction_identifier.as_ref().map(|t| &t.hash);
+    let account_identifier = req.account_identifier.as_ref().map(|a| &a.address);
+    let token_id = req.account_identifier.as_ref().and_then(|a| a.metadata.as_ref().map(|meta| meta.to_string()));
+    let status = match req.status.as_deref() {
+      Some("applied") => Some(TransactionStatus::Applied),
+      Some("failed") => Some(TransactionStatus::Failed),
+      Some(_other) => None,
+      None => None,
+    };
+    let success_status = match req.success {
+      Some(true) => Some(TransactionStatus::Applied),
+      Some(false) => Some(TransactionStatus::Failed),
+      None => None,
+    };
+    let address = req.address.as_ref();
+    let limit = req.limit.unwrap_or(100);
+    let offset = req.offset.unwrap_or(0);
+
+    let user_commands = sqlx::query_file_as!(
+      UserCommand,
+      "sql/indexer_user_commands.sql",
+      max_block,
+      txn_hash,
+      account_identifier,
+      token_id,
+      status as Option<TransactionStatus>,
+      success_status as Option<TransactionStatus>,
+      address,
+      limit,
+      offset,
+    )
+    .fetch_all(&self.pg_pool)
+    .await?;
+
+    Ok(user_commands)
+  }
+
+  #[allow(dead_code)]
+  async fn fetch_internal_commands(
+    &self,
+    _req: &SearchTransactionsRequest,
+  ) -> Result<Vec<BlockTransaction>, MinaMeshError> {
+    unimplemented!()
+  }
+
+  #[allow(dead_code)]
+  async fn fetch_zkapp_commands(
+    &self,
+    _req: &SearchTransactionsRequest,
+  ) -> Result<Vec<BlockTransaction>, MinaMeshError> {
+    unimplemented!()
+  }
+}
+
 #[derive(Debug, FromRow)]
 pub struct UserCommand {
   pub id: Option<i32>,
@@ -152,88 +235,5 @@ impl UserCommand {
       },
     };
     BlockTransaction::new(block_identifier, transaction)
-  }
-}
-
-impl MinaMesh {
-  pub async fn search_transactions(
-    &self,
-    req: SearchTransactionsRequest,
-  ) -> Result<SearchTransactionsResponse, MinaMeshError> {
-    let user_commands = self.fetch_user_commands(&req).await?;
-    let user_commands_len = user_commands.len();
-    let next_offset = req.offset.unwrap_or(0) + user_commands_len as i64;
-
-    // Extract the total count from the first user command, or default to 0
-    let user_commands_total_count = user_commands.first().and_then(|uc| uc.total_count).unwrap_or(0);
-
-    // Map user commands into block transactions
-    let user_commands_bt = user_commands.into_iter().map(|uc| uc.into_block_transaction()).collect();
-
-    let response = SearchTransactionsResponse {
-      transactions: user_commands_bt,
-      total_count: user_commands_total_count,
-      next_offset: match next_offset {
-        offset if offset < user_commands_total_count => Some(offset),
-        _ => None,
-      },
-    };
-
-    Ok(response)
-  }
-
-  pub async fn fetch_user_commands(&self, req: &SearchTransactionsRequest) -> Result<Vec<UserCommand>, MinaMeshError> {
-    let max_block = req.max_block;
-    let txn_hash = req.transaction_identifier.as_ref().map(|t| &t.hash);
-    let account_identifier = req.account_identifier.as_ref().map(|a| &a.address);
-    let token_id = req.account_identifier.as_ref().and_then(|a| a.metadata.as_ref().map(|meta| meta.to_string()));
-    let status = match req.status.as_deref() {
-      Some("applied") => Some(TransactionStatus::Applied),
-      Some("failed") => Some(TransactionStatus::Failed),
-      Some(_other) => None,
-      None => None,
-    };
-    let success_status = match req.success {
-      Some(true) => Some(TransactionStatus::Applied),
-      Some(false) => Some(TransactionStatus::Failed),
-      None => None,
-    };
-    let address = req.address.as_ref();
-    let limit = req.limit.unwrap_or(100);
-    let offset = req.offset.unwrap_or(0);
-
-    let user_commands = sqlx::query_file_as!(
-      UserCommand,
-      "sql/indexer_user_commands.sql",
-      max_block,
-      txn_hash,
-      account_identifier,
-      token_id,
-      status as Option<TransactionStatus>,
-      success_status as Option<TransactionStatus>,
-      address,
-      limit,
-      offset,
-    )
-    .fetch_all(&self.pg_pool)
-    .await?;
-
-    Ok(user_commands)
-  }
-
-  #[allow(dead_code)]
-  async fn fetch_internal_commands(
-    &self,
-    _req: &SearchTransactionsRequest,
-  ) -> Result<Vec<BlockTransaction>, MinaMeshError> {
-    unimplemented!()
-  }
-
-  #[allow(dead_code)]
-  async fn fetch_zkapp_commands(
-    &self,
-    _req: &SearchTransactionsRequest,
-  ) -> Result<Vec<BlockTransaction>, MinaMeshError> {
-    unimplemented!()
   }
 }
