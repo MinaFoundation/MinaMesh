@@ -15,7 +15,10 @@ SELECT
       zkapp_account_update_failures AS zauf
     WHERE
       zauf.id=ANY (bzc.failure_reasons_ids)
-  ) AS failure_reasons
+  ) AS failure_reasons,
+  zaub.balance_change,
+  pk_update_body.value AS account,
+  token_update_body.value AS token
 FROM
   blocks_zkapp_commands AS bzc
   INNER JOIN zkapp_commands AS zc ON bzc.zkapp_command_id=zc.id
