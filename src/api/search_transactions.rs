@@ -221,15 +221,9 @@ impl MinaMesh {
       offset,
     )
     .fetch_all(&self.pg_pool)
-    .await;
+    .await?;
 
-    match user_commands {
-      Ok(user_commands) => Ok(user_commands),
-      Err(e) => {
-        tracing::error!("Failed to fetch user commands: {:?}", e);
-        Err(MinaMeshError::Sql(e.to_string()))
-      }
-    }
+    Ok(user_commands)
   }
 
   #[allow(dead_code)]
