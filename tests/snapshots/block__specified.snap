@@ -43,7 +43,7 @@ Some(
                                         Amount {
                                             value: "250000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -74,7 +74,7 @@ Some(
                                         Amount {
                                             value: "13149444000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -105,7 +105,7 @@ Some(
                                         Amount {
                                             value: "13149444000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -145,7 +145,7 @@ Some(
                                         Amount {
                                             value: "95401000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -176,7 +176,7 @@ Some(
                                         Amount {
                                             value: "85000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -207,7 +207,7 @@ Some(
                                         Amount {
                                             value: "85000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -247,7 +247,7 @@ Some(
                                         Amount {
                                             value: "95401000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -278,7 +278,7 @@ Some(
                                         Amount {
                                             value: "85000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -309,7 +309,7 @@ Some(
                                         Amount {
                                             value: "85000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -349,7 +349,7 @@ Some(
                                         Amount {
                                             value: "95401000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -380,7 +380,7 @@ Some(
                                         Amount {
                                             value: "85000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -411,7 +411,7 @@ Some(
                                         Amount {
                                             value: "85000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -451,7 +451,7 @@ Some(
                                         Amount {
                                             value: "95401000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -482,7 +482,7 @@ Some(
                                         Amount {
                                             value: "85000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -513,7 +513,7 @@ Some(
                                         Amount {
                                             value: "85000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -553,7 +553,7 @@ Some(
                                         Amount {
                                             value: "21001011",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -584,7 +584,7 @@ Some(
                                         Amount {
                                             value: "0",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -615,7 +615,7 @@ Some(
                                         Amount {
                                             value: "0",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -655,7 +655,7 @@ Some(
                                         Amount {
                                             value: "21000005",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -686,7 +686,7 @@ Some(
                                         Amount {
                                             value: "0",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -717,7 +717,7 @@ Some(
                                         Amount {
                                             value: "0",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -757,7 +757,7 @@ Some(
                                         Amount {
                                             value: "21001000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -788,7 +788,7 @@ Some(
                                         Amount {
                                             value: "55000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -819,7 +819,7 @@ Some(
                                         Amount {
                                             value: "55000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -859,7 +859,7 @@ Some(
                                         Amount {
                                             value: "21001000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -890,7 +890,7 @@ Some(
                                         Amount {
                                             value: "55000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -921,7 +921,7 @@ Some(
                                         Amount {
                                             value: "55000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -961,7 +961,7 @@ Some(
                                         Amount {
                                             value: "17400000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -992,7 +992,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1023,7 +1023,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1063,7 +1063,7 @@ Some(
                                         Amount {
                                             value: "17400000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1094,7 +1094,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1125,7 +1125,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1165,7 +1165,7 @@ Some(
                                         Amount {
                                             value: "17400000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1196,7 +1196,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1227,7 +1227,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1267,7 +1267,7 @@ Some(
                                         Amount {
                                             value: "17400000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1298,7 +1298,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1329,7 +1329,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1369,7 +1369,7 @@ Some(
                                         Amount {
                                             value: "17400000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1400,7 +1400,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1431,7 +1431,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1471,7 +1471,7 @@ Some(
                                         Amount {
                                             value: "17400000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1502,7 +1502,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1533,7 +1533,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1573,7 +1573,7 @@ Some(
                                         Amount {
                                             value: "17400000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1604,7 +1604,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1635,7 +1635,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1675,7 +1675,7 @@ Some(
                                         Amount {
                                             value: "17400000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1706,7 +1706,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1737,7 +1737,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1777,7 +1777,7 @@ Some(
                                         Amount {
                                             value: "17400000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1808,7 +1808,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1839,7 +1839,7 @@ Some(
                                         Amount {
                                             value: "74000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1879,7 +1879,7 @@ Some(
                                         Amount {
                                             value: "15859000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1910,7 +1910,7 @@ Some(
                                         Amount {
                                             value: "73060000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1941,7 +1941,7 @@ Some(
                                         Amount {
                                             value: "73060000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -1981,7 +1981,7 @@ Some(
                                         Amount {
                                             value: "15683000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2012,7 +2012,7 @@ Some(
                                         Amount {
                                             value: "76420000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2043,7 +2043,7 @@ Some(
                                         Amount {
                                             value: "76420000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2083,7 +2083,7 @@ Some(
                                         Amount {
                                             value: "8710000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2114,7 +2114,7 @@ Some(
                                         Amount {
                                             value: "84990000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2145,7 +2145,7 @@ Some(
                                         Amount {
                                             value: "84990000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2185,7 +2185,7 @@ Some(
                                         Amount {
                                             value: "5000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2216,7 +2216,7 @@ Some(
                                         Amount {
                                             value: "90486111",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2247,7 +2247,7 @@ Some(
                                         Amount {
                                             value: "90486111",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2287,7 +2287,7 @@ Some(
                                         Amount {
                                             value: "1401000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2318,7 +2318,7 @@ Some(
                                         Amount {
                                             value: "89999000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2349,7 +2349,7 @@ Some(
                                         Amount {
                                             value: "89999000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2389,7 +2389,7 @@ Some(
                                         Amount {
                                             value: "24001000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2420,7 +2420,7 @@ Some(
                                         Amount {
                                             value: "44999000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2451,7 +2451,7 @@ Some(
                                         Amount {
                                             value: "44999000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2491,7 +2491,7 @@ Some(
                                         Amount {
                                             value: "4801000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2522,7 +2522,7 @@ Some(
                                         Amount {
                                             value: "50399000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2553,7 +2553,7 @@ Some(
                                         Amount {
                                             value: "50399000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2593,7 +2593,7 @@ Some(
                                         Amount {
                                             value: "232055000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2633,7 +2633,7 @@ Some(
                                         Amount {
                                             value: "720000000000",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },
@@ -2673,7 +2673,7 @@ Some(
                                         Amount {
                                             value: "715607016",
                                             currency: Currency {
-                                                symbol: "mina",
+                                                symbol: "MINA",
                                                 decimals: 9,
                                                 metadata: None,
                                             },

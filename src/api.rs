@@ -15,3 +15,4 @@ mod network_health_check;
 mod network_list;
 mod network_options;
 mod network_status;
+mod search_transactions;

@@ -3,6 +3,7 @@ mod commands;
 mod config;
 mod error;
 mod graphql;
+mod operation;
 mod playground;
 mod types;
 mod util;
@@ -13,6 +14,7 @@ pub use commands::*;
 pub use config::*;
 pub use error::*;
 use graphql::GraphQLClient;
+pub use operation::*;
 use sqlx::PgPool;
 pub use types::*;
 

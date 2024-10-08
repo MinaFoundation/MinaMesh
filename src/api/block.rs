@@ -1,14 +1,13 @@
 use anyhow::Result;
 use coinbase_mesh::models::{
-  AccountIdentifier, Amount, Block, BlockIdentifier, BlockRequest, BlockResponse, Currency, Operation,
-  OperationIdentifier, PartialBlockIdentifier, Transaction, TransactionIdentifier,
+  AccountIdentifier, Block, BlockIdentifier, BlockRequest, BlockResponse, Operation, PartialBlockIdentifier,
+  Transaction, TransactionIdentifier,
 };
-use convert_case::{Case, Casing};
 use serde::Serialize;
 use sqlx::FromRow;
 
 use crate::{
-  util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationStatus, OperationType,
+  operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationType,
   TransactionStatus, UserCommandType,
 };
 
@@ -208,39 +207,65 @@ pub struct ZkappAccountUpdateMetadata {
 }
 
 fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Operation> {
+  let fee_payer_account_id = &AccountIdentifier::new(metadata.fee_payer.clone());
+  let receiver_account_id = &AccountIdentifier::new(metadata.receiver.clone());
+  let source_account_id = &AccountIdentifier::new(metadata.source.clone());
+
   let mut operations = Vec::new();
   if metadata.fee != "0" {
-    operations.push(operation(0, Some(&metadata.fee), &metadata.fee_payer, OperationType::FeePayment, None));
+    operations.push(operation(
+      0,
+      Some(&metadata.fee),
+      fee_payer_account_id,
+      OperationType::FeePayment,
+      None,
+      None,
+      None,
+    ));
   }
   if metadata.failure_reason.is_none() {
     if let Some(creation_fee) = &metadata.creation_fee {
       operations.push(operation(
         1,
         Some(creation_fee),
-        &metadata.receiver,
+        receiver_account_id,
         OperationType::AccountCreationFeeViaPayment,
         Some(&metadata.status),
+        None,
+        None,
       ));
     }
     match metadata.command_type {
       UserCommandType::Delegation => {
-        operations.push(operation(2, None, &metadata.source, OperationType::DelegateChange, Some(&metadata.status)));
+        operations.push(operation(
+          2,
+          None,
+          source_account_id,
+          OperationType::DelegateChange,
+          Some(&metadata.status),
+          None,
+          None,
+        ));
       }
       UserCommandType::Payment => {
         operations.extend_from_slice(&[
           operation(
             2,
             metadata.amount.as_ref(),
-            &metadata.source,
+            source_account_id,
             OperationType::PaymentSourceDec,
             Some(&metadata.status),
+            None,
+            None,
           ),
           operation(
             3,
             metadata.amount.as_ref(),
-            &metadata.receiver,
+            receiver_account_id,
             OperationType::PaymentReceiverInc,
             Some(&metadata.status),
+            None,
+            None,
           ),
         ]);
       }
@@ -250,27 +275,62 @@ fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Op
 }
 
 fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) -> Result<Vec<Operation>, MinaMeshError> {
+  let receiver_account_id = &AccountIdentifier::new(metadata.receiver.clone());
   let mut operations = Vec::new();
   if let Some(creation_fee) = &metadata.creation_fee {
     operations.push(operation(
       0,
       Some(creation_fee),
-      &metadata.receiver,
+      receiver_account_id,
       OperationType::AccountCreationFeeViaFeeReceiver,
+      None,
+      None,
       None,
     ));
   }
   match metadata.command_type {
     InternalCommandType::Coinbase => {
-      operations.push(operation(2, Some(&metadata.fee), &metadata.receiver, OperationType::CoinbaseInc, None));
+      operations.push(operation(
+        2,
+        Some(&metadata.fee),
+        receiver_account_id,
+        OperationType::CoinbaseInc,
+        None,
+        None,
+        None,
+      ));
     }
     InternalCommandType::FeeTransfer => {
-      operations.push(operation(2, Some(&metadata.fee), &metadata.receiver, OperationType::FeeReceiverInc, None));
+      operations.push(operation(
+        2,
+        Some(&metadata.fee),
+        receiver_account_id,
+        OperationType::FeeReceiverInc,
+        None,
+        None,
+        None,
+      ));
     }
     InternalCommandType::FeeTransferViaCoinbase => {
       if let Some(coinbase_receiver) = &metadata.coinbase_receiver {
-        operations.push(operation(2, Some(&metadata.fee), &metadata.receiver, OperationType::FeeReceiverInc, None));
-        operations.push(operation(3, Some(&metadata.fee), coinbase_receiver, OperationType::FeePayerDec, None));
+        operations.push(operation(
+          2,
+          Some(&metadata.fee),
+          receiver_account_id,
+          OperationType::FeeReceiverInc,
+          None,
+          None,
+          None,
+        ));
+        operations.push(operation(
+          3,
+          Some(&metadata.fee),
+          &AccountIdentifier::new(coinbase_receiver.to_string()),
+          OperationType::FeePayerDec,
+          None,
+          None,
+          None,
+        ));
       } else {
         return Err(MinaMeshError::InvariantViolation);
       }
@@ -282,25 +342,4 @@ fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) ->
 // TODO: implement
 fn zkapp_command_metadata_to_operation(_metadata: &ZkappCommandMetadata) -> Result<Vec<Operation>, MinaMeshError> {
   Ok(Vec::new())
-}
-
-fn operation(
-  ident: i64,
-  amount: Option<&String>,
-  account: &String,
-  operation_type: OperationType,
-  status: Option<&TransactionStatus>,
-) -> Operation {
-  Operation {
-    operation_identifier: Box::new(OperationIdentifier::new(ident)),
-    amount: amount.map(|value| Box::new(Amount::new(value.to_owned(), Currency::new("mina".to_string(), 9)))),
-    account: Some(Box::new(AccountIdentifier::new(account.to_owned()))),
-    status: Some(
-      status.map(|item| OperationStatus::from(item.to_owned())).unwrap_or(OperationStatus::Success).to_string(),
-    ),
-    related_operations: None,
-    coin_change: None,
-    r#type: operation_type.to_string().to_case(Case::Snake),
-    metadata: None, // TODO: get the correct metadata
-  }
 }
