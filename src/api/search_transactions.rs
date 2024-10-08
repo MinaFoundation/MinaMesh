@@ -75,31 +75,27 @@ impl UserCommand {
 
     // Operation 2: Account Creation Fee (if applicable)
     if let Some(creation_fee) = &self.creation_fee {
-      if let Ok(fee_value) = creation_fee.parse::<i64>() {
-        if fee_value > 0 {
-          operations.push(operation(
-            operation_index,
-            Some(&format!("-{}", creation_fee)),
-            AccountIdentifier {
-              address: self.receiver.clone(),
-              metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-              sub_account: None,
-            },
-            OperationType::AccountCreationFeeViaPayment,
-            Some(&self.status),
-            None,
-            None,
-          ));
+      operations.push(operation(
+        operation_index,
+        Some(&format!("-{}", creation_fee)),
+        AccountIdentifier {
+          address: self.receiver.clone(),
+          metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
+          sub_account: None,
+        },
+        OperationType::AccountCreationFeeViaPayment,
+        Some(&self.status),
+        None,
+        None,
+      ));
 
-          operation_index += 1;
-        }
-      }
+      operation_index += 1;
     }
 
     // Decide on the type of operation based on command type
     match self.command_type {
+      // Operation 3: Payment Source Decrement
       UserCommandType::Payment => {
-        // Operation 3: Payment Source Decrement
         operations.push(operation(
           operation_index,
           Some(&format!("-{}", amt)),
@@ -132,8 +128,8 @@ impl UserCommand {
         ));
       }
 
+      // Operation 3: Delegate Change
       UserCommandType::Delegation => {
-        // Operation 3: Delegate Change
         operations.push(operation(
           operation_index,
           None,
