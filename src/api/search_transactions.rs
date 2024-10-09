@@ -16,22 +16,39 @@ impl MinaMesh {
     &self,
     req: SearchTransactionsRequest,
   ) -> Result<SearchTransactionsResponse, MinaMeshError> {
-    let user_commands = self.fetch_user_commands(&req).await?;
-    let internal_commands = self.fetch_internal_commands(&req).await?;
+    let original_offset = req.offset.unwrap_or(0);
+    let mut offset = original_offset;
+    let mut limit = req.limit.unwrap_or(100);
+    let mut transactions = Vec::new() as Vec<BlockTransaction>;
+    let mut txs_len = 0;
+    let mut total_count = 0;
 
-    let txs_len = user_commands.len() + internal_commands.len();
-    let next_offset = req.offset.unwrap_or(0) + txs_len as i64;
-
-    // Extract the total count of transactions
+    // User Commands
+    let user_commands = self.fetch_user_commands(&req, offset, limit).await?;
+    let user_commands_len = user_commands.len() as i64;
     let user_commands_total_count = user_commands.first().and_then(|uc| uc.total_count).unwrap_or(0);
-    let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
-    let total_count = user_commands_total_count + internal_commands_total_count;
-
-    // Map into block transactions
-    let mut transactions: Vec<BlockTransaction> =
-      internal_commands.into_iter().map(|uc| uc.into_block_transaction()).collect();
     transactions.extend(user_commands.into_iter().map(|ic| ic.into_block_transaction()));
+    total_count += user_commands_total_count;
+    txs_len += user_commands_len;
 
+    // Internal Commands
+    if limit > total_count {
+      // if we are below the limit, fetch internal commands
+      (offset, limit) = adjust_limit_and_offset(limit, offset, txs_len);
+      let internal_commands = self.fetch_internal_commands(&req, offset, limit).await?;
+      let internal_commands_len = internal_commands.len() as i64;
+      let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
+      transactions.extend(internal_commands.into_iter().map(|uc| uc.into_block_transaction()));
+      txs_len += internal_commands_len;
+      total_count += internal_commands_total_count;
+    } else {
+      // otherwise only fetch the first internal command to get the total count
+      let internal_commands = self.fetch_internal_commands(&req, 0, 1).await?;
+      let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
+      total_count += internal_commands_total_count;
+    }
+
+    let next_offset = original_offset + txs_len as i64;
     let response = SearchTransactionsResponse {
       transactions,
       total_count,
@@ -44,7 +61,12 @@ impl MinaMesh {
     Ok(response)
   }
 
-  pub async fn fetch_user_commands(&self, req: &SearchTransactionsRequest) -> Result<Vec<UserCommand>, MinaMeshError> {
+  pub async fn fetch_user_commands(
+    &self,
+    req: &SearchTransactionsRequest,
+    offset: i64,
+    limit: i64,
+  ) -> Result<Vec<UserCommand>, MinaMeshError> {
     let max_block = req.max_block;
     let txn_hash = req.transaction_identifier.as_ref().map(|t| &t.hash);
     let account_identifier = req.account_identifier.as_ref().map(|a| &a.address);
@@ -65,8 +87,6 @@ impl MinaMesh {
       None => None,
     };
     let address = req.address.as_ref();
-    let limit = req.limit.unwrap_or(100);
-    let offset = req.offset.unwrap_or(0);
 
     let user_commands = sqlx::query_file_as!(
       UserCommand,
@@ -90,6 +110,8 @@ impl MinaMesh {
   pub async fn fetch_internal_commands(
     &self,
     req: &SearchTransactionsRequest,
+    offset: i64,
+    limit: i64,
   ) -> Result<Vec<InternalCommand>, MinaMeshError> {
     let max_block = req.max_block;
     let txn_hash = req.transaction_identifier.as_ref().map(|t| &t.hash);
@@ -111,8 +133,6 @@ impl MinaMesh {
       None => None,
     };
     let address = req.address.as_ref();
-    let limit = req.limit.unwrap_or(100);
-    let offset = req.offset.unwrap_or(0);
 
     let internal_commands = sqlx::query_file_as!(
       InternalCommand,
@@ -405,4 +425,18 @@ impl UserCommand {
     };
     BlockTransaction::new(block_identifier, transaction)
   }
+}
+
+fn adjust_limit_and_offset(mut limit: i64, mut offset: i64, txs_len: i64) -> (i64, i64) {
+  if offset >= txs_len {
+    offset -= txs_len;
+  } else {
+    offset = 0;
+  }
+  if limit >= txs_len {
+    limit -= txs_len;
+  } else {
+    limit = 0;
+  }
+  (offset, limit)
 }
