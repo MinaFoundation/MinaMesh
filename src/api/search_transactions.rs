@@ -6,8 +6,8 @@ use serde_json::json;
 use sqlx::FromRow;
 
 use crate::{
-  operation, util::DEFAULT_TOKEN_ID, ChainStatus, MinaMesh, MinaMeshError, OperationType, TransactionStatus,
-  UserCommandType,
+  operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationType,
+  TransactionStatus, UserCommandType,
 };
 
 impl MinaMesh {
@@ -16,20 +16,24 @@ impl MinaMesh {
     req: SearchTransactionsRequest,
   ) -> Result<SearchTransactionsResponse, MinaMeshError> {
     let user_commands = self.fetch_user_commands(&req).await?;
-    let user_commands_len = user_commands.len();
-    let next_offset = req.offset.unwrap_or(0) + user_commands_len as i64;
+    let internal_commands = self.fetch_internal_commands(&req).await?;
 
-    // Extract the total count from the first user command, or default to 0
+    let txs_len = user_commands.len() + internal_commands.len();
+    let next_offset = req.offset.unwrap_or(0) + txs_len as i64;
+
+    // Extract the total count from the user_commands and internal_commands
     let user_commands_total_count = user_commands.first().and_then(|uc| uc.total_count).unwrap_or(0);
+    let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
+    let total_count = user_commands_total_count + internal_commands_total_count;
 
     // Map user commands into block transactions
     let user_commands_bt = user_commands.into_iter().map(|uc| uc.into_block_transaction()).collect();
 
     let response = SearchTransactionsResponse {
       transactions: user_commands_bt,
-      total_count: user_commands_total_count,
+      total_count,
       next_offset: match next_offset {
-        offset if offset < user_commands_total_count => Some(offset),
+        offset if offset < total_count => Some(offset),
         _ => None,
       },
     };
@@ -80,12 +84,50 @@ impl MinaMesh {
     Ok(user_commands)
   }
 
-  #[allow(dead_code)]
-  async fn fetch_internal_commands(
+  pub async fn fetch_internal_commands(
     &self,
-    _req: &SearchTransactionsRequest,
-  ) -> Result<Vec<BlockTransaction>, MinaMeshError> {
-    unimplemented!()
+    req: &SearchTransactionsRequest,
+  ) -> Result<Vec<InternalCommand>, MinaMeshError> {
+    let max_block = req.max_block;
+    let txn_hash = req.transaction_identifier.as_ref().map(|t| &t.hash);
+    let account_identifier = req.account_identifier.as_ref().map(|a| &a.address);
+    let token_id = req.account_identifier.as_ref().and_then(|a| a.metadata.as_ref().map(|meta| meta.to_string()));
+    let status = match req.status.as_deref() {
+      Some("applied") => Some(TransactionStatus::Applied),
+      Some("failed") => Some(TransactionStatus::Failed),
+      Some(other) => {
+        return Err(MinaMeshError::Exception(
+          format!("Invalid transaction status: '{other}'. Valid are 'applied' and 'failed'").to_string(),
+        ))
+      }
+      None => None,
+    };
+    let success_status = match req.success {
+      Some(true) => Some(TransactionStatus::Applied),
+      Some(false) => Some(TransactionStatus::Failed),
+      None => None,
+    };
+    let address = req.address.as_ref();
+    let limit = req.limit.unwrap_or(100);
+    let offset = req.offset.unwrap_or(0);
+
+    let internal_commands = sqlx::query_file_as!(
+      InternalCommand,
+      "sql/indexer_internal_commands.sql",
+      max_block,
+      txn_hash,
+      account_identifier,
+      token_id,
+      status as Option<TransactionStatus>,
+      success_status as Option<TransactionStatus>,
+      address,
+      limit,
+      offset
+    )
+    .fetch_all(&self.pg_pool)
+    .await?;
+
+    Ok(internal_commands)
   }
 
   #[allow(dead_code)]
@@ -95,6 +137,24 @@ impl MinaMesh {
   ) -> Result<Vec<BlockTransaction>, MinaMeshError> {
     unimplemented!()
   }
+}
+
+#[derive(Debug, FromRow)]
+pub struct InternalCommand {
+  pub id: Option<i32>,
+  pub command_type: InternalCommandType,
+  pub receiver_id: Option<i32>,
+  pub fee: Option<String>,
+  pub hash: String,
+  pub receiver: String,
+  pub coinbase_receiver: Option<String>,
+  pub sequence_no: i32,
+  pub secondary_sequence_no: i32,
+  pub block_id: i32,
+  pub state_hash: Option<String>,
+  pub height: Option<i64>,
+  pub total_count: Option<i64>,
+  pub creation_fee: Option<String>,
 }
 
 #[derive(Debug, FromRow)]
