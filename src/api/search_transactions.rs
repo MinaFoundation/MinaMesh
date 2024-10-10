@@ -48,7 +48,7 @@ impl MinaMesh {
       total_count += internal_commands_total_count;
     }
 
-    let next_offset = original_offset + txs_len as i64;
+    let next_offset = original_offset + txs_len;
     let response = SearchTransactionsResponse {
       transactions,
       total_count,
@@ -67,37 +67,18 @@ impl MinaMesh {
     offset: i64,
     limit: i64,
   ) -> Result<Vec<UserCommand>, MinaMeshError> {
-    let max_block = req.max_block;
-    let txn_hash = req.transaction_identifier.as_ref().map(|t| &t.hash);
-    let account_identifier = req.account_identifier.as_ref().map(|a| &a.address);
-    let token_id = req.account_identifier.as_ref().and_then(|a| a.metadata.as_ref().map(|meta| meta.to_string()));
-    let status = match req.status.as_deref() {
-      Some("applied") => Some(TransactionStatus::Applied),
-      Some("failed") => Some(TransactionStatus::Failed),
-      Some(other) => {
-        return Err(MinaMeshError::Exception(
-          format!("Invalid transaction status: '{other}'. Valid are 'applied' and 'failed'").to_string(),
-        ))
-      }
-      None => None,
-    };
-    let success_status = match req.success {
-      Some(true) => Some(TransactionStatus::Applied),
-      Some(false) => Some(TransactionStatus::Failed),
-      None => None,
-    };
-    let address = req.address.as_ref();
+    let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
 
     let user_commands = sqlx::query_file_as!(
       UserCommand,
       "sql/indexer_user_commands.sql",
-      max_block,
-      txn_hash,
-      account_identifier,
-      token_id,
-      status as Option<TransactionStatus>,
-      success_status as Option<TransactionStatus>,
-      address,
+      query_params.max_block,
+      query_params.transaction_hash,
+      query_params.account_identifier,
+      query_params.token_id,
+      query_params.status as Option<TransactionStatus>,
+      query_params.success_status as Option<TransactionStatus>,
+      query_params.address,
       limit,
       offset,
     )
@@ -113,37 +94,18 @@ impl MinaMesh {
     offset: i64,
     limit: i64,
   ) -> Result<Vec<InternalCommand>, MinaMeshError> {
-    let max_block = req.max_block;
-    let txn_hash = req.transaction_identifier.as_ref().map(|t| &t.hash);
-    let account_identifier = req.account_identifier.as_ref().map(|a| &a.address);
-    let token_id = req.account_identifier.as_ref().and_then(|a| a.metadata.as_ref().map(|meta| meta.to_string()));
-    let status = match req.status.as_deref() {
-      Some("applied") => Some(TransactionStatus::Applied),
-      Some("failed") => Some(TransactionStatus::Failed),
-      Some(other) => {
-        return Err(MinaMeshError::Exception(
-          format!("Invalid transaction status: '{other}'. Valid are 'applied' and 'failed'").to_string(),
-        ))
-      }
-      None => None,
-    };
-    let success_status = match req.success {
-      Some(true) => Some(TransactionStatus::Applied),
-      Some(false) => Some(TransactionStatus::Failed),
-      None => None,
-    };
-    let address = req.address.as_ref();
+    let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
 
     let internal_commands = sqlx::query_file_as!(
       InternalCommand,
       "sql/indexer_internal_commands.sql",
-      max_block,
-      txn_hash,
-      account_identifier,
-      token_id,
-      status as Option<TransactionStatus>,
-      success_status as Option<TransactionStatus>,
-      address,
+      query_params.max_block,
+      query_params.transaction_hash,
+      query_params.account_identifier,
+      query_params.token_id,
+      query_params.status as Option<TransactionStatus>,
+      query_params.success_status as Option<TransactionStatus>,
+      query_params.address,
       limit,
       offset
     )
@@ -424,6 +386,57 @@ impl UserCommand {
       },
     };
     BlockTransaction::new(block_identifier, transaction)
+  }
+}
+
+pub struct SearchTransactionsQueryParams {
+  pub max_block: Option<i64>,
+  pub transaction_hash: Option<String>,
+  pub account_identifier: Option<String>,
+  pub token_id: Option<String>,
+  pub status: Option<TransactionStatus>,
+  pub success_status: Option<TransactionStatus>,
+  pub address: Option<String>,
+}
+
+impl TryFrom<SearchTransactionsRequest> for SearchTransactionsQueryParams {
+  type Error = MinaMeshError;
+
+  fn try_from(req: SearchTransactionsRequest) -> Result<Self, Self::Error> {
+    let max_block = req.max_block;
+    let transaction_hash = req.transaction_identifier.map(|t| t.hash);
+    let token_id = req.account_identifier.as_ref().and_then(|a| a.metadata.as_ref().map(|meta| meta.to_string()));
+    let account_identifier = req.account_identifier.map(|a| a.address);
+
+    let status = match req.status.as_deref() {
+      Some("applied") => Some(TransactionStatus::Applied),
+      Some("failed") => Some(TransactionStatus::Failed),
+      Some(other) => {
+        return Err(MinaMeshError::Exception(format!(
+          "Invalid transaction status: '{}'. Valid statuses are 'applied' and 'failed'",
+          other
+        )));
+      }
+      None => None,
+    };
+
+    let success_status = match req.success {
+      Some(true) => Some(TransactionStatus::Applied),
+      Some(false) => Some(TransactionStatus::Failed),
+      None => None,
+    };
+
+    let address = req.address;
+
+    Ok(SearchTransactionsQueryParams {
+      max_block,
+      transaction_hash,
+      account_identifier,
+      token_id,
+      status,
+      success_status,
+      address,
+    })
   }
 }
 
