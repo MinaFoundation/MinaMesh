@@ -27,7 +27,7 @@ impl MinaMesh {
     let user_commands = self.fetch_user_commands(&req, offset, limit).await?;
     let user_commands_len = user_commands.len() as i64;
     let user_commands_total_count = user_commands.first().and_then(|uc| uc.total_count).unwrap_or(0);
-    transactions.extend(user_commands.into_iter().map(|ic| ic.into_block_transaction()));
+    transactions.extend(user_commands.into_iter().map(|ic| ic.into()));
     total_count += user_commands_total_count;
     txs_len += user_commands_len;
 
@@ -38,7 +38,7 @@ impl MinaMesh {
       let internal_commands = self.fetch_internal_commands(&req, offset, limit).await?;
       let internal_commands_len = internal_commands.len() as i64;
       let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
-      transactions.extend(internal_commands.into_iter().map(|uc| uc.into_block_transaction()));
+      transactions.extend(internal_commands.into_iter().map(|uc| uc.into()));
       txs_len += internal_commands_len;
       total_count += internal_commands_total_count;
     } else {
@@ -143,32 +143,32 @@ pub struct InternalCommand {
   pub creation_fee: Option<String>,
 }
 
-impl InternalCommand {
-  pub fn into_block_transaction(self) -> BlockTransaction {
+impl From<InternalCommand> for BlockTransaction {
+  fn from(internal_command: InternalCommand) -> Self {
     // Derive transaction_identifier by combining command_type, sequence numbers,
     // and the hash
     let transaction_identifier = format!(
       "{}:{}:{}:{}",
-      self.command_type.to_string().to_case(Case::Snake),
-      self.sequence_no,
-      self.secondary_sequence_no,
-      self.hash
+      internal_command.command_type.to_string().to_case(Case::Snake),
+      internal_command.sequence_no,
+      internal_command.secondary_sequence_no,
+      internal_command.hash
     );
-    let fee = self.fee.unwrap_or_else(|| "0".to_string());
-    let status = &self.status;
+    let fee = internal_command.fee.unwrap_or_else(|| "0".to_string());
+    let status = &internal_command.status;
 
     let mut operations = Vec::new();
     let mut operation_index = 0;
 
     // Receiver Account Identifier
     let receiver_account_id = &AccountIdentifier {
-      address: self.receiver.clone(),
+      address: internal_command.receiver.clone(),
       metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
       sub_account: None,
     };
 
     // Handle Account Creation Fee if applicable
-    if let Some(creation_fee) = &self.creation_fee {
+    if let Some(creation_fee) = &internal_command.creation_fee {
       operations.push(operation(
         operation_index,
         Some(creation_fee),
@@ -181,7 +181,7 @@ impl InternalCommand {
       operation_index += 1;
     }
 
-    match self.command_type {
+    match internal_command.command_type {
       InternalCommandType::Coinbase => {
         operations.push(operation(
           operation_index,
@@ -207,7 +207,7 @@ impl InternalCommand {
       }
 
       InternalCommandType::FeeTransferViaCoinbase => {
-        if let Some(coinbase_receiver) = &self.coinbase_receiver {
+        if let Some(coinbase_receiver) = &internal_command.coinbase_receiver {
           operations.push(operation(
             operation_index,
             Some(&fee),
@@ -232,7 +232,10 @@ impl InternalCommand {
       }
     }
 
-    let block_identifier = BlockIdentifier::new(self.height.unwrap_or_default(), self.state_hash.unwrap_or_default());
+    let block_identifier = BlockIdentifier::new(
+      internal_command.height.unwrap_or_default(),
+      internal_command.state_hash.unwrap_or_default(),
+    );
     let transaction = Transaction {
       transaction_identifier: Box::new(TransactionIdentifier::new(transaction_identifier)),
       operations,
@@ -282,22 +285,24 @@ impl UserCommand {
       Err(_) => None,
     }
   }
+}
 
-  pub fn into_block_transaction(self) -> BlockTransaction {
-    let decoded_memo = self.decoded_memo().unwrap_or_default();
-    let amt = self.amount.clone().unwrap_or_else(|| "0".to_string());
+impl From<UserCommand> for BlockTransaction {
+  fn from(user_command: UserCommand) -> Self {
+    let decoded_memo = user_command.decoded_memo().unwrap_or_default();
+    let amt = user_command.amount.clone().unwrap_or_else(|| "0".to_string());
     let receiver_account_id = &AccountIdentifier {
-      address: self.receiver.clone(),
+      address: user_command.receiver.clone(),
       metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
       sub_account: None,
     };
     let source_account_id = &AccountIdentifier {
-      address: self.source,
+      address: user_command.source,
       metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
       sub_account: None,
     };
     let fee_payer_account_id = &AccountIdentifier {
-      address: self.fee_payer,
+      address: user_command.fee_payer,
       metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
       sub_account: None,
     };
@@ -308,10 +313,10 @@ impl UserCommand {
     // Operation 1: Fee Payment
     operations.push(operation(
       operation_index,
-      Some(&format!("-{}", self.fee.unwrap_or_else(|| "0".to_string()))),
+      Some(&format!("-{}", user_command.fee.unwrap_or_else(|| "0".to_string()))),
       fee_payer_account_id,
       OperationType::FeePayment,
-      Some(&self.status),
+      Some(&user_command.status),
       None,
       None,
     ));
@@ -319,13 +324,13 @@ impl UserCommand {
     operation_index += 1;
 
     // Operation 2: Account Creation Fee (if applicable)
-    if let Some(creation_fee) = &self.creation_fee {
+    if let Some(creation_fee) = &user_command.creation_fee {
       operations.push(operation(
         operation_index,
         Some(&format!("-{}", creation_fee)),
         receiver_account_id,
         OperationType::AccountCreationFeeViaPayment,
-        Some(&self.status),
+        Some(&user_command.status),
         None,
         None,
       ));
@@ -334,7 +339,7 @@ impl UserCommand {
     }
 
     // Decide on the type of operation based on command type
-    match self.command_type {
+    match user_command.command_type {
       // Operation 3: Payment Source Decrement
       UserCommandType::Payment => {
         operations.push(operation(
@@ -342,7 +347,7 @@ impl UserCommand {
           Some(&format!("-{}", amt)),
           source_account_id,
           OperationType::PaymentSourceDec,
-          Some(&self.status),
+          Some(&user_command.status),
           None,
           None,
         ));
@@ -355,7 +360,7 @@ impl UserCommand {
           Some(&amt),
           receiver_account_id,
           OperationType::PaymentReceiverInc,
-          Some(&self.status),
+          Some(&user_command.status),
           Some(vec![operation_index - 1]),
           None,
         ));
@@ -368,16 +373,17 @@ impl UserCommand {
           None,
           source_account_id,
           OperationType::DelegateChange,
-          Some(&self.status),
+          Some(&user_command.status),
           None,
-          Some(json!({ "delegate_change_target": self.receiver })),
+          Some(json!({ "delegate_change_target": user_command.receiver })),
         ));
       }
     }
 
-    let block_identifier = BlockIdentifier::new(self.height.unwrap_or_default(), self.state_hash.unwrap_or_default());
+    let block_identifier =
+      BlockIdentifier::new(user_command.height.unwrap_or_default(), user_command.state_hash.unwrap_or_default());
     let transaction = Transaction {
-      transaction_identifier: Box::new(TransactionIdentifier::new(self.hash)),
+      transaction_identifier: Box::new(TransactionIdentifier::new(user_command.hash)),
       operations,
       related_transactions: None,
       metadata: match decoded_memo.as_str() {
