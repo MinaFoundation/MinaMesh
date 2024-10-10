@@ -52,11 +52,10 @@ async fn search_transactions_internal_command() -> Result<()> {
   let request = SearchTransactionsRequest {
     network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "mainnet".to_string())),
     max_block: Some(44),
-    // cspell:disable
     transaction_identifier: Some(Box::new(TransactionIdentifier::new(
+      // cspell:disable-next-line
       "CkpZZWqdA87JmPxHA5NmFEQ3qh7pUmqXi9GBWzf4pADtPEHQAeH7M".to_string(),
     ))),
-    // cspell:enable
     limit: Some(5),
     ..Default::default()
   };

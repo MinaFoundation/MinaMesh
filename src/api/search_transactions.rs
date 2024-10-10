@@ -19,7 +19,7 @@ impl MinaMesh {
     let original_offset = req.offset.unwrap_or(0);
     let mut offset = original_offset;
     let mut limit = req.limit.unwrap_or(100);
-    let mut transactions = Vec::new() as Vec<BlockTransaction>;
+    let mut transactions = Vec::new();
     let mut txs_len = 0;
     let mut total_count = 0;
 
@@ -52,10 +52,7 @@ impl MinaMesh {
     let response = SearchTransactionsResponse {
       transactions,
       total_count,
-      next_offset: match next_offset {
-        offset if offset < total_count => Some(offset),
-        _ => None,
-      },
+      next_offset: if next_offset < total_count { Some(next_offset) } else { None },
     };
 
     Ok(response)
@@ -154,7 +151,7 @@ impl From<InternalCommand> for BlockTransaction {
       internal_command.secondary_sequence_no,
       internal_command.hash
     );
-    let fee = internal_command.fee.unwrap_or_else(|| "0".to_string());
+    let fee = internal_command.fee.unwrap_or("0".to_string());
     let status = &internal_command.status;
 
     let mut operations = Vec::new();
