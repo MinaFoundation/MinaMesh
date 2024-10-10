@@ -86,7 +86,7 @@ WITH
       AND bic.secondary_sequence_no=cri.secondary_sequence_no
     WHERE
       (
-        $1<=b.height
+        $1>=b.height
         OR $1 IS NULL
       )
       AND (

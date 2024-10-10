@@ -72,7 +72,7 @@ WITH
       INNER JOIN blocks AS b ON buc.block_id=b.id
     WHERE
       (
-        $1<=b.height
+        $1>=b.height
         OR $1 IS NULL
       )
       AND (
