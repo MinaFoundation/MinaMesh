@@ -72,6 +72,7 @@ WITH
       bic.sequence_no,
       bic.secondary_sequence_no,
       bic.block_id,
+      bic.status AS "status: TransactionStatus",
       b.state_hash,
       b.height
     FROM

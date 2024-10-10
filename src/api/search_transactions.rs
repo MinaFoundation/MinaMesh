@@ -174,6 +174,7 @@ pub struct InternalCommand {
   pub sequence_no: i32,
   pub secondary_sequence_no: i32,
   pub block_id: i32,
+  pub status: TransactionStatus,
   pub state_hash: Option<String>,
   pub height: Option<i64>,
   pub total_count: Option<i64>,
@@ -192,8 +193,7 @@ impl InternalCommand {
       self.hash
     );
     let fee = self.fee.unwrap_or_else(|| "0".to_string());
-    // TODO: Assume status is "Success" for now
-    let status = &TransactionStatus::Applied;
+    let status = &self.status;
 
     let mut operations = Vec::new();
     let mut operation_index = 0;
