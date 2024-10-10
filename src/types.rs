@@ -17,7 +17,7 @@ pub enum UserCommandType {
   Delegation,
 }
 
-#[derive(Type, Debug, PartialEq, Eq, Serialize)]
+#[derive(Type, Debug, PartialEq, Eq, Serialize, Display)]
 #[sqlx(type_name = "internal_command_type", rename_all = "snake_case")]
 pub enum InternalCommandType {
   FeeTransferViaCoinbase,

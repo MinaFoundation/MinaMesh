@@ -1,0 +1,62 @@
+---
+source: tests/search_transactions.rs
+expression: response
+---
+Ok(
+    SearchTransactionsResponse {
+        transactions: [
+            BlockTransaction {
+                block_identifier: BlockIdentifier {
+                    index: 42,
+                    hash: "3NLuesuqs8NoehpUnNouzr6ArcmQcnjQhJaGsPfHMpT7BQZD6erj",
+                },
+                transaction: Transaction {
+                    transaction_identifier: TransactionIdentifier {
+                        hash: "coinbase:1:0:CkpZZWqdA87JmPxHA5NmFEQ3qh7pUmqXi9GBWzf4pADtPEHQAeH7M",
+                    },
+                    operations: [
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 0,
+                                network_index: None,
+                            },
+                            related_operations: None,
+                            type: "coinbase_inc",
+                            status: Some(
+                                "Success",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qrwBEB3tjGvjZNNr4h8N2iHGvcgRa6bb3V7Qs7Z15EZVWnyJBpXR",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "720000000000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                    ],
+                    related_transactions: None,
+                    metadata: None,
+                },
+            },
+        ],
+        total_count: 1,
+        next_offset: None,
+    },
+)

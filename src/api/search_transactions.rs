@@ -2,12 +2,13 @@ use coinbase_mesh::models::{
   AccountIdentifier, BlockIdentifier, BlockTransaction, SearchTransactionsRequest, SearchTransactionsResponse,
   Transaction, TransactionIdentifier,
 };
+use convert_case::{Case, Casing};
 use serde_json::json;
 use sqlx::FromRow;
 
 use crate::{
-  operation, util::DEFAULT_TOKEN_ID, ChainStatus, MinaMesh, MinaMeshError, OperationType, TransactionStatus,
-  UserCommandType,
+  operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationType,
+  TransactionStatus, UserCommandType,
 };
 
 impl MinaMesh {
@@ -15,62 +16,66 @@ impl MinaMesh {
     &self,
     req: SearchTransactionsRequest,
   ) -> Result<SearchTransactionsResponse, MinaMeshError> {
-    let user_commands = self.fetch_user_commands(&req).await?;
-    let user_commands_len = user_commands.len();
-    let next_offset = req.offset.unwrap_or(0) + user_commands_len as i64;
+    let original_offset = req.offset.unwrap_or(0);
+    let mut offset = original_offset;
+    let mut limit = req.limit.unwrap_or(100);
+    let mut transactions = Vec::new();
+    let mut txs_len = 0;
+    let mut total_count = 0;
 
-    // Extract the total count from the first user command, or default to 0
+    // User Commands
+    let user_commands = self.fetch_user_commands(&req, offset, limit).await?;
+    let user_commands_len = user_commands.len() as i64;
     let user_commands_total_count = user_commands.first().and_then(|uc| uc.total_count).unwrap_or(0);
+    transactions.extend(user_commands.into_iter().map(|ic| ic.into()));
+    total_count += user_commands_total_count;
+    txs_len += user_commands_len;
 
-    // Map user commands into block transactions
-    let user_commands_bt = user_commands.into_iter().map(|uc| uc.into_block_transaction()).collect();
+    // Internal Commands
+    if limit > total_count {
+      // if we are below the limit, fetch internal commands
+      (offset, limit) = adjust_limit_and_offset(limit, offset, txs_len);
+      let internal_commands = self.fetch_internal_commands(&req, offset, limit).await?;
+      let internal_commands_len = internal_commands.len() as i64;
+      let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
+      transactions.extend(internal_commands.into_iter().map(|uc| uc.into()));
+      txs_len += internal_commands_len;
+      total_count += internal_commands_total_count;
+    } else {
+      // otherwise only fetch the first internal command to get the total count
+      let internal_commands = self.fetch_internal_commands(&req, 0, 1).await?;
+      let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
+      total_count += internal_commands_total_count;
+    }
 
+    let next_offset = original_offset + txs_len;
     let response = SearchTransactionsResponse {
-      transactions: user_commands_bt,
-      total_count: user_commands_total_count,
-      next_offset: match next_offset {
-        offset if offset < user_commands_total_count => Some(offset),
-        _ => None,
-      },
+      transactions,
+      total_count,
+      next_offset: if next_offset < total_count { Some(next_offset) } else { None },
     };
 
     Ok(response)
   }
 
-  pub async fn fetch_user_commands(&self, req: &SearchTransactionsRequest) -> Result<Vec<UserCommand>, MinaMeshError> {
-    let max_block = req.max_block;
-    let txn_hash = req.transaction_identifier.as_ref().map(|t| &t.hash);
-    let account_identifier = req.account_identifier.as_ref().map(|a| &a.address);
-    let token_id = req.account_identifier.as_ref().and_then(|a| a.metadata.as_ref().map(|meta| meta.to_string()));
-    let status = match req.status.as_deref() {
-      Some("applied") => Some(TransactionStatus::Applied),
-      Some("failed") => Some(TransactionStatus::Failed),
-      Some(other) => {
-        return Err(MinaMeshError::Exception(
-          format!("Invalid transaction status: '{other}'. Valid are 'applied' and 'failed'").to_string(),
-        ))
-      }
-      None => None,
-    };
-    let success_status = match req.success {
-      Some(true) => Some(TransactionStatus::Applied),
-      Some(false) => Some(TransactionStatus::Failed),
-      None => None,
-    };
-    let address = req.address.as_ref();
-    let limit = req.limit.unwrap_or(100);
-    let offset = req.offset.unwrap_or(0);
+  pub async fn fetch_user_commands(
+    &self,
+    req: &SearchTransactionsRequest,
+    offset: i64,
+    limit: i64,
+  ) -> Result<Vec<UserCommand>, MinaMeshError> {
+    let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
 
     let user_commands = sqlx::query_file_as!(
       UserCommand,
       "sql/indexer_user_commands.sql",
-      max_block,
-      txn_hash,
-      account_identifier,
-      token_id,
-      status as Option<TransactionStatus>,
-      success_status as Option<TransactionStatus>,
-      address,
+      query_params.max_block,
+      query_params.transaction_hash,
+      query_params.account_identifier,
+      query_params.token_id,
+      query_params.status as Option<TransactionStatus>,
+      query_params.success_status as Option<TransactionStatus>,
+      query_params.address,
       limit,
       offset,
     )
@@ -80,12 +85,31 @@ impl MinaMesh {
     Ok(user_commands)
   }
 
-  #[allow(dead_code)]
-  async fn fetch_internal_commands(
+  pub async fn fetch_internal_commands(
     &self,
-    _req: &SearchTransactionsRequest,
-  ) -> Result<Vec<BlockTransaction>, MinaMeshError> {
-    unimplemented!()
+    req: &SearchTransactionsRequest,
+    offset: i64,
+    limit: i64,
+  ) -> Result<Vec<InternalCommand>, MinaMeshError> {
+    let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
+
+    let internal_commands = sqlx::query_file_as!(
+      InternalCommand,
+      "sql/indexer_internal_commands.sql",
+      query_params.max_block,
+      query_params.transaction_hash,
+      query_params.account_identifier,
+      query_params.token_id,
+      query_params.status as Option<TransactionStatus>,
+      query_params.success_status as Option<TransactionStatus>,
+      query_params.address,
+      limit,
+      offset
+    )
+    .fetch_all(&self.pg_pool)
+    .await?;
+
+    Ok(internal_commands)
   }
 
   #[allow(dead_code)]
@@ -94,6 +118,129 @@ impl MinaMesh {
     _req: &SearchTransactionsRequest,
   ) -> Result<Vec<BlockTransaction>, MinaMeshError> {
     unimplemented!()
+  }
+}
+
+#[derive(Debug, FromRow)]
+pub struct InternalCommand {
+  pub id: Option<i32>,
+  pub command_type: InternalCommandType,
+  pub receiver_id: Option<i32>,
+  pub fee: Option<String>,
+  pub hash: String,
+  pub receiver: String,
+  pub coinbase_receiver: Option<String>,
+  pub sequence_no: i32,
+  pub secondary_sequence_no: i32,
+  pub block_id: i32,
+  pub status: TransactionStatus,
+  pub state_hash: Option<String>,
+  pub height: Option<i64>,
+  pub total_count: Option<i64>,
+  pub creation_fee: Option<String>,
+}
+
+impl From<InternalCommand> for BlockTransaction {
+  fn from(internal_command: InternalCommand) -> Self {
+    // Derive transaction_identifier by combining command_type, sequence numbers,
+    // and the hash
+    let transaction_identifier = format!(
+      "{}:{}:{}:{}",
+      internal_command.command_type.to_string().to_case(Case::Snake),
+      internal_command.sequence_no,
+      internal_command.secondary_sequence_no,
+      internal_command.hash
+    );
+    let fee = internal_command.fee.unwrap_or("0".to_string());
+    let status = &internal_command.status;
+
+    let mut operations = Vec::new();
+    let mut operation_index = 0;
+
+    // Receiver Account Identifier
+    let receiver_account_id = &AccountIdentifier {
+      address: internal_command.receiver.clone(),
+      metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
+      sub_account: None,
+    };
+
+    // Handle Account Creation Fee if applicable
+    if let Some(creation_fee) = &internal_command.creation_fee {
+      operations.push(operation(
+        operation_index,
+        Some(creation_fee),
+        receiver_account_id,
+        OperationType::AccountCreationFeeViaFeeReceiver,
+        Some(status),
+        None,
+        None,
+      ));
+      operation_index += 1;
+    }
+
+    match internal_command.command_type {
+      InternalCommandType::Coinbase => {
+        operations.push(operation(
+          operation_index,
+          Some(&fee),
+          receiver_account_id,
+          OperationType::CoinbaseInc,
+          Some(status),
+          None,
+          None,
+        ));
+      }
+
+      InternalCommandType::FeeTransfer => {
+        operations.push(operation(
+          operation_index,
+          Some(&fee),
+          receiver_account_id,
+          OperationType::FeeReceiverInc,
+          Some(status),
+          None,
+          None,
+        ));
+      }
+
+      InternalCommandType::FeeTransferViaCoinbase => {
+        if let Some(coinbase_receiver) = &internal_command.coinbase_receiver {
+          operations.push(operation(
+            operation_index,
+            Some(&fee),
+            receiver_account_id,
+            OperationType::FeeReceiverInc,
+            Some(status),
+            None,
+            None,
+          ));
+          operation_index += 1;
+
+          operations.push(operation(
+            operation_index,
+            Some(&fee),
+            &AccountIdentifier::new(coinbase_receiver.to_string()),
+            OperationType::FeePayerDec,
+            Some(status),
+            Some(vec![operation_index - 1]),
+            None,
+          ));
+        }
+      }
+    }
+
+    let block_identifier = BlockIdentifier::new(
+      internal_command.height.unwrap_or_default(),
+      internal_command.state_hash.unwrap_or_default(),
+    );
+    let transaction = Transaction {
+      transaction_identifier: Box::new(TransactionIdentifier::new(transaction_identifier)),
+      operations,
+      related_transactions: None,
+      metadata: None,
+    };
+
+    BlockTransaction::new(block_identifier, transaction)
   }
 }
 
@@ -135,22 +282,24 @@ impl UserCommand {
       Err(_) => None,
     }
   }
+}
 
-  pub fn into_block_transaction(self) -> BlockTransaction {
-    let decoded_memo = self.decoded_memo().unwrap_or_default();
-    let amt = self.amount.clone().unwrap_or_else(|| "0".to_string());
+impl From<UserCommand> for BlockTransaction {
+  fn from(user_command: UserCommand) -> Self {
+    let decoded_memo = user_command.decoded_memo().unwrap_or_default();
+    let amt = user_command.amount.clone().unwrap_or_else(|| "0".to_string());
     let receiver_account_id = &AccountIdentifier {
-      address: self.receiver.clone(),
+      address: user_command.receiver.clone(),
       metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
       sub_account: None,
     };
     let source_account_id = &AccountIdentifier {
-      address: self.source,
+      address: user_command.source,
       metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
       sub_account: None,
     };
     let fee_payer_account_id = &AccountIdentifier {
-      address: self.fee_payer,
+      address: user_command.fee_payer,
       metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
       sub_account: None,
     };
@@ -161,10 +310,10 @@ impl UserCommand {
     // Operation 1: Fee Payment
     operations.push(operation(
       operation_index,
-      Some(&format!("-{}", self.fee.unwrap_or_else(|| "0".to_string()))),
+      Some(&format!("-{}", user_command.fee.unwrap_or_else(|| "0".to_string()))),
       fee_payer_account_id,
       OperationType::FeePayment,
-      Some(&self.status),
+      Some(&user_command.status),
       None,
       None,
     ));
@@ -172,13 +321,13 @@ impl UserCommand {
     operation_index += 1;
 
     // Operation 2: Account Creation Fee (if applicable)
-    if let Some(creation_fee) = &self.creation_fee {
+    if let Some(creation_fee) = &user_command.creation_fee {
       operations.push(operation(
         operation_index,
         Some(&format!("-{}", creation_fee)),
         receiver_account_id,
         OperationType::AccountCreationFeeViaPayment,
-        Some(&self.status),
+        Some(&user_command.status),
         None,
         None,
       ));
@@ -187,7 +336,7 @@ impl UserCommand {
     }
 
     // Decide on the type of operation based on command type
-    match self.command_type {
+    match user_command.command_type {
       // Operation 3: Payment Source Decrement
       UserCommandType::Payment => {
         operations.push(operation(
@@ -195,7 +344,7 @@ impl UserCommand {
           Some(&format!("-{}", amt)),
           source_account_id,
           OperationType::PaymentSourceDec,
-          Some(&self.status),
+          Some(&user_command.status),
           None,
           None,
         ));
@@ -208,7 +357,7 @@ impl UserCommand {
           Some(&amt),
           receiver_account_id,
           OperationType::PaymentReceiverInc,
-          Some(&self.status),
+          Some(&user_command.status),
           Some(vec![operation_index - 1]),
           None,
         ));
@@ -221,16 +370,17 @@ impl UserCommand {
           None,
           source_account_id,
           OperationType::DelegateChange,
-          Some(&self.status),
+          Some(&user_command.status),
           None,
-          Some(json!({ "delegate_change_target": self.receiver })),
+          Some(json!({ "delegate_change_target": user_command.receiver })),
         ));
       }
     }
 
-    let block_identifier = BlockIdentifier::new(self.height.unwrap_or_default(), self.state_hash.unwrap_or_default());
+    let block_identifier =
+      BlockIdentifier::new(user_command.height.unwrap_or_default(), user_command.state_hash.unwrap_or_default());
     let transaction = Transaction {
-      transaction_identifier: Box::new(TransactionIdentifier::new(self.hash)),
+      transaction_identifier: Box::new(TransactionIdentifier::new(user_command.hash)),
       operations,
       related_transactions: None,
       metadata: match decoded_memo.as_str() {
@@ -240,4 +390,69 @@ impl UserCommand {
     };
     BlockTransaction::new(block_identifier, transaction)
   }
+}
+
+pub struct SearchTransactionsQueryParams {
+  pub max_block: Option<i64>,
+  pub transaction_hash: Option<String>,
+  pub account_identifier: Option<String>,
+  pub token_id: Option<String>,
+  pub status: Option<TransactionStatus>,
+  pub success_status: Option<TransactionStatus>,
+  pub address: Option<String>,
+}
+
+impl TryFrom<SearchTransactionsRequest> for SearchTransactionsQueryParams {
+  type Error = MinaMeshError;
+
+  fn try_from(req: SearchTransactionsRequest) -> Result<Self, Self::Error> {
+    let max_block = req.max_block;
+    let transaction_hash = req.transaction_identifier.map(|t| t.hash);
+    let token_id = req.account_identifier.as_ref().and_then(|a| a.metadata.as_ref().map(|meta| meta.to_string()));
+    let account_identifier = req.account_identifier.map(|a| a.address);
+
+    let status = match req.status.as_deref() {
+      Some("applied") => Some(TransactionStatus::Applied),
+      Some("failed") => Some(TransactionStatus::Failed),
+      Some(other) => {
+        return Err(MinaMeshError::Exception(format!(
+          "Invalid transaction status: '{}'. Valid statuses are 'applied' and 'failed'",
+          other
+        )));
+      }
+      None => None,
+    };
+
+    let success_status = match req.success {
+      Some(true) => Some(TransactionStatus::Applied),
+      Some(false) => Some(TransactionStatus::Failed),
+      None => None,
+    };
+
+    let address = req.address;
+
+    Ok(SearchTransactionsQueryParams {
+      max_block,
+      transaction_hash,
+      account_identifier,
+      token_id,
+      status,
+      success_status,
+      address,
+    })
+  }
+}
+
+fn adjust_limit_and_offset(mut limit: i64, mut offset: i64, txs_len: i64) -> (i64, i64) {
+  if offset >= txs_len {
+    offset -= txs_len;
+  } else {
+    offset = 0;
+  }
+  if limit >= txs_len {
+    limit -= txs_len;
+  } else {
+    limit = 0;
+  }
+  (offset, limit)
 }

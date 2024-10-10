@@ -85,7 +85,7 @@ WITH
       INNER JOIN tokens AS token_update_body ON ai_update_body.token_id=token_update_body.id
     WHERE
       (
-        $1<=b.height
+        $1>=b.height
         OR $1 IS NULL
       )
       AND (

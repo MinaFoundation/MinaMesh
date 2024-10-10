@@ -63,15 +63,16 @@ WITH
         bic.sequence_no,
         bic.secondary_sequence_no
       ) i.id,
-      i.command_type,
+      i.command_type AS "command_type: InternalCommandType",
       i.receiver_id,
       i.fee,
       i.hash,
       pk.value AS receiver,
-      cri.coinbase_receiver,
+      cri.coinbase_receiver AS "coinbase_receiver?",
       bic.sequence_no,
       bic.secondary_sequence_no,
       bic.block_id,
+      bic.status AS "status: TransactionStatus",
       b.state_hash,
       b.height
     FROM
@@ -85,7 +86,7 @@ WITH
       AND bic.secondary_sequence_no=cri.secondary_sequence_no
     WHERE
       (
-        $1<=b.height
+        $1>=b.height
         OR $1 IS NULL
       )
       AND (
@@ -128,7 +129,7 @@ WITH
 SELECT
   i.*,
   id_count.total_count,
-  ac.creation_fee
+  ac.creation_fee AS "creation_fee?"
 FROM
   id_count,
   (
@@ -142,9 +143,9 @@ FROM
       sequence_no,
       secondary_sequence_no
     LIMIT
-      5
+      $8
     OFFSET
-      0
+      $9
   ) AS i
   LEFT JOIN account_identifiers AS ai ON i.receiver_id=ai.public_key_id
   LEFT JOIN accounts_created AS ac ON ai.id=ac.account_identifier_id
