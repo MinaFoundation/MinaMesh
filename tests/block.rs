@@ -30,14 +30,14 @@ fn specified_identifiers() -> &'static [PartialBlockIdentifier; 3] {
   static IDENTIFIERS: OnceLock<[PartialBlockIdentifier; 3]> = OnceLock::new();
   IDENTIFIERS.get_or_init(|| {
     [
-      PartialBlockIdentifier { hash: None, index: Some(375991) },
+      PartialBlockIdentifier { hash: None, index: Some(355393) },
       PartialBlockIdentifier {
-        hash: Some("3NKAyx2FuWx3jqtkpigndDRoyydQSUozPYix3hw3FWhZc8iUWwTP".to_string()),
+        hash: Some("3NLrvv2mG7qmheEzgwCJjYbbEjLq51iCsBPJztL4JbHGFRCo9488".to_string()),
         index: None,
       },
       PartialBlockIdentifier {
-        hash: Some("3NKAyx2FuWx3jqtkpigndDRoyydQSUozPYix3hw3FWhZc8iUWwTP".to_string()),
-        index: Some(375991),
+        hash: Some("3NLrvv2mG7qmheEzgwCJjYbbEjLq51iCsBPJztL4JbHGFRCo9488".to_string()),
+        index: Some(355393),
       },
     ]
   })
