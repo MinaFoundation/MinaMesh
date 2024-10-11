@@ -1,0 +1,649 @@
+---
+source: tests/search_transactions.rs
+expression: response
+---
+Ok(
+    SearchTransactionsResponse {
+        transactions: [
+            BlockTransaction {
+                block_identifier: BlockIdentifier {
+                    index: 3,
+                    hash: "3NKd5So3VNqGZtRZiWsti4yaEe1fX79yz5TbfG6jBZqgMnCQQp3R",
+                },
+                transaction: Transaction {
+                    transaction_identifier: TransactionIdentifier {
+                        hash: "CkpZirFuoLVVab6x2ry4j8Ld5gMmQdak7VHW6f5C7VJYE34WAEWqa",
+                    },
+                    operations: [
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 0,
+                                network_index: None,
+                            },
+                            related_operations: None,
+                            type: "fee_payment",
+                            status: Some(
+                                "Failed",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qre3erTHfzQckNuibViWQGyyKwZseztqrjPZBv6SQF384Rg6ESAy",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "-10000000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 1,
+                                network_index: None,
+                            },
+                            related_operations: None,
+                            type: "payment_source_dec",
+                            status: Some(
+                                "Failed",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qre3erTHfzQckNuibViWQGyyKwZseztqrjPZBv6SQF384Rg6ESAy",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "-1000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 2,
+                                network_index: None,
+                            },
+                            related_operations: Some(
+                                [
+                                    OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                ],
+                            ),
+                            type: "payment_receiver_inc",
+                            status: Some(
+                                "Failed",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qjYanmV7y9njVeH5UHkz3GYBm7xKir1rAnoY4KsEYUGLMiU45FSM",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "1000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                    ],
+                    related_transactions: None,
+                    metadata: None,
+                },
+            },
+            BlockTransaction {
+                block_identifier: BlockIdentifier {
+                    index: 3,
+                    hash: "3NKd5So3VNqGZtRZiWsti4yaEe1fX79yz5TbfG6jBZqgMnCQQp3R",
+                },
+                transaction: Transaction {
+                    transaction_identifier: TransactionIdentifier {
+                        hash: "CkpZB4WE3wDRJ4CqCXqS4dqF8hoRQDVK8banePKUgTR6kvhTfyjRp",
+                    },
+                    operations: [
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 0,
+                                network_index: None,
+                            },
+                            related_operations: None,
+                            type: "fee_payment",
+                            status: Some(
+                                "Failed",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qre3erTHfzQckNuibViWQGyyKwZseztqrjPZBv6SQF384Rg6ESAy",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "-50000000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 1,
+                                network_index: None,
+                            },
+                            related_operations: None,
+                            type: "payment_source_dec",
+                            status: Some(
+                                "Failed",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qre3erTHfzQckNuibViWQGyyKwZseztqrjPZBv6SQF384Rg6ESAy",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "-10000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 2,
+                                network_index: None,
+                            },
+                            related_operations: Some(
+                                [
+                                    OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                ],
+                            ),
+                            type: "payment_receiver_inc",
+                            status: Some(
+                                "Failed",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qjYanmV7y9njVeH5UHkz3GYBm7xKir1rAnoY4KsEYUGLMiU45FSM",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "10000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                    ],
+                    related_transactions: None,
+                    metadata: None,
+                },
+            },
+            BlockTransaction {
+                block_identifier: BlockIdentifier {
+                    index: 3,
+                    hash: "3NKd5So3VNqGZtRZiWsti4yaEe1fX79yz5TbfG6jBZqgMnCQQp3R",
+                },
+                transaction: Transaction {
+                    transaction_identifier: TransactionIdentifier {
+                        hash: "CkpYeG32dVJUjs6iq3oroXWitXar1eBtV3GVFyH5agw7HPp9bG4yQ",
+                    },
+                    operations: [
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 0,
+                                network_index: None,
+                            },
+                            related_operations: None,
+                            type: "fee_payment",
+                            status: Some(
+                                "Failed",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qre3erTHfzQckNuibViWQGyyKwZseztqrjPZBv6SQF384Rg6ESAy",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "-10000000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 1,
+                                network_index: None,
+                            },
+                            related_operations: None,
+                            type: "payment_source_dec",
+                            status: Some(
+                                "Failed",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qre3erTHfzQckNuibViWQGyyKwZseztqrjPZBv6SQF384Rg6ESAy",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "-1000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 2,
+                                network_index: None,
+                            },
+                            related_operations: Some(
+                                [
+                                    OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                ],
+                            ),
+                            type: "payment_receiver_inc",
+                            status: Some(
+                                "Failed",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qjYanmV7y9njVeH5UHkz3GYBm7xKir1rAnoY4KsEYUGLMiU45FSM",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "1000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                    ],
+                    related_transactions: None,
+                    metadata: None,
+                },
+            },
+            BlockTransaction {
+                block_identifier: BlockIdentifier {
+                    index: 3,
+                    hash: "3NKd5So3VNqGZtRZiWsti4yaEe1fX79yz5TbfG6jBZqgMnCQQp3R",
+                },
+                transaction: Transaction {
+                    transaction_identifier: TransactionIdentifier {
+                        hash: "CkpZ1u12zrTuEttp7QktfEy7wosHrPV6r3DJkq4sA9f1yKgEqmj5k",
+                    },
+                    operations: [
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 0,
+                                network_index: None,
+                            },
+                            related_operations: None,
+                            type: "fee_payment",
+                            status: Some(
+                                "Failed",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qre3erTHfzQckNuibViWQGyyKwZseztqrjPZBv6SQF384Rg6ESAy",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "-50000000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 1,
+                                network_index: None,
+                            },
+                            related_operations: None,
+                            type: "payment_source_dec",
+                            status: Some(
+                                "Failed",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qre3erTHfzQckNuibViWQGyyKwZseztqrjPZBv6SQF384Rg6ESAy",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "-10000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 2,
+                                network_index: None,
+                            },
+                            related_operations: Some(
+                                [
+                                    OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                ],
+                            ),
+                            type: "payment_receiver_inc",
+                            status: Some(
+                                "Failed",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qjYanmV7y9njVeH5UHkz3GYBm7xKir1rAnoY4KsEYUGLMiU45FSM",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "10000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                    ],
+                    related_transactions: None,
+                    metadata: None,
+                },
+            },
+            BlockTransaction {
+                block_identifier: BlockIdentifier {
+                    index: 4,
+                    hash: "3NL9qBsNibXPm5Nh8cSg5CCqrbzX5VUVY9gJzAbg7EVCF3hfhazG",
+                },
+                transaction: Transaction {
+                    transaction_identifier: TransactionIdentifier {
+                        hash: "CkpaDbDiRtzF6AUVrny7VoJKTu1wStBHDEsG9W27UFeoeDwMP8VAc",
+                    },
+                    operations: [
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 0,
+                                network_index: None,
+                            },
+                            related_operations: None,
+                            type: "fee_payment",
+                            status: Some(
+                                "Failed",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qre3erTHfzQckNuibViWQGyyKwZseztqrjPZBv6SQF384Rg6ESAy",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "-10000000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 1,
+                                network_index: None,
+                            },
+                            related_operations: None,
+                            type: "payment_source_dec",
+                            status: Some(
+                                "Failed",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qre3erTHfzQckNuibViWQGyyKwZseztqrjPZBv6SQF384Rg6ESAy",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "-1000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 2,
+                                network_index: None,
+                            },
+                            related_operations: Some(
+                                [
+                                    OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                ],
+                            ),
+                            type: "payment_receiver_inc",
+                            status: Some(
+                                "Failed",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qjYanmV7y9njVeH5UHkz3GYBm7xKir1rAnoY4KsEYUGLMiU45FSM",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "1000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                    ],
+                    related_transactions: None,
+                    metadata: None,
+                },
+            },
+        ],
+        total_count: 12,
+        next_offset: Some(
+            5,
+        ),
+    },
+)
