@@ -56,10 +56,10 @@ jobs:
           key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
       - name: Test
         run: |
-          sed "s|postgres://mina:whatever@localhost:5432/archive|$MINAMESH_ARCHIVE_DATABASE_URL|g" .env.example > .env
+          sed "s|postgres://mina:whatever@localhost:5432/archive|$MINAMESH_ARCHIVE_DATABASE_URL_DEVNET|g" .env.example.devnet > .env
           just test
         env:
-          MINAMESH_ARCHIVE_DATABASE_URL: ${{ secrets.MINAMESH_ARCHIVE_DATABASE_URL }}
+          MINAMESH_ARCHIVE_DATABASE_URL_DEVNET: ${{ secrets.MINAMESH_ARCHIVE_DATABASE_URL_DEVNET }}
 
   rustfmt:
     runs-on: ubuntu-latest

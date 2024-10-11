@@ -13,8 +13,8 @@ async fn responses() -> Result<()> {
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
   let futures: Vec<_> = [
     // cspell:disable
-    "B62qmjJeM4Fd4FVghfhgwoE1fkEexK2Rre8WYKMnbxVwB5vtKUwvgMv",
-    "B62qrQKS9ghd91shs73TCmBJRW9GzvTJK443DPx2YbqcyoLc56g1ny9",
+    "B62qkYHGYmws5CYa3phYEKoZvrENTegEhUJYMhzHUQe5UZwCdWob8zv",
+    "B62qnEdPB1V5YPEcGaETb19naLJV6sWdveCZEjSLhcVyrPcPWHkGGax",
     // "B62qooos8xGyqtJGpT7eaoyGrABCf4vcAnzCtxPLNrf26M7FwAxHg1i",
     // cspell:enable
     // TODO: reenable
@@ -23,7 +23,7 @@ async fn responses() -> Result<()> {
   .map(|address| {
     mina_mesh.account_balance(AccountBalanceRequest {
       account_identifier: Box::new(AccountIdentifier { address: address.into(), sub_account: None, metadata: None }),
-      block_identifier: Some(Box::new(PartialBlockIdentifier { index: Some(371513), hash: None })),
+      block_identifier: Some(Box::new(PartialBlockIdentifier { index: Some(6265), hash: None })),
       currencies: None,
       network_identifier: Box::new(NetworkIdentifier {
         blockchain: "mina".into(),

@@ -5,12 +5,12 @@ expression: results
 [
     AccountBalanceResponse {
         block_identifier: BlockIdentifier {
-            index: 371513,
-            hash: "3NKcVfwCwciiEvM1DRy6pAtVHR72fCm11adnjffnjMa8aKsKjfvP",
+            index: 6265,
+            hash: "3NKsLmFFPPd38VcqaKzBLJsxua6c1mviRJhq8B4FoeNy71nJYv2E",
         },
         balances: [
             Amount {
-                value: "0",
+                value: "7000000000",
                 currency: Currency {
                     symbol: "MINA",
                     decimals: 9,
@@ -18,9 +18,9 @@ expression: results
                 },
                 metadata: Some(
                     Object {
-                        "liquid_balance": String("0"),
+                        "liquid_balance": String("7000000000"),
                         "locked_balance": String("0"),
-                        "total_balance": String("0"),
+                        "total_balance": String("7000000000"),
                     },
                 ),
             },
@@ -29,12 +29,12 @@ expression: results
     },
     AccountBalanceResponse {
         block_identifier: BlockIdentifier {
-            index: 371513,
-            hash: "3NKcVfwCwciiEvM1DRy6pAtVHR72fCm11adnjffnjMa8aKsKjfvP",
+            index: 6265,
+            hash: "3NKsLmFFPPd38VcqaKzBLJsxua6c1mviRJhq8B4FoeNy71nJYv2E",
         },
         balances: [
             Amount {
-                value: "157782049419100000",
+                value: "17899903513284",
                 currency: Currency {
                     symbol: "MINA",
                     decimals: 9,
@@ -42,9 +42,9 @@ expression: results
                 },
                 metadata: Some(
                     Object {
-                        "liquid_balance": String("157782049419100000"),
+                        "liquid_balance": String("17899903513284"),
                         "locked_balance": String("0"),
-                        "total_balance": String("157782049419100000"),
+                        "total_balance": String("17899903513284"),
                     },
                 ),
             },
