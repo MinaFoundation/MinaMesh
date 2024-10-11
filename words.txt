@@ -4,6 +4,7 @@ codegen
 coinbases
 darklight
 deamon
+devnet
 dotenv
 dprint
 dsherret
