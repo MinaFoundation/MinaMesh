@@ -54,7 +54,7 @@ async fn search_transactions_internal_command() -> Result<()> {
     max_block: Some(44),
     transaction_identifier: Some(Box::new(TransactionIdentifier::new(
       // cspell:disable-next-line
-      "CkpZZWqdA87JmPxHA5NmFEQ3qh7pUmqXi9GBWzf4pADtPEHQAeH7M".to_string(),
+      "CkpYcKc2oGs8JUd4tmdGBsZXQCQVkayuyffEjrNWctX5Wuad3vVNe".to_string(),
     ))),
     limit: Some(5),
     ..Default::default()
