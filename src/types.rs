@@ -64,3 +64,22 @@ pub enum OperationType {
   ZkappFeePayerDec,
   ZkappBalanceUpdate,
 }
+
+#[derive(Type, Debug, PartialEq, Eq, Serialize, Display)]
+#[sqlx(type_name = "may_use_token")]
+pub enum MayUseToken {
+  No,
+  ParentsOwnToken,
+  InheritFromParent,
+}
+
+#[derive(Type, Debug, PartialEq, Eq, Serialize, Display)]
+#[sqlx(type_name = "authorization_kind_type")]
+pub enum AuthorizationKindType {
+  #[sqlx(rename = "None_given")]
+  NoneGiven,
+  #[sqlx(rename = "Signature")]
+  Signature,
+  #[sqlx(rename = "Proof")]
+  Proof,
+}
