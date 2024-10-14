@@ -159,7 +159,6 @@ impl MinaMesh {
   }
 }
 
-#[allow(dead_code)]
 #[derive(FromRow)]
 pub struct ZkAppCommand {
   pub id: Option<i32>,
