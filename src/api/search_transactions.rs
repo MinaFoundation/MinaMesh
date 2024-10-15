@@ -210,14 +210,14 @@ pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<
     if operations.is_empty() {
       operations.push(operation(
         0,
-        Some(&format!("-{}", command.fee.unwrap_or_else(|| "0".to_string()))),
+        Some(&format!("-{}", command.fee.unwrap_or("0".to_string()))),
         &AccountIdentifier {
           address: command.fee_payer.clone(),
           metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
           sub_account: None,
         },
         OperationType::ZkappFeePayerDec,
-        Some(&command.status),
+        Some(&TransactionStatus::Applied),
         None,
         None,
       ));
@@ -471,10 +471,10 @@ impl From<UserCommand> for BlockTransaction {
     // Operation 1: Fee Payment
     operations.push(operation(
       operation_index,
-      Some(&format!("-{}", user_command.fee.unwrap_or_else(|| "0".to_string()))),
+      Some(&format!("-{}", user_command.fee.unwrap_or("0".to_string()))),
       fee_payer_account_id,
       OperationType::FeePayment,
-      Some(&user_command.status),
+      Some(&TransactionStatus::Applied),
       None,
       operations_metadata_value.as_ref(),
     ));
