@@ -456,9 +456,7 @@ impl From<UserCommand> for BlockTransaction {
 
     // Construct trasaction metadata
     let mut transaction_metadata = Map::new();
-    if let Some(_failure_reason) = user_command.failure_reason {
-      transaction_metadata.insert("nonce".to_string(), json!(user_command.nonce));
-    }
+    transaction_metadata.insert("nonce".to_string(), json!(user_command.nonce));
     if !decoded_memo.is_empty() {
       transaction_metadata.insert("memo".to_string(), json!(decoded_memo));
     }
