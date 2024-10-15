@@ -7,8 +7,8 @@ use serde::Serialize;
 use sqlx::FromRow;
 
 use crate::{
-  operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationType,
-  TransactionStatus, UserCommandType,
+  operation, sql_to_mesh::zkapp_commands_to_transactions, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType,
+  MinaMesh, MinaMeshError, OperationType, TransactionStatus, UserCommandType, ZkAppCommand,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
@@ -78,37 +78,10 @@ impl MinaMesh {
   }
 
   pub async fn zkapp_commands(&self, metadata: &BlockMetadata) -> Result<Vec<Transaction>, MinaMeshError> {
-    let metadata = sqlx::query_file_as!(ZkappCommandMetadata, "sql/zkapp_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
+    let metadata = sqlx::query_file_as!(ZkAppCommand, "sql/zkapp_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
       .fetch_all(&self.pg_pool)
       .await?;
-    let mut transactions = Vec::new();
-    let mut operations = Vec::new();
-    let mut current_txn_identifier = TransactionIdentifier::new(metadata[0].hash.clone());
-    for item in metadata {
-      if current_txn_identifier.hash != item.hash {
-        transactions.push(Transaction::new(current_txn_identifier, operations));
-        operations = Vec::new();
-        current_txn_identifier = TransactionIdentifier::new(item.hash.clone());
-      }
-      operations.push(operation(
-        operations.len() as i64,
-        Some(&item.fee),
-        &AccountIdentifier::new(item.fee_payer.clone()),
-        OperationType::ZkappFeePayerDec,
-        None,
-        None,
-        None,
-      ));
-      operations.push(operation(
-        operations.len() as i64,
-        Some(&item.balance_change),
-        &AccountIdentifier::new(item.account.clone()),
-        OperationType::ZkappBalanceUpdate,
-        None,
-        None,
-        None,
-      ));
-    }
+    let transactions = zkapp_commands_to_transactions(metadata);
     Ok(transactions)
   }
 
@@ -361,19 +334,4 @@ fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) ->
     }
   }
   Ok(operations)
-}
-
-// TODO: implement
-fn zkapp_command_metadata_to_operation(metadata: Vec<ZkappCommandMetadata>) -> Result<Vec<Operation>, MinaMeshError> {
-  // Go through each zkapp command in the vector
-
-  // If the command id is the same as the previous, create a new operation from it
-  // and join it with the remaining operations of this transaction
-
-  // If the command id is different than the previous, wrap up the previous
-  // transaction and start producing a new one, starting with the operation from
-  // this entry
-
-  // Return a vec with the produced txns
-  Ok(Vec::new())
 }
