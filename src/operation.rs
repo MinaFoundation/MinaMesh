@@ -10,7 +10,7 @@ pub fn operation(
   operation_type: OperationType,
   status: Option<&TransactionStatus>,
   related_operations: Option<Vec<i64>>,
-  metadata: Option<serde_json::Value>,
+  metadata: Option<&serde_json::Value>,
 ) -> Operation {
   Operation {
     operation_identifier: Box::new(OperationIdentifier::new(ident)),
@@ -23,6 +23,6 @@ pub fn operation(
       .map(|items| items.iter().map(|item| OperationIdentifier::new(item.to_owned())).collect()),
     coin_change: None,
     r#type: operation_type.to_string().to_case(Case::Snake),
-    metadata,
+    metadata: metadata.cloned(),
   }
 }
