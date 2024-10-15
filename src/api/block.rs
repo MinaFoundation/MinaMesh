@@ -362,3 +362,18 @@ fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) ->
   }
   Ok(operations)
 }
+
+// TODO: implement
+fn zkapp_command_metadata_to_operation(metadata: Vec<ZkappCommandMetadata>) -> Result<Vec<Operation>, MinaMeshError> {
+  // Go through each zkapp command in the vector
+
+  // If the command id is the same as the previous, create a new operation from it
+  // and join it with the remaining operations of this transaction
+
+  // If the command id is different than the previous, wrap up the previous
+  // transaction and start producing a new one, starting with the operation from
+  // this entry
+
+  // Return a vec with the produced txns
+  Ok(Vec::new())
+}
