@@ -454,7 +454,7 @@ impl From<UserCommand> for BlockTransaction {
     let operations_metadata_value =
       if operations_metadata.is_empty() { None } else { Some(Value::Object(operations_metadata)) };
 
-    // Construct trasaction metadata
+    // Construct transaction metadata
     let mut transaction_metadata = Map::new();
     transaction_metadata.insert("nonce".to_string(), json!(user_command.nonce));
     if !decoded_memo.is_empty() {
