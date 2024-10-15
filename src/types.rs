@@ -1,6 +1,6 @@
 use derive_more::derive::Display;
 use serde::Serialize;
-use sqlx::Type;
+use sqlx::{FromRow, Type};
 
 #[derive(Type, Debug, PartialEq, Eq, Serialize)]
 #[sqlx(type_name = "chain_status_type", rename_all = "lowercase")]
@@ -63,4 +63,45 @@ pub enum OperationType {
   MintTokens,
   ZkappFeePayerDec,
   ZkappBalanceUpdate,
+}
+
+#[derive(Type, Debug, PartialEq, Eq, Serialize, Display)]
+#[sqlx(type_name = "may_use_token")]
+pub enum MayUseToken {
+  No,
+  ParentsOwnToken,
+  InheritFromParent,
+}
+
+#[derive(Type, Debug, PartialEq, Eq, Serialize, Display)]
+#[sqlx(type_name = "authorization_kind_type")]
+pub enum AuthorizationKindType {
+  #[sqlx(rename = "None_given")]
+  NoneGiven,
+  #[sqlx(rename = "Signature")]
+  Signature,
+  #[sqlx(rename = "Proof")]
+  Proof,
+}
+
+#[allow(dead_code)]
+#[derive(FromRow)]
+pub struct ZkAppCommand {
+  pub id: Option<i32>,
+  pub memo: Option<String>,
+  pub hash: String,
+  pub fee_payer: String,
+  pub pk_update_body: String,
+  pub fee: String,
+  pub valid_until: Option<i64>,
+  pub nonce: Option<i64>,
+  pub sequence_no: i32,
+  pub status: TransactionStatus,
+  pub balance_change: String,
+  pub state_hash: Option<String>,
+  pub failure_reasons: Option<Vec<String>>,
+  pub token: Option<String>,
+  pub height: Option<i64>,
+  pub total_count: Option<i64>,
+  pub block_id: Option<i32>,
 }

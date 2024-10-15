@@ -1,14 +1,16 @@
+use std::collections::HashMap;
+
 use coinbase_mesh::models::{
-  AccountIdentifier, BlockIdentifier, BlockTransaction, SearchTransactionsRequest, SearchTransactionsResponse,
-  Transaction, TransactionIdentifier,
+  AccountIdentifier, BlockIdentifier, BlockTransaction, Operation, SearchTransactionsRequest,
+  SearchTransactionsResponse, Transaction, TransactionIdentifier,
 };
 use convert_case::{Case, Casing};
-use serde_json::json;
+use serde_json::{json, Map, Value};
 use sqlx::FromRow;
 
 use crate::{
   operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationType,
-  TransactionStatus, UserCommandType,
+  TransactionStatus, UserCommandType, ZkAppCommand,
 };
 
 impl MinaMesh {
@@ -46,6 +48,23 @@ impl MinaMesh {
       let internal_commands = self.fetch_internal_commands(&req, 0, 1).await?;
       let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
       total_count += internal_commands_total_count;
+    }
+
+    // ZkApp Commands
+    if limit > total_count {
+      // if we are below the limit, fetch zkapp commands
+      (offset, limit) = adjust_limit_and_offset(limit, offset, txs_len);
+      let zkapp_commands = self.fetch_zkapp_commands(&req, offset, limit).await?;
+      let zkapp_commands_len = zkapp_commands.len() as i64;
+      let zkapp_commands_total_count = zkapp_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
+      transactions.extend(zkapp_commands_to_block_transactions(zkapp_commands));
+      txs_len += zkapp_commands_len;
+      total_count += zkapp_commands_total_count;
+    } else {
+      // otherwise only fetch the first zkapp command to get the total count
+      let zkapp_commands = self.fetch_zkapp_commands(&req, 0, 1).await?;
+      let zkapp_commands_total_count = zkapp_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
+      total_count += zkapp_commands_total_count;
     }
 
     let next_offset = original_offset + txs_len;
@@ -112,13 +131,100 @@ impl MinaMesh {
     Ok(internal_commands)
   }
 
-  #[allow(dead_code)]
   async fn fetch_zkapp_commands(
     &self,
-    _req: &SearchTransactionsRequest,
-  ) -> Result<Vec<BlockTransaction>, MinaMeshError> {
-    unimplemented!()
+    req: &SearchTransactionsRequest,
+    offset: i64,
+    limit: i64,
+  ) -> Result<Vec<ZkAppCommand>, MinaMeshError> {
+    let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
+
+    let zkapp_commands = sqlx::query_file_as!(
+      ZkAppCommand,
+      "sql/indexer_zkapp_commands.sql",
+      query_params.max_block,
+      query_params.transaction_hash,
+      query_params.account_identifier,
+      query_params.token_id,
+      query_params.status as Option<TransactionStatus>,
+      query_params.success_status as Option<TransactionStatus>,
+      query_params.address,
+      limit,
+      offset
+    )
+    .fetch_all(&self.pg_pool)
+    .await?;
+
+    Ok(zkapp_commands)
   }
+}
+
+pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<BlockTransaction> {
+  let mut block_map: HashMap<(i64, String), HashMap<String, Vec<Operation>>> = HashMap::new();
+
+  for command in commands {
+    // Group by block identifier (block index and block hash)
+    let block_key = (command.height.unwrap_or(0), command.state_hash.clone().unwrap_or_default());
+    let tx_hash = command.hash.clone();
+
+    // Initialize or update the operation list for this transaction
+    let operations = block_map.entry(block_key).or_default().entry(tx_hash.clone()).or_default();
+
+    // Add fee operation (zkapp_fee_payer_dec)
+    if operations.is_empty() {
+      operations.push(operation(
+        0,
+        Some(&format!("-{}", command.fee)),
+        &AccountIdentifier {
+          address: command.fee_payer.clone(),
+          metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
+          sub_account: None,
+        },
+        OperationType::ZkappFeePayerDec,
+        Some(&TransactionStatus::Applied),
+        None,
+        None,
+      ));
+    }
+
+    // Add zkapp balance update operation
+    operations.push(operation(
+      0,
+      Some(&command.balance_change),
+      &AccountIdentifier {
+        address: command.pk_update_body.clone(),
+        metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
+        sub_account: None,
+      },
+      OperationType::ZkappBalanceUpdate,
+      Some(&command.status),
+      None,
+      None,
+    ));
+  }
+
+  let mut result = Vec::new();
+  for ((block_index, block_hash), tx_map) in block_map {
+    for (tx_hash, mut operations) in tx_map {
+      // Ensure the operations are correctly indexed
+      for (i, operation) in operations.iter_mut().enumerate() {
+        operation.operation_identifier.index = i as i64;
+      }
+
+      let transaction = BlockTransaction {
+        block_identifier: Box::new(BlockIdentifier { index: block_index, hash: block_hash.clone() }),
+        transaction: Box::new(Transaction {
+          transaction_identifier: Box::new(TransactionIdentifier { hash: tx_hash.clone() }),
+          operations,
+          metadata: None,
+          related_transactions: None,
+        }),
+      };
+      result.push(transaction);
+    }
+  }
+
+  result
 }
 
 #[derive(Debug, FromRow)]
@@ -304,18 +410,35 @@ impl From<UserCommand> for BlockTransaction {
       sub_account: None,
     };
 
+    // Construct operations_metadata
+    let mut operations_metadata = Map::new();
+    if let Some(failure_reason) = user_command.failure_reason.clone() {
+      operations_metadata.insert("reason".to_string(), json!(failure_reason));
+    }
+    let operations_metadata_value =
+      if operations_metadata.is_empty() { None } else { Some(Value::Object(operations_metadata)) };
+
+    // Construct transaction metadata
+    let mut transaction_metadata = Map::new();
+    transaction_metadata.insert("nonce".to_string(), json!(user_command.nonce));
+    if !decoded_memo.is_empty() {
+      transaction_metadata.insert("memo".to_string(), json!(decoded_memo));
+    }
+    let transaction_metadata_value =
+      if transaction_metadata.is_empty() { None } else { Some(Value::Object(transaction_metadata)) };
+
     let mut operations = Vec::new();
     let mut operation_index = 0;
 
     // Operation 1: Fee Payment
     operations.push(operation(
       operation_index,
-      Some(&format!("-{}", user_command.fee.unwrap_or_else(|| "0".to_string()))),
+      Some(&format!("-{}", user_command.fee.unwrap_or("0".to_string()))),
       fee_payer_account_id,
       OperationType::FeePayment,
-      Some(&user_command.status),
+      Some(&TransactionStatus::Applied),
       None,
-      None,
+      operations_metadata_value.as_ref(),
     ));
 
     operation_index += 1;
@@ -329,7 +452,7 @@ impl From<UserCommand> for BlockTransaction {
         OperationType::AccountCreationFeeViaPayment,
         Some(&user_command.status),
         None,
-        None,
+        operations_metadata_value.as_ref(),
       ));
 
       operation_index += 1;
@@ -346,7 +469,7 @@ impl From<UserCommand> for BlockTransaction {
           OperationType::PaymentSourceDec,
           Some(&user_command.status),
           None,
-          None,
+          operations_metadata_value.as_ref(),
         ));
 
         operation_index += 1;
@@ -359,7 +482,7 @@ impl From<UserCommand> for BlockTransaction {
           OperationType::PaymentReceiverInc,
           Some(&user_command.status),
           Some(vec![operation_index - 1]),
-          None,
+          operations_metadata_value.as_ref(),
         ));
       }
 
@@ -372,7 +495,7 @@ impl From<UserCommand> for BlockTransaction {
           OperationType::DelegateChange,
           Some(&user_command.status),
           None,
-          Some(json!({ "delegate_change_target": user_command.receiver })),
+          Some(&json!({ "delegate_change_target": user_command.receiver })),
         ));
       }
     }
@@ -383,10 +506,7 @@ impl From<UserCommand> for BlockTransaction {
       transaction_identifier: Box::new(TransactionIdentifier::new(user_command.hash)),
       operations,
       related_transactions: None,
-      metadata: match decoded_memo.as_str() {
-        "" => None,
-        _ => Some(json!({ "memo": decoded_memo })),
-      },
+      metadata: transaction_metadata_value,
     };
     BlockTransaction::new(block_identifier, transaction)
   }

@@ -7,7 +7,7 @@ use thiserror::Error;
 
 #[derive(Error, Debug, PartialEq)]
 pub enum MinaMeshError {
-  #[error("SQL failure")]
+  #[error("SQL failure: {0}")]
   Sql(String),
 
   #[error("JSON parse error")]

@@ -40,30 +40,17 @@ WITH
       zc.memo,
       zc.hash,
       pk_fee_payer.value AS fee_payer,
+      pk_update_body.value AS pk_update_body,
       zfpb.fee,
       zfpb.valid_until,
       zfpb.nonce,
       bzc.sequence_no,
-      bzc.status,
-      zaub.account_identifier_id,
-      zaub.update_id,
+      bzc.status AS "status: TransactionStatus",
       zaub.balance_change,
-      zaub.increment_nonce,
-      zaub.events_id,
-      zaub.actions_id,
-      zaub.call_data_id,
-      zaub.call_depth,
-      zaub.zkapp_network_precondition_id,
-      zaub.zkapp_account_precondition_id,
-      zaub.zkapp_valid_while_precondition_id,
-      zaub.use_full_commitment,
-      zaub.implicit_account_creation_fee,
-      zaub.may_use_token,
-      zaub.authorization_kind,
-      zaub.verification_key_hash_id,
       bzc.block_id,
       b.state_hash,
       b.height,
+      token_update_body.value AS token,
       ARRAY(
         SELECT
           unnest(zauf.failures)
@@ -153,7 +140,9 @@ FROM
       id,
       sequence_no
     LIMIT
-      5
+      $8
+    OFFSET
+      $9
   ) AS ids
   INNER JOIN zkapp_commands_info AS zc ON ids.id=zc.id
   AND ids.block_id=zc.block_id
