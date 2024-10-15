@@ -216,7 +216,7 @@ pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<
           sub_account: None,
         },
         OperationType::ZkappFeePayerDec,
-        Some(&TransactionStatus::Applied),
+        Some(&command.status),
         None,
         None,
       ));
