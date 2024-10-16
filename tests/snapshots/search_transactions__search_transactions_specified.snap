@@ -164,7 +164,11 @@ Ok(
                         },
                     ],
                     related_transactions: None,
-                    metadata: None,
+                    metadata: Some(
+                        Object {
+                            "nonce": Number(61),
+                        },
+                    ),
                 },
             },
             BlockTransaction {
@@ -291,7 +295,11 @@ Ok(
                         },
                     ],
                     related_transactions: None,
-                    metadata: None,
+                    metadata: Some(
+                        Object {
+                            "nonce": Number(0),
+                        },
+                    ),
                 },
             },
             BlockTransaction {
@@ -418,7 +426,11 @@ Ok(
                         },
                     ],
                     related_transactions: None,
-                    metadata: None,
+                    metadata: Some(
+                        Object {
+                            "nonce": Number(62),
+                        },
+                    ),
                 },
             },
             BlockTransaction {
@@ -497,7 +509,11 @@ Ok(
                         },
                     ],
                     related_transactions: None,
-                    metadata: None,
+                    metadata: Some(
+                        Object {
+                            "nonce": Number(1),
+                        },
+                    ),
                 },
             },
             BlockTransaction {
@@ -576,7 +592,11 @@ Ok(
                         },
                     ],
                     related_transactions: None,
-                    metadata: None,
+                    metadata: Some(
+                        Object {
+                            "nonce": Number(2),
+                        },
+                    ),
                 },
             },
         ],
