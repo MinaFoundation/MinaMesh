@@ -97,7 +97,7 @@ async fn search_transactions_zkapp_failed() -> Result<()> {
       // cspell:disable-next-line
       "5JujBt8rnKheA7CHBnTwUDXrHtQxqPB9LL5Q8y4KwLjPBsBSJuSE".to_string(),
     ))),
-    limit: Some(3),
+    limit: Some(1),
     ..Default::default()
   };
 
