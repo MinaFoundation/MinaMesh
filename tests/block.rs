@@ -7,6 +7,7 @@ use mina_mesh::{
   models::{BlockRequest, BlockResponse, NetworkIdentifier, PartialBlockIdentifier},
   MinaMeshConfig, MinaMeshError,
 };
+use pretty_assertions::assert_eq;
 
 #[tokio::test]
 async fn specified() -> Result<()> {
