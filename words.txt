@@ -1,9 +1,9 @@
-MINAMESH
-RUSTFLAGS
 codegen
 coinbases
 darklight
+datetime
 deamon
+deno
 devnet
 dotenv
 dprint
@@ -17,6 +17,7 @@ harrysolovay
 indoc
 initdb
 insta
+iohk
 isready
 joaosreis
 johnmarcou
@@ -26,13 +27,17 @@ lookback
 microschemas
 mina
 minafoundation
+MINAMESH
 navroot
 nocapture
 openapi
+piotr
 preprocess
+qnighy
 querygen
 reqwest
 retriable
+RUSTFLAGS
 rustfmt
 schnorr
 secp
@@ -40,6 +45,8 @@ snarked
 sqltools
 sqlx
 thiserror
+untar
+untarring
 urlencode
 utxo
 walkdir

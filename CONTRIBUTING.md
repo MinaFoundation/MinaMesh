@@ -14,7 +14,7 @@ To develop on your machine, install the following (and please submit issues if e
 - [Rust](https://www.rust-lang.org/tools/install)
 - [Docker](https://docs.docker.com/get-docker/)
 - [dprint](https://dprint.dev/)
-- [Just](https://github.com/casey/just)
+- [Deno](https://github.com/denoland/deno?tab=readme-ov-file#installation)
 - [sql-formatter](https://github.com/sql-formatter-org/sql-formatter)
 - [insta](https://insta.rs/)
 
@@ -84,29 +84,23 @@ changes by contributors where you believe you have something valuable to add or 
 
 ### Ensure Test DB Accessible
 
-- **Stop PostgreSQL**: To stop the PostgreSQL instance:
+If you've already initialized the archive database, ensure it's running (potentially with a
+`deno pg:up`). Otherwise, initialize the development archive database.
 
-  ```bash
-  just pg-down
-  ```
-
-- **Restart PostgreSQL**: To restart without reinitializing the database (useful if the database is
-  already set up):
-
-  ```bash
-  just pg-up
-  ```
+```sh
+deno task dev:init
+```
 
 > You only need to reinitialize the database if you want the latest data dump.
 
 ### Run Tests
 
-```bash
+```sh
 cargo test
 ```
 
 ### Update Snapshots
 
-```
+```sh
 cargo insta review
 ```

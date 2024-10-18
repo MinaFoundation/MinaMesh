@@ -23,6 +23,9 @@
   "[toml]": {
     "editor.defaultFormatter": "dprint.dprint"
   },
+  "[typescript]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  },
   "[yaml]": {
     "editor.defaultFormatter": "dprint.dprint"
   },
