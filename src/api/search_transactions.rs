@@ -45,9 +45,10 @@ impl MinaMesh {
       total_count += internal_commands_total_count;
     } else {
       // otherwise only fetch the first internal command to get the total count
-      let internal_commands = self.fetch_internal_commands(&req, 0, 1).await?;
-      let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
-      total_count += internal_commands_total_count;
+      // let internal_commands = self.fetch_internal_commands(&req, 0,
+      // 1).await?; let internal_commands_total_count =
+      // internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
+      // total_count += internal_commands_total_count;
     }
 
     // ZkApp Commands
@@ -62,9 +63,10 @@ impl MinaMesh {
       total_count += zkapp_commands_total_count;
     } else {
       // otherwise only fetch the first zkapp command to get the total count
-      let zkapp_commands = self.fetch_zkapp_commands(&req, 0, 1).await?;
-      let zkapp_commands_total_count = zkapp_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
-      total_count += zkapp_commands_total_count;
+      // let zkapp_commands = self.fetch_zkapp_commands(&req, 0, 1).await?;
+      // let zkapp_commands_total_count = zkapp_commands.first().and_then(|ic|
+      // ic.total_count).unwrap_or(0); total_count +=
+      // zkapp_commands_total_count;
     }
 
     let next_offset = original_offset + txs_len;
@@ -165,7 +167,7 @@ pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<
   for command in commands {
     // Group by block identifier (block index and block hash)
     let block_key = (command.height.unwrap_or(0), command.state_hash.clone().unwrap_or_default());
-    let tx_hash = command.hash.clone();
+    let tx_hash = command.hash;
 
     // Initialize or update the operation list for this transaction
     let operations = block_map.entry(block_key).or_default().entry(tx_hash.clone()).or_default();
