@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use coinbase_mesh::models::{AccountIdentifier, Operation, Transaction, TransactionIdentifier};
 use serde_json::json;
@@ -6,7 +6,7 @@ use serde_json::json;
 use crate::{operation, util::DEFAULT_TOKEN_ID, OperationType, TransactionStatus, ZkAppCommand};
 
 pub fn zkapp_commands_to_transactions(commands: Vec<ZkAppCommand>) -> Vec<Transaction> {
-  let mut tx_map: HashMap<String, Vec<Operation>> = HashMap::new();
+  let mut tx_map = BTreeMap::<String, Vec<Operation>>::new();
 
   for command in commands {
     let tx_hash = command.hash.clone();
