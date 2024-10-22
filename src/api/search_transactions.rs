@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use coinbase_mesh::models::{
   AccountIdentifier, BlockIdentifier, BlockTransaction, Operation, SearchTransactionsRequest,
@@ -160,7 +160,7 @@ impl MinaMesh {
 }
 
 pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<BlockTransaction> {
-  let mut block_map: HashMap<(i64, String), HashMap<String, Vec<Operation>>> = HashMap::new();
+  let mut block_map: HashMap<(i64, String), BTreeMap<String, Vec<Operation>>> = HashMap::new();
 
   for command in commands {
     // Group by block identifier (block index and block hash)
