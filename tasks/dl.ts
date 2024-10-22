@@ -55,8 +55,3 @@ await new Deno.Command("tar", {
   cwd: destDir,
 }).output()
 
-// TODO: automatically enable? (thoughts piotr-iohk?)
-// await Deno.copyFile(
-//   import.meta.resolve("./enable_logging.sh"),
-//   path.join(destDir, "enable_logging.sh"),
-// )
