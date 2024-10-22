@@ -32,5 +32,5 @@ while (!connected && attempts < MAX_RETRIES) {
 
 if (connected) {
   await client.end()
-  console.log("Database ready")
+  console.log("Database ready at", connectionString)
 } else throw 0

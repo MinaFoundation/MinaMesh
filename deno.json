@@ -5,7 +5,7 @@
     "dl:devnet": "deno run -A tasks/dl.ts",
     "dl:mainnet": "deno task dl:devnet --network mainnet",
     "pg:init": "docker run -d --name mina-archive-db -p 5432:5432 -v $(pwd)/sql_scripts:/docker-entrypoint-initdb.d -e POSTGRES_PASSWORD=whatever -e POSTGRES_USER=mina postgres",
-    "pg:wait": "./tasks/pg_wait.sh",
+    "pg:wait": "deno run -A ./tasks/pg_wait.ts",
     "pg:up": "docker start mina-archive-db",
     "pg:down": "docker kill mina-archive-db",
     "pg:rm": "docker rm mina-archive-db",
