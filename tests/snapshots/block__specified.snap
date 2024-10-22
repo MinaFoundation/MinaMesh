@@ -558,207 +558,113 @@ Some(
                             transaction_identifier: TransactionIdentifier {
                                 hash: "5JtpLNQBmjphWGnyntyqsF8DVX8TUxaYCdzHR4D3ZQGzAx2oJ1Ax",
                             },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JtpLNQBmjphWGnyntyqsF8DVX8TUxaYCdzHR4D3ZQGzAx2oJ1Ax",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5Ju6Z6aAiKvxNc5Tou87cedCj4tsdv83GzHtu1Jc2FrfwoMqZAwN",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5Ju6Z6aAiKvxNc5Tou87cedCj4tsdv83GzHtu1Jc2FrfwoMqZAwN",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JuJsuLr6BpWyVQh436qUq4VBnChLDawS8VAX29w8CpZiVSF6VzE",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JuJsuLr6BpWyVQh436qUq4VBnChLDawS8VAX29w8CpZiVSF6VzE",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JuVUZairQhcerYaTFT2oDyY2vaXYnKaXAxAQ24SGp1oEP4XqPFX",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JuVUZairQhcerYaTFT2oDyY2vaXYnKaXAxAQ24SGp1oEP4XqPFX",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JuvrqLZ3EwXGPqyHUdP1R7rv3yknzihAGaGgWdMh9iUuTyekLWh",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JuvrqLZ3EwXGPqyHUdP1R7rv3yknzihAGaGgWdMh9iUuTyekLWh",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5Juy3zMDwCBAsaR1rVRFyydkD1WyGt7xPbB3kYSXmAizcsGRE7vJ",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5Juy3zMDwCBAsaR1rVRFyydkD1WyGt7xPbB3kYSXmAizcsGRE7vJ",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5Jv3nsCJYRbw2m7rUmN4tqrf4w35o9Xe38MM1PX7UV7marJuCfoD",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5Jv3nsCJYRbw2m7rUmN4tqrf4w35o9Xe38MM1PX7UV7marJuCfoD",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5Jv43b5zzb8ZJD36K8Qj1n2W56hABvCDHVbjBTnrRa5XSAfYoNJJ",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5Jv43b5zzb8ZJD36K8Qj1n2W56hABvCDHVbjBTnrRa5XSAfYoNJJ",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JvAJNhQLnqEjkWdVEAoKWhS72ZPZGTBP1wecQNZe2mkwBq5uY67",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JvAJNhQLnqEjkWdVEAoKWhS72ZPZGTBP1wecQNZe2mkwBq5uY67",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JvFr3amqo38C5UTScdTrWX2Uh9zEBJMfJ46VkPEBikcy1BzK2uq",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JvFr3amqo38C5UTScdTrWX2Uh9zEBJMfJ46VkPEBikcy1BzK2uq",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JvHyQmPVJUyF4puURRu92hJLVmNy6qpLjjKa6bbHcLeuao6WZ4u",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JvHyQmPVJUyF4puURRu92hJLVmNy6qpLjjKa6bbHcLeuao6WZ4u",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JvPGvbjz6Kdf9Uiif7RSDFbJRnCfN4mrwK4YuJjQWBUyZKvG6KA",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JvPGvbjz6Kdf9Uiif7RSDFbJRnCfN4mrwK4YuJjQWBUyZKvG6KA",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JufsTkU6MYo2QsQh4WiU8F3ssM7TQtx3bdjncLuvxGCPSLZ5mTe",
-                            },
-                            operations: [],
-                            related_transactions: None,
-                            metadata: None,
-                        },
-                        Transaction {
-                            transaction_identifier: TransactionIdentifier {
-                                hash: "5JufsTkU6MYo2QsQh4WiU8F3ssM7TQtx3bdjncLuvxGCPSLZ5mTe",
-                            },
-                            operations: [],
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 0,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_fee_payer_dec",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qrT8ycgyUiAEXA6chy2NaMthRhchbGueX3FrrdbnekjwUN4Bqq5C",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-200000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qrT8ycgyUiAEXA6chy2NaMthRhchbGueX3FrrdbnekjwUN4Bqq5C",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qj78UaPdrHwUBTJwFc3tz8GzTLBgijU6MadCdFkY58Lg9gMpPRK8",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
                             related_transactions: None,
                             metadata: None,
                         },
@@ -766,15 +672,569 @@ Some(
                             transaction_identifier: TransactionIdentifier {
                                 hash: "5Ju64BwGA8tYN9F9NMcNKkNUtiAdbdvWWdsriDXCtS28kjwXJJwk",
                             },
-                            operations: [],
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 0,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_fee_payer_dec",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qpfgnUm7zVqi8MJHNB2m37rtgMNDbFNhC2DpMmmVpQt8x6gKv9Ww",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-100000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qpfgnUm7zVqi8MJHNB2m37rtgMNDbFNhC2DpMmmVpQt8x6gKv9Ww",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-2000000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qpYCQrD9qxKcQF2Ja2bPTtfJ2Zj3SsVsgaivT515NknHsimg63CX",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "2000000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
                             related_transactions: None,
                             metadata: None,
                         },
                         Transaction {
                             transaction_identifier: TransactionIdentifier {
-                                hash: "5Ju64BwGA8tYN9F9NMcNKkNUtiAdbdvWWdsriDXCtS28kjwXJJwk",
+                                hash: "5Ju6Z6aAiKvxNc5Tou87cedCj4tsdv83GzHtu1Jc2FrfwoMqZAwN",
                             },
-                            operations: [],
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 0,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_fee_payer_dec",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qioSuSzmajyqQK9uXHEfUtQ89aqe7BxGSmaUP6kCCkvSDC4LtuKA",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-200000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qioSuSzmajyqQK9uXHEfUtQ89aqe7BxGSmaUP6kCCkvSDC4LtuKA",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qpbH52xLKoDASdm37v6V7fLrM4oyaQG3M3tibsPm1aQLagAfAS9r",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
+                            related_transactions: None,
+                            metadata: None,
+                        },
+                        Transaction {
+                            transaction_identifier: TransactionIdentifier {
+                                hash: "5JuJsuLr6BpWyVQh436qUq4VBnChLDawS8VAX29w8CpZiVSF6VzE",
+                            },
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 0,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_fee_payer_dec",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qinuoio4g2CsE6t9YMZZ1r36PttDFDVjs6heZie7Yu1foSBrTbdP",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-200000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qinuoio4g2CsE6t9YMZZ1r36PttDFDVjs6heZie7Yu1foSBrTbdP",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qjR4EMKydFpQFzN9uGWHpir8nMXS75dDRkFfDeWpLpZhTecnZCHq",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
+                            related_transactions: None,
+                            metadata: None,
+                        },
+                        Transaction {
+                            transaction_identifier: TransactionIdentifier {
+                                hash: "5JuVUZairQhcerYaTFT2oDyY2vaXYnKaXAxAQ24SGp1oEP4XqPFX",
+                            },
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 0,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_fee_payer_dec",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qmgdWmgLod7Hr1WAUMLts9vKJ54m9CeWWmgucYTKJHc8Mqt3Wc3k",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-200000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qmgdWmgLod7Hr1WAUMLts9vKJ54m9CeWWmgucYTKJHc8Mqt3Wc3k",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qp6GUuQF1V1gftAX77McarE8fyEfQscJDHj77DALNS2b681z6GYL",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
+                            related_transactions: None,
+                            metadata: None,
+                        },
+                        Transaction {
+                            transaction_identifier: TransactionIdentifier {
+                                hash: "5JufsTkU6MYo2QsQh4WiU8F3ssM7TQtx3bdjncLuvxGCPSLZ5mTe",
+                            },
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 0,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_fee_payer_dec",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qpfgnUm7zVqi8MJHNB2m37rtgMNDbFNhC2DpMmmVpQt8x6gKv9Ww",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-100000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qpfgnUm7zVqi8MJHNB2m37rtgMNDbFNhC2DpMmmVpQt8x6gKv9Ww",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-2000000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qpYCQrD9qxKcQF2Ja2bPTtfJ2Zj3SsVsgaivT515NknHsimg63CX",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "2000000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
                             related_transactions: None,
                             metadata: None,
                         },
@@ -782,15 +1242,1025 @@ Some(
                             transaction_identifier: TransactionIdentifier {
                                 hash: "5JuoQgsBxJSrwaRNBnDL8eiz5EbT5kEehepDL5KTamKc2i5v1kaB",
                             },
-                            operations: [],
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 0,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_fee_payer_dec",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qpfgnUm7zVqi8MJHNB2m37rtgMNDbFNhC2DpMmmVpQt8x6gKv9Ww",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-100000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qpfgnUm7zVqi8MJHNB2m37rtgMNDbFNhC2DpMmmVpQt8x6gKv9Ww",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-2000000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qrsaLKgMey9Y6aZjdL5FVFa1dkYC4u4qr69Mw1vp54QRt5KVk98o",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "2000000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
                             related_transactions: None,
                             metadata: None,
                         },
                         Transaction {
                             transaction_identifier: TransactionIdentifier {
-                                hash: "5JuoQgsBxJSrwaRNBnDL8eiz5EbT5kEehepDL5KTamKc2i5v1kaB",
+                                hash: "5JuvrqLZ3EwXGPqyHUdP1R7rv3yknzihAGaGgWdMh9iUuTyekLWh",
                             },
-                            operations: [],
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 0,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_fee_payer_dec",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qiU1dVcW2Yw4F4ik82Wjy8W32a8gP3GYzTW6HJEdb2UCmhim8kDu",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-200000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qiU1dVcW2Yw4F4ik82Wjy8W32a8gP3GYzTW6HJEdb2UCmhim8kDu",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qphnorEVHZffvCb7BwaP4o6HfumksHyKpf5on9VqbJVPkSBw3ruw",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
+                            related_transactions: None,
+                            metadata: None,
+                        },
+                        Transaction {
+                            transaction_identifier: TransactionIdentifier {
+                                hash: "5Juy3zMDwCBAsaR1rVRFyydkD1WyGt7xPbB3kYSXmAizcsGRE7vJ",
+                            },
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 0,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_fee_payer_dec",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qo5zQdnJkbjCn8Uu64ukbuSB24PgeaqZSPtErFKnugiT3gygcZop",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-200000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qo5zQdnJkbjCn8Uu64ukbuSB24PgeaqZSPtErFKnugiT3gygcZop",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qma6ZCiVp6w4fpMJ5XNKkN9viMvup3HdvxQ1sSfPWuinujVByMzP",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
+                            related_transactions: None,
+                            metadata: None,
+                        },
+                        Transaction {
+                            transaction_identifier: TransactionIdentifier {
+                                hash: "5Jv3nsCJYRbw2m7rUmN4tqrf4w35o9Xe38MM1PX7UV7marJuCfoD",
+                            },
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 0,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_fee_payer_dec",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qoVjmoZuWykm6yVTJ7e9zA8q7kVvboK4Jyh4X7KcMjK3hDqYCxbK",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-200000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qoVjmoZuWykm6yVTJ7e9zA8q7kVvboK4Jyh4X7KcMjK3hDqYCxbK",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qmLqa3gYiioRho7AaBUQhT1m1yCnaKF8S3sCSXPbJmG98puUHSmp",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
+                            related_transactions: None,
+                            metadata: None,
+                        },
+                        Transaction {
+                            transaction_identifier: TransactionIdentifier {
+                                hash: "5Jv43b5zzb8ZJD36K8Qj1n2W56hABvCDHVbjBTnrRa5XSAfYoNJJ",
+                            },
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 0,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_fee_payer_dec",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qnihwg6W1XQhgKqhgkPdQCrvgUguvWE5vBmSAU2Y53nzgJjhk4Bs",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-200000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qnihwg6W1XQhgKqhgkPdQCrvgUguvWE5vBmSAU2Y53nzgJjhk4Bs",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qkW4KGRBWn3tDU1PYWqXHbrdf7LWPN3FrZWztEYpGm6e8wUyBjp9",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
+                            related_transactions: None,
+                            metadata: None,
+                        },
+                        Transaction {
+                            transaction_identifier: TransactionIdentifier {
+                                hash: "5JvAJNhQLnqEjkWdVEAoKWhS72ZPZGTBP1wecQNZe2mkwBq5uY67",
+                            },
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 0,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_fee_payer_dec",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qnSNPFStU7kdA3gKiHCYouKkYmrzU5NFvu18hbTpUFmZzVjZp6he",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-200000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qnSNPFStU7kdA3gKiHCYouKkYmrzU5NFvu18hbTpUFmZzVjZp6he",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qieq72y5Negna1XUQTBSX726LLJ5oAhsFUNZaWAqJJJdamGhGFhv",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
+                            related_transactions: None,
+                            metadata: None,
+                        },
+                        Transaction {
+                            transaction_identifier: TransactionIdentifier {
+                                hash: "5JvFr3amqo38C5UTScdTrWX2Uh9zEBJMfJ46VkPEBikcy1BzK2uq",
+                            },
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 0,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_fee_payer_dec",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qjCLySG219LysX9j6U8gpTfLS6JScd2nuMfWPtzQzFZQnemxb1MQ",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-200000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qjCLySG219LysX9j6U8gpTfLS6JScd2nuMfWPtzQzFZQnemxb1MQ",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qqRKxgG1cA5hkVs8cYUDoHdsvpW1M8AMgSURwtNpNqXa21Cd9dpQ",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
+                            related_transactions: None,
+                            metadata: None,
+                        },
+                        Transaction {
+                            transaction_identifier: TransactionIdentifier {
+                                hash: "5JvHyQmPVJUyF4puURRu92hJLVmNy6qpLjjKa6bbHcLeuao6WZ4u",
+                            },
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 0,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_fee_payer_dec",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qn8f9eE2ux3LoXvXrpiREF3X9nyHBXajGLeTPyJhq2MPnieV3tbg",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-200000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qn8f9eE2ux3LoXvXrpiREF3X9nyHBXajGLeTPyJhq2MPnieV3tbg",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qp4LJX3bwWdxmVJE8csx6CkzjSEZRNQGUiV7S39mcRngsjtygXbg",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
+                            related_transactions: None,
+                            metadata: None,
+                        },
+                        Transaction {
+                            transaction_identifier: TransactionIdentifier {
+                                hash: "5JvPGvbjz6Kdf9Uiif7RSDFbJRnCfN4mrwK4YuJjQWBUyZKvG6KA",
+                            },
+                            operations: [
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 0,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_fee_payer_dec",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qkZjTMxUwTTumLd5E35DHCos75hjo3jVZdMpo9D73x6vgvY2hoxs",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-200000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 1,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qkZjTMxUwTTumLd5E35DHCos75hjo3jVZdMpo9D73x6vgvY2hoxs",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "-298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                                Operation {
+                                    operation_identifier: OperationIdentifier {
+                                        index: 2,
+                                        network_index: None,
+                                    },
+                                    related_operations: None,
+                                    type: "zkapp_balance_update",
+                                    status: Some(
+                                        "Success",
+                                    ),
+                                    account: Some(
+                                        AccountIdentifier {
+                                            address: "B62qpuN14M3vKvrfecc5k5Skqns4STnq54E2nvDnjvaWYduMPkT2xzs",
+                                            sub_account: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    amount: Some(
+                                        Amount {
+                                            value: "298800000000",
+                                            currency: Currency {
+                                                symbol: "MINA",
+                                                decimals: 9,
+                                                metadata: None,
+                                            },
+                                            metadata: None,
+                                        },
+                                    ),
+                                    coin_change: None,
+                                    metadata: None,
+                                },
+                            ],
                             related_transactions: None,
                             metadata: None,
                         },

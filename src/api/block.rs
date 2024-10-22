@@ -7,8 +7,8 @@ use serde::Serialize;
 use sqlx::FromRow;
 
 use crate::{
-  operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationType,
-  TransactionStatus, UserCommandType,
+  operation, sql_to_mesh::zkapp_commands_to_transactions, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType,
+  MinaMesh, MinaMeshError, OperationType, TransactionStatus, UserCommandType, ZkAppCommand,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
@@ -78,16 +78,10 @@ impl MinaMesh {
   }
 
   pub async fn zkapp_commands(&self, metadata: &BlockMetadata) -> Result<Vec<Transaction>, MinaMeshError> {
-    let metadata = sqlx::query_file_as!(ZkappCommandMetadata, "sql/zkapp_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
+    let metadata = sqlx::query_file_as!(ZkAppCommand, "sql/zkapp_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
       .fetch_all(&self.pg_pool)
       .await?;
-    let transactions = metadata
-      .into_iter()
-      .map(|item| {
-        zkapp_command_metadata_to_operation(&item)
-          .map(|operation| Transaction::new(TransactionIdentifier::new(item.hash.clone()), operation))
-      })
-      .collect::<Result<Vec<Transaction>, MinaMeshError>>()?;
+    let transactions = zkapp_commands_to_transactions(metadata);
     Ok(transactions)
   }
 
@@ -182,6 +176,9 @@ pub struct ZkappCommandMetadata {
   sequence_no: i64,
   status: TransactionStatus,
   failure_reasons: Option<Vec<String>>,
+  balance_change: String,
+  account: String,
+  token: String,
 }
 
 #[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
@@ -337,9 +334,4 @@ fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) ->
     }
   }
   Ok(operations)
-}
-
-// TODO: implement
-fn zkapp_command_metadata_to_operation(_metadata: &ZkappCommandMetadata) -> Result<Vec<Operation>, MinaMeshError> {
-  Ok(Vec::new())
 }

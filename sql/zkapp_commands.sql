@@ -8,6 +8,10 @@ SELECT
   zfpb.nonce,
   bzc.sequence_no,
   bzc.status AS "status: TransactionStatus",
+  b.state_hash,
+  b.height,
+  bzc.block_id,
+  cast(0 AS BIGINT) AS total_count,
   ARRAY(
     SELECT
       unnest(zauf.failures)
@@ -15,7 +19,10 @@ SELECT
       zkapp_account_update_failures AS zauf
     WHERE
       zauf.id=ANY (bzc.failure_reasons_ids)
-  ) AS failure_reasons
+  ) AS failure_reasons,
+  zaub.balance_change,
+  pk_update_body.value AS pk_update_body,
+  token_update_body.value AS token
 FROM
   blocks_zkapp_commands AS bzc
   INNER JOIN zkapp_commands AS zc ON bzc.zkapp_command_id=zc.id

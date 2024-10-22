@@ -5,6 +5,7 @@ mod error;
 mod graphql;
 mod operation;
 mod playground;
+mod sql_to_mesh;
 mod types;
 mod util;
 

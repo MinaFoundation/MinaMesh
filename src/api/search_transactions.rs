@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use coinbase_mesh::models::{
   AccountIdentifier, BlockIdentifier, BlockTransaction, Operation, SearchTransactionsRequest,
@@ -9,8 +9,8 @@ use serde_json::{json, Map, Value};
 use sqlx::FromRow;
 
 use crate::{
-  operation, util::DEFAULT_TOKEN_ID, AuthorizationKindType, ChainStatus, InternalCommandType, MayUseToken, MinaMesh,
-  MinaMeshError, OperationType, TransactionStatus, UserCommandType,
+  operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationType,
+  TransactionStatus, UserCommandType, ZkAppCommand,
 };
 
 impl MinaMesh {
@@ -159,44 +159,8 @@ impl MinaMesh {
   }
 }
 
-#[allow(dead_code)]
-#[derive(FromRow)]
-pub struct ZkAppCommand {
-  pub id: Option<i32>,
-  pub memo: Option<String>,
-  pub hash: String,
-  pub fee_payer: String,
-  pub pk_update_body: String,
-  pub fee: Option<String>,
-  pub valid_until: Option<i64>,
-  pub nonce: Option<i64>,
-  pub sequence_no: i32,
-  pub status: TransactionStatus,
-  pub account_identifier_id: Option<i32>,
-  pub update_id: Option<i32>,
-  pub balance_change: Option<String>,
-  pub increment_nonce: bool,
-  pub events_id: Option<i32>,
-  pub actions_id: Option<i32>,
-  pub call_data_id: Option<i32>,
-  pub call_depth: Option<i32>,
-  pub zkapp_network_precondition_id: Option<i32>,
-  pub zkapp_account_precondition_id: Option<i32>,
-  pub zkapp_valid_while_precondition_id: Option<i32>,
-  pub use_full_commitment: bool,
-  pub implicit_account_creation_fee: bool,
-  pub may_use_token: MayUseToken,
-  pub authorization_kind: AuthorizationKindType,
-  pub verification_key_hash_id: Option<i32>,
-  pub block_id: Option<i32>,
-  pub state_hash: Option<String>,
-  pub height: Option<i64>,
-  pub failure_reasons: Option<Vec<String>>,
-  pub total_count: Option<i64>,
-}
-
 pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<BlockTransaction> {
-  let mut block_map: HashMap<(i64, String), HashMap<String, Vec<Operation>>> = HashMap::new();
+  let mut block_map: HashMap<(i64, String), BTreeMap<String, Vec<Operation>>> = HashMap::new();
 
   for command in commands {
     // Group by block identifier (block index and block hash)
@@ -210,7 +174,7 @@ pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<
     if operations.is_empty() {
       operations.push(operation(
         0,
-        Some(&format!("-{}", command.fee.unwrap_or("0".to_string()))),
+        Some(&format!("-{}", command.fee)),
         &AccountIdentifier {
           address: command.fee_payer.clone(),
           metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
@@ -226,7 +190,7 @@ pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<
     // Add zkapp balance update operation
     operations.push(operation(
       0,
-      command.balance_change.as_ref(),
+      Some(&command.balance_change),
       &AccountIdentifier {
         address: command.pk_update_body.clone(),
         metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
