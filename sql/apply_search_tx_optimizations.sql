@@ -18,7 +18,7 @@ CREATE TABLE user_commands_aggregated (
   CONSTRAINT user_commands_aggregated_unique UNIQUE (id, block_id, sequence_no)
 );
 
--- NEXT
+-- NEXT --
 -- Populate the table with the existing data
 INSERT INTO
   user_commands_aggregated (
@@ -60,7 +60,7 @@ FROM
   user_commands AS u
   INNER JOIN blocks_user_commands AS buc ON u.id=buc.user_command_id;
 
--- NEXT
+-- NEXT --
 -- Create the trigger function to insert a new row into user_commands_aggregated
 CREATE
 OR REPLACE function add_to_user_commands_aggregated () returns trigger AS $$
@@ -110,7 +110,7 @@ BEGIN
 END;
 $$ language plpgsql;
 
--- NEXT
+-- NEXT --
 -- Create the trigger that fires after each insert into blocks_user_commands
 CREATE
 OR REPLACE trigger trigger_add_to_user_commands_aggregated
