@@ -1,37 +1,54 @@
 WITH
   user_command_info AS (
     SELECT DISTINCT
-      ON (block_id, user_command_id, sequence_no) id,
-      command_type AS "command_type: UserCommandType",
-      fee_payer_id,
-      source_id,
-      receiver_id,
-      nonce,
-      amount,
-      fee,
-      valid_until,
-      memo,
-      hash,
-      block_id,
-      sequence_no,
-      status AS "status: TransactionStatus",
-      failure_reason,
-      state_hash,
-      chain_status AS "chain_status: ChainStatus",
-      HEIGHT
+      ON (
+        uca.block_id,
+        uca.user_command_id,
+        uca.sequence_no
+      ) uca.id,
+      uca.command_type AS "command_type: UserCommandType",
+      uca.fee_payer_id,
+      uca.source_id,
+      uca.receiver_id,
+      uca.nonce,
+      uca.amount,
+      uca.fee,
+      uca.valid_until,
+      uca.memo,
+      uca.hash,
+      uca.block_id,
+      uca.sequence_no,
+      uca.status AS "status: TransactionStatus",
+      uca.failure_reason,
+      b.state_hash,
+      b.chain_status AS "chain_status: ChainStatus",
+      b.height
     FROM
-      user_command_aggregated_info
+      user_commands_aggregated AS uca
+      INNER JOIN public_keys AS pk ON uca.fee_payer_id=pk.id
+      OR (
+        uca.status='applied'
+        AND (
+          uca.source_id=pk.id
+          OR uca.receiver_id=pk.id
+        )
+      )
+      INNER JOIN blocks AS b ON uca.block_id=b.id
     WHERE
       (
-        $1>=HEIGHT
+        b.chain_status='canonical'
+        OR b.chain_status='pending'
+      )
+      AND (
+        $1>=b.height
         OR $1 IS NULL
       )
       AND (
-        $2=hash
+        $2=uca.hash
         OR $2 IS NULL
       )
       AND (
-        $3=pk_value
+        $3=pk.value
         AND $4=''
         OR (
           $3 IS NULL
@@ -39,15 +56,15 @@ WITH
         )
       )
       AND (
-        $5=status
+        $5=uca.status
         OR $5 IS NULL
       )
       AND (
-        $6=status
+        $6=uca.status
         OR $6 IS NULL
       )
       AND (
-        $7=pk_value
+        $7=pk.value
         OR $7 IS NULL
       )
   ),
