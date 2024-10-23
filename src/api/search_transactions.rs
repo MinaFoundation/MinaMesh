@@ -45,10 +45,9 @@ impl MinaMesh {
       total_count += internal_commands_total_count;
     } else {
       // otherwise only fetch the first internal command to get the total count
-      // let internal_commands = self.fetch_internal_commands(&req, 0,
-      // 1).await?; let internal_commands_total_count =
-      // internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
-      // total_count += internal_commands_total_count;
+      let internal_commands = self.fetch_internal_commands(&req, 0, 1).await?;
+      let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
+      total_count += internal_commands_total_count;
     }
 
     // ZkApp Commands
@@ -63,10 +62,9 @@ impl MinaMesh {
       total_count += zkapp_commands_total_count;
     } else {
       // otherwise only fetch the first zkapp command to get the total count
-      // let zkapp_commands = self.fetch_zkapp_commands(&req, 0, 1).await?;
-      // let zkapp_commands_total_count = zkapp_commands.first().and_then(|ic|
-      // ic.total_count).unwrap_or(0); total_count +=
-      // zkapp_commands_total_count;
+      let zkapp_commands = self.fetch_zkapp_commands(&req, 0, 1).await?;
+      let zkapp_commands_total_count = zkapp_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
+      total_count += zkapp_commands_total_count;
     }
 
     let next_offset = original_offset + txs_len;
@@ -87,23 +85,42 @@ impl MinaMesh {
   ) -> Result<Vec<UserCommand>, MinaMeshError> {
     let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
 
-    let user_commands = sqlx::query_file_as!(
-      UserCommand,
-      "sql/indexer_user_commands.sql",
-      query_params.max_block,
-      query_params.transaction_hash,
-      query_params.account_identifier,
-      query_params.token_id,
-      query_params.status as Option<TransactionStatus>,
-      query_params.success_status as Option<TransactionStatus>,
-      query_params.address,
-      limit,
-      offset,
-    )
-    .fetch_all(&self.pg_pool)
-    .await?;
-
-    Ok(user_commands)
+    if !self.search_tx_optimized {
+      let user_commands = sqlx::query_file_as!(
+        UserCommand,
+        "sql/indexer_user_commands.sql",
+        query_params.max_block,
+        query_params.transaction_hash,
+        query_params.account_identifier,
+        query_params.token_id,
+        query_params.status as Option<TransactionStatus>,
+        query_params.success_status as Option<TransactionStatus>,
+        query_params.address,
+        limit,
+        offset,
+      )
+      .fetch_all(&self.pg_pool)
+      .await?;
+      return Ok(user_commands);
+    } else {
+      // Load the query dynamically from a file
+      let user_commands = sqlx::query_file_as_unchecked!(
+        UserCommand,
+        "sql/indexer_user_commands_optimized.sql",
+        query_params.max_block,
+        query_params.transaction_hash,
+        query_params.account_identifier,
+        query_params.token_id,
+        query_params.status as Option<TransactionStatus>,
+        query_params.success_status as Option<TransactionStatus>,
+        query_params.address,
+        limit,
+        offset,
+      )
+      .fetch_all(&self.pg_pool)
+      .await?;
+      return Ok(user_commands);
+    }
   }
 
   pub async fn fetch_internal_commands(

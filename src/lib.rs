@@ -24,4 +24,5 @@ pub struct MinaMesh {
   pub graphql_client: GraphQLClient,
   pub pg_pool: PgPool,
   pub genesis_block_identifier: BlockIdentifier,
+  pub search_tx_optimized: bool,
 }
