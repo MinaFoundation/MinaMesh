@@ -1,11 +1,7 @@
 WITH
   user_command_info AS (
     SELECT DISTINCT
-      ON (
-        uca.block_id,
-        uca.user_command_id,
-        uca.sequence_no
-      ) uca.id,
+      ON (uca.block_id, uca.id, uca.sequence_no) uca.id,
       uca.command_type AS "command_type: UserCommandType",
       uca.fee_payer_id,
       uca.source_id,
