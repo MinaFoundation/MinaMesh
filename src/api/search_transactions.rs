@@ -103,8 +103,7 @@ impl MinaMesh {
       .await?;
       return Ok(user_commands);
     } else {
-      // Load the query dynamically from a file
-      let user_commands = sqlx::query_file_as_unchecked!(
+      let user_commands = sqlx::query_file_as!(
         UserCommand,
         "sql/indexer_user_commands_optimized.sql",
         query_params.max_block,

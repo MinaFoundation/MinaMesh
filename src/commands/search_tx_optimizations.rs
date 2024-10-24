@@ -35,10 +35,8 @@ impl SearchTxOptimizationsCommand {
     }
 
     if self.apply {
-      println!("Applying search transaction optimizations...");
       self.apply_optimizations(&pool).await?;
     } else if self.drop {
-      println!("Dropping search transaction optimizations...");
       self.drop_optimizations(&pool).await?;
     } else if self.check {
       let applied = self.check_if_optimizations_applied(&pool).await?;
@@ -54,7 +52,7 @@ impl SearchTxOptimizationsCommand {
   }
 
   async fn apply_optimizations(&self, pool: &PgPool) -> Result<()> {
-    println!("Connecting to archive database to apply optimizations...");
+    println!("Applying search transaction optimizations on Archive Database (this may take few minutes)...");
 
     // Load and execute the SQL from the file
     let sql = include_str!("../../sql/apply_search_tx_optimizations.sql");
@@ -65,7 +63,7 @@ impl SearchTxOptimizationsCommand {
   }
 
   async fn drop_optimizations(&self, pool: &PgPool) -> Result<()> {
-    println!("Connecting to archive database to drop optimizations...");
+    println!("Dropping search transaction optimizations from Archive Database...");
 
     // Load and execute the SQL from the file
     let sql = include_str!("../../sql/drop_search_tx_optimizations.sql");
