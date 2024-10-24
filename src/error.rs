@@ -52,7 +52,7 @@ pub enum MinaMeshError {
   #[error("No options provided")]
   NoOptionsProvided,
 
-  #[error("Exception")]
+  #[error("Exception {0}")]
   Exception(String),
 
   #[error("Invalid signature")]

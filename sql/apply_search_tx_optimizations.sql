@@ -19,6 +19,9 @@ CREATE TABLE user_commands_aggregated (
 );
 
 -- NEXT --
+CREATE INDEX idx_user_commands_aggregated_hash ON user_commands_aggregated (hash);
+
+-- NEXT --
 -- Populate the table with the existing data
 INSERT INTO
   user_commands_aggregated (
