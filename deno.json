@@ -7,10 +7,12 @@
     "pg:init": "docker run -d --name mina-archive-db -p 5432:5432 -v $(pwd)/sql_scripts:/docker-entrypoint-initdb.d -e POSTGRES_PASSWORD=whatever -e POSTGRES_USER=mina postgres",
     "pg:wait": "deno run -A ./tasks/pg_wait.ts",
     "pg:enable_logging": "deno run -A ./tasks/enable_logging.ts",
+    "pg:apply_optimizations": "deno run -A ./tasks/search_tx_optimizations.ts --apply",
+    "pg:drop_optimizations": "deno run -A ./tasks/search_tx_optimizations.ts --drop",
     "pg:up": "docker start mina-archive-db",
     "pg:down": "docker kill mina-archive-db",
     "pg:rm": "docker rm mina-archive-db",
-    "dev:init": "deno task dl:devnet && deno task pg:enable_logging && deno task pg:init && deno task pg:wait",
+    "dev:init": "deno task dl:devnet && deno task pg:enable_logging && deno task pg:init && deno task pg:wait && deno task pg:apply_optimizations",
     "dev": "cargo run serve --playground"
   },
   "imports": {
