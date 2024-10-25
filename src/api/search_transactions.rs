@@ -101,7 +101,7 @@ impl MinaMesh {
       )
       .fetch_all(&self.pg_pool)
       .await?;
-      return Ok(user_commands);
+      Ok(user_commands)
     } else {
       let user_commands = sqlx::query_file_as!(
         UserCommand,
@@ -118,7 +118,7 @@ impl MinaMesh {
       )
       .fetch_all(&self.pg_pool)
       .await?;
-      return Ok(user_commands);
+      Ok(user_commands)
     }
   }
 
