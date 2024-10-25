@@ -1,0 +1,155 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "WITH\n  coinbase_receiver_info AS (\n    SELECT\n      bic.block_id,\n      bic.internal_command_id,\n      bic.sequence_no,\n      bic.secondary_sequence_no,\n      coinbase_receiver_pk.value AS coinbase_receiver\n    FROM\n      blocks_internal_commands AS bic\n      INNER JOIN internal_commands AS ic ON bic.internal_command_id=ic.id\n      INNER JOIN blocks_internal_commands AS bic_coinbase_receiver ON bic.block_id=bic_coinbase_receiver.block_id\n      AND (\n        bic.internal_command_id<>bic_coinbase_receiver.internal_command_id\n        OR bic.sequence_no<>bic_coinbase_receiver.sequence_no\n        OR bic.secondary_sequence_no<>bic_coinbase_receiver.secondary_sequence_no\n      )\n      INNER JOIN internal_commands AS ic_coinbase_receiver ON ic.command_type='fee_transfer_via_coinbase'\n      AND ic_coinbase_receiver.command_type='coinbase'\n      AND bic_coinbase_receiver.internal_command_id=ic_coinbase_receiver.id\n      INNER JOIN public_keys AS coinbase_receiver_pk ON ic_coinbase_receiver.receiver_id=coinbase_receiver_pk.id\n  ),\n  internal_commands_info AS (\n    SELECT DISTINCT\n      ON (\n        bic.block_id,\n        bic.internal_command_id,\n        bic.sequence_no,\n        bic.secondary_sequence_no\n      ) i.id,\n      i.command_type AS \"command_type: InternalCommandType\",\n      i.receiver_id,\n      i.fee,\n      i.hash,\n      pk.value AS receiver,\n      cri.coinbase_receiver AS \"coinbase_receiver?\",\n      bic.sequence_no,\n      bic.secondary_sequence_no,\n      bic.block_id,\n      bic.status AS \"status: TransactionStatus\",\n      b.state_hash,\n      b.height\n    FROM\n      internal_commands AS i\n      INNER JOIN blocks_internal_commands AS bic ON i.id=bic.internal_command_id\n      INNER JOIN public_keys AS pk ON i.receiver_id=pk.id\n      INNER JOIN blocks AS b ON bic.block_id=b.id\n      AND (\n        b.chain_status='canonical'\n        OR b.chain_status='pending'\n      )\n      LEFT JOIN coinbase_receiver_info AS cri ON bic.block_id=cri.block_id\n      AND bic.internal_command_id=cri.internal_command_id\n      AND bic.sequence_no=cri.sequence_no\n      AND bic.secondary_sequence_no=cri.secondary_sequence_no\n    WHERE\n      (\n        $1>=b.height\n        OR $1 IS NULL\n      )\n      AND (\n        $2=i.hash\n        OR $2 IS NULL\n      )\n      AND (\n        (\n          $3=pk.value\n          OR $3=cri.coinbase_receiver\n        )\n        AND $4=''\n        OR (\n          $3 IS NULL\n          AND $4 IS NULL\n        )\n      )\n      AND (\n        $5=bic.status\n        OR $5 IS NULL\n      )\n      AND (\n        $6=bic.status\n        OR $6 IS NULL\n      )\n      AND (\n        (\n          $7=pk.value\n          OR $7=cri.coinbase_receiver\n        )\n        OR $7 IS NULL\n      )\n  ),\n  id_count AS (\n    SELECT\n      count(*) AS total_count\n    FROM\n      internal_commands_info\n  )\nSELECT\n  i.*,\n  id_count.total_count,\n  ac.creation_fee AS \"creation_fee?\"\nFROM\n  id_count,\n  (\n    SELECT\n      *\n    FROM\n      internal_commands_info\n    ORDER BY\n      block_id,\n      id,\n      sequence_no,\n      secondary_sequence_no\n    LIMIT\n      $8\n    OFFSET\n      $9\n  ) AS i\n  LEFT JOIN account_identifiers AS ai ON i.receiver_id=ai.public_key_id\n  LEFT JOIN accounts_created AS ac ON ai.id=ac.account_identifier_id\n  AND i.block_id=ac.block_id\n  AND i.sequence_no=(\n    SELECT\n      least(\n        (\n          SELECT\n            min(bic2.sequence_no)\n          FROM\n            blocks_internal_commands AS bic2\n            INNER JOIN internal_commands AS ic2 ON bic2.internal_command_id=ic2.id\n          WHERE\n            i.receiver_id=ic2.receiver_id\n            AND bic2.block_id=i.block_id\n            AND bic2.status='applied'\n        ),\n        (\n          SELECT\n            min(buc2.sequence_no)\n          FROM\n            blocks_user_commands AS buc2\n            INNER JOIN user_commands AS uc2 ON buc2.user_command_id=uc2.id\n          WHERE\n            i.receiver_id=uc2.receiver_id\n            AND buc2.block_id=i.block_id\n            AND buc2.status='applied'\n        )\n      )\n  )\nORDER BY\n  i.block_id,\n  i.id,\n  i.sequence_no,\n  i.secondary_sequence_no\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "command_type: InternalCommandType",
+        "type_info": {
+          "Custom": {
+            "name": "internal_command_type",
+            "kind": {
+              "Enum": [
+                "fee_transfer_via_coinbase",
+                "fee_transfer",
+                "coinbase"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "receiver_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "fee",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "receiver",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "coinbase_receiver?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "sequence_no",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "secondary_sequence_no",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "block_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
+        "name": "status: TransactionStatus",
+        "type_info": {
+          "Custom": {
+            "name": "transaction_status",
+            "kind": {
+              "Enum": [
+                "applied",
+                "failed"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "state_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "height",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 13,
+        "name": "total_count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 14,
+        "name": "creation_fee?",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Text",
+        "Text",
+        "Text",
+        {
+          "Custom": {
+            "name": "transaction_status",
+            "kind": {
+              "Enum": [
+                "applied",
+                "failed"
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "transaction_status",
+            "kind": {
+              "Enum": [
+                "applied",
+                "failed"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      null,
+      false
+    ]
+  },
+  "hash": "cb1027d095390b97b8853e7775222974441b581f1fb8a5af7c28451b604b738e"
+}
