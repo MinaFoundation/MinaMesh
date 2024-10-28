@@ -11,7 +11,8 @@
     "pg:down": "docker kill mina-archive-db",
     "pg:rm": "docker rm mina-archive-db",
     "dev:init": "deno task dl:devnet && deno task pg:enable_logging && deno task pg:init && deno task pg:wait",
-    "dev": "cargo run serve --playground"
+    "dev": "cargo run serve --playground",
+    "openai:check": "deno run -A npm:structured-outputs -o FEEDBACK.md -i sql -i src"
   },
   "imports": {
     "@qnighy/dedent": "jsr:@qnighy/dedent@^0.1.2",
