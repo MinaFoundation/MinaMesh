@@ -1,4 +1,3 @@
-import { dedent } from "@qnighy/dedent"
 import { assert, assertExists } from "@std/assert"
 import { parseArgs } from "@std/cli"
 import { format } from "@std/datetime"
