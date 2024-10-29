@@ -2,6 +2,7 @@
 .direnv
 .env
 .envrc
+.minamesh
 FEEDBACK.md
 archive
 sql_scripts

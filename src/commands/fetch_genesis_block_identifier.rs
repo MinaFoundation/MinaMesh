@@ -20,6 +20,10 @@ impl FetchGenesisBlockIdentifierCommand {
       let genesis_block_index = inner.genesis_block.protocol_state.consensus_state.block_height.0;
       println!("MINAMESH_GENESIS_BLOCK_IDENTIFIER_STATE_HASH = {genesis_block_hash}");
       println!("MINAMESH_GENESIS_BLOCK_IDENTIFIER_HEIGHT = {genesis_block_index}");
+    } else if let Some(errs) = result.errors {
+      for err in errs {
+        eprintln!("GraphQL Error: {}", err.message);
+      }
     } else {
       bail!("No genesis block identifier found in the response");
     }

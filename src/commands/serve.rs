@@ -12,7 +12,11 @@ use clap::Args;
 use paste::paste;
 use tokio::net::TcpListener;
 
-use crate::{playground::handle_playground, util::Wrapper, MinaMesh, MinaMeshConfig};
+use crate::{
+  playground::handle_playground,
+  util::{shutdown_signal, Wrapper},
+  MinaMesh, MinaMeshConfig,
+};
 
 #[derive(Debug, Args)]
 #[command(about = "Start the Mina Mesh Server.")]
@@ -24,7 +28,7 @@ pub struct ServeCommand {
   #[arg(default_value = "3000")]
   port: u16,
   /// Whether to enable the playground.
-  #[arg(env = "PLAYGROUND", long)]
+  #[arg(env = "MINAMESH_PLAYGROUND", long)]
   playground: bool,
 }
 
@@ -57,7 +61,7 @@ impl ServeCommand {
     }
     let listener = TcpListener::bind(format!("{}:{}", self.host, self.port)).await?;
     tracing::info!("listening on http://{}", listener.local_addr()?);
-    serve(listener, router).await?;
+    serve(listener, router).with_graceful_shutdown(shutdown_signal()).await?;
     Ok(())
   }
 }
@@ -65,14 +69,14 @@ impl ServeCommand {
 macro_rules! create_handler {
   ($name:ident, $request_type:ty) => {
     paste! {
-      async fn [<handle _ $name>](mina_mesh: State<Arc<MinaMesh>>, Json(req): Json<coinbase_mesh::models::$request_type>) -> impl IntoResponse {
+      async fn [<handle _ $name>](State(mina_mesh): State<Arc<MinaMesh>>, Json(req): Json<coinbase_mesh::models::$request_type>) -> impl IntoResponse {
         Wrapper(mina_mesh.$name(req).await)
       }
     }
   };
   ($name:ident) => {
     paste! {
-      async fn [<handle _ $name>](mina_mesh: State<Arc<MinaMesh>>) -> impl IntoResponse {
+      async fn [<handle _ $name>](State(mina_mesh): State<Arc<MinaMesh>>) -> impl IntoResponse {
         Wrapper(mina_mesh.$name().await)
       }
     }

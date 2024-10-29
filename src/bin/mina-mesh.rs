@@ -3,11 +3,12 @@
 
 use anyhow::Result;
 use clap::Parser;
-use mina_mesh::{FetchGenesisBlockIdentifierCommand, ServeCommand};
+use mina_mesh::{DevCommand, FetchGenesisBlockIdentifierCommand, ServeCommand};
 
 #[derive(Debug, Parser)]
 #[command(name = "mina-mesh", version, about = "A Mesh-compliant Server for Mina", propagate_version = true, author)]
 enum Command {
+  Dev(DevCommand),
   Serve(ServeCommand),
   FetchGenesisBlockIdentifier(FetchGenesisBlockIdentifierCommand),
 }
@@ -16,6 +17,7 @@ enum Command {
 async fn main() -> Result<()> {
   dotenv::dotenv().ok();
   match Command::parse() {
+    Command::Dev(cmd) => cmd.run().await,
     Command::Serve(cmd) => cmd.run().await,
     Command::FetchGenesisBlockIdentifier(cmd) => cmd.run().await,
   }

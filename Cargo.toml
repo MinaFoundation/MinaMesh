@@ -17,6 +17,7 @@ aide = { version = "0.13.4", features = ["scalar"] }
 anyhow = "1.0.86"
 axum = { version = "0.7.5", features = ["macros"] }
 bs58 = "0.5.1"
+chrono = "0.4.38"
 clap = { version = "4.5.11", features = ["derive", "env"] }
 coinbase-mesh = "0.1.0"
 convert_case = "0.6.0"
@@ -24,6 +25,7 @@ cynic = { version = "3.7.3", features = ["http-reqwest-blocking"] }
 derive_more = { version = "1.0.0", features = ["full"] }
 dotenv = "0.15.0"
 envy = "0.4.2"
+flate2 = "1.0.34"
 futures = "0.3.30"
 paste = "1.0.15"
 pretty_assertions = "1.4.1"
@@ -31,6 +33,7 @@ reqwest = { version = "0.12.5", features = ["json", "blocking"] }
 serde = { version = "1.0.204", features = ["derive"] }
 serde_json = { version = "1.0.121" }
 sqlx = { version = "0.8.0", features = ["runtime-tokio", "postgres", "json"] }
+tar = "0.4.42"
 thiserror = "1.0.63"
 tokio = { version = "1.39.2", features = ["full"] }
 tracing = "0.1.40"

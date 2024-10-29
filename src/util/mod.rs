@@ -1,3 +1,6 @@
+pub mod docker;
+mod shutdown_signal;
+
 use anyhow::Result;
 use axum::{
   extract::Json,
@@ -5,6 +8,7 @@ use axum::{
   response::{IntoResponse, Response},
 };
 use serde::Serialize;
+pub use shutdown_signal::shutdown_signal;
 
 use crate::MinaMeshError;
 
