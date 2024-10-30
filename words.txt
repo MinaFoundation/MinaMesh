@@ -12,6 +12,7 @@ dsherret
 dyntest
 esbenp
 eventbus
+flate
 graphviz
 hardfork
 harrysolovay

@@ -1,4 +1,4 @@
-pub mod docker;
+mod docker;
 mod shutdown_signal;
 
 use anyhow::Result;
@@ -7,6 +7,7 @@ use axum::{
   http::StatusCode,
   response::{IntoResponse, Response},
 };
+pub use docker::*;
 use serde::Serialize;
 pub use shutdown_signal::shutdown_signal;
 

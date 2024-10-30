@@ -16,6 +16,7 @@ indoc = "2.0.5"
 aide = { version = "0.13.4", features = ["scalar"] }
 anyhow = "1.0.86"
 axum = { version = "0.7.5", features = ["macros"] }
+bollard = "0.17.1"
 bs58 = "0.5.1"
 chrono = "0.4.38"
 clap = { version = "4.5.11", features = ["derive", "env"] }
