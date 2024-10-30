@@ -55,7 +55,7 @@ impl SearchTxOptimizationsCommand {
     println!("Applying search transaction optimizations on Archive Database (this may take few minutes)...");
 
     // Load and execute the SQL from the file
-    let sql = include_str!("../../sql/apply_search_tx_optimizations.sql");
+    let sql = include_str!("../../sql/migrations/apply_search_tx_optimizations.sql");
     self.execute_sql_file(pool, sql, "-- NEXT --").await?;
 
     println!("Optimizations applied successfully.");
@@ -66,7 +66,7 @@ impl SearchTxOptimizationsCommand {
     println!("Dropping search transaction optimizations from Archive Database...");
 
     // Load and execute the SQL from the file
-    let sql = include_str!("../../sql/drop_search_tx_optimizations.sql");
+    let sql = include_str!("../../sql/migrations/drop_search_tx_optimizations.sql");
     self.execute_sql_file(pool, sql, ";").await?;
 
     println!("Optimizations dropped successfully.");

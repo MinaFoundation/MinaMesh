@@ -88,7 +88,7 @@ impl MinaMesh {
     if !self.search_tx_optimized {
       let user_commands = sqlx::query_file_as!(
         UserCommand,
-        "sql/indexer_user_commands.sql",
+        "sql/queries/indexer_user_commands.sql",
         query_params.max_block,
         query_params.transaction_hash,
         query_params.account_identifier,
@@ -105,7 +105,7 @@ impl MinaMesh {
     } else {
       let user_commands = sqlx::query_file_as!(
         UserCommand,
-        "sql/indexer_user_commands_optimized.sql",
+        "sql/queries/indexer_user_commands_optimized.sql",
         query_params.max_block,
         query_params.transaction_hash,
         query_params.account_identifier,
@@ -133,7 +133,7 @@ impl MinaMesh {
     if !self.search_tx_optimized {
       let internal_commands = sqlx::query_file_as!(
         InternalCommand,
-        "sql/indexer_internal_commands.sql",
+        "sql/queries/indexer_internal_commands.sql",
         query_params.max_block,
         query_params.transaction_hash,
         query_params.account_identifier,
@@ -151,7 +151,7 @@ impl MinaMesh {
     } else {
       let internal_commands = sqlx::query_file_as!(
         InternalCommand,
-        "sql/indexer_internal_commands_optimized.sql",
+        "sql/queries/indexer_internal_commands_optimized.sql",
         query_params.max_block,
         query_params.transaction_hash,
         query_params.account_identifier,
@@ -180,7 +180,7 @@ impl MinaMesh {
     if !self.search_tx_optimized {
       let zkapp_commands = sqlx::query_file_as!(
         ZkAppCommand,
-        "sql/indexer_zkapp_commands.sql",
+        "sql/queries/indexer_zkapp_commands.sql",
         query_params.max_block,
         query_params.transaction_hash,
         query_params.account_identifier,
@@ -198,7 +198,7 @@ impl MinaMesh {
     } else {
       let zkapp_commands = sqlx::query_file_as!(
         ZkAppCommand,
-        "sql/indexer_zkapp_commands_optimized.sql",
+        "sql/queries/indexer_zkapp_commands_optimized.sql",
         query_params.max_block,
         query_params.transaction_hash,
         query_params.account_identifier,
