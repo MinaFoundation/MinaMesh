@@ -7,7 +7,7 @@ mod operation;
 mod playground;
 mod sql_to_mesh;
 mod types;
-mod util;
+pub mod util;
 
 pub use coinbase_mesh::models;
 use coinbase_mesh::models::BlockIdentifier;

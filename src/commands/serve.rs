@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{future::Future, sync::Arc};
 
 use anyhow::Result;
 use axum::{
@@ -10,7 +10,7 @@ use axum::{
 };
 use clap::Args;
 use paste::paste;
-use tokio::net::TcpListener;
+use tokio::{net::TcpListener, task::AbortHandle};
 
 use crate::{playground::handle_playground, util::Wrapper, MinaMesh, MinaMeshConfig};
 
@@ -29,7 +29,14 @@ pub struct ServeCommand {
 }
 
 impl ServeCommand {
-  pub async fn run(self) -> Result<()> {
+  pub fn new(host: String, port: u16, playground: bool) -> Result<Self> {
+    Ok(Self { config: MinaMeshConfig::from_env(), host, port, playground })
+  }
+
+  pub async fn run<F>(self, signal: F) -> Result<()>
+  where
+    F: Future<Output = ()> + Send + 'static,
+  {
     tracing_subscriber::fmt::init();
     let mina_mesh = self.config.to_mina_mesh().await?;
     let mut router = Router::new()
@@ -57,7 +64,7 @@ impl ServeCommand {
     }
     let listener = TcpListener::bind(format!("{}:{}", self.host, self.port)).await?;
     tracing::info!("listening on http://{}", listener.local_addr()?);
-    serve(listener, router).await?;
+    serve(listener, router).with_graceful_shutdown(signal).await?;
     Ok(())
   }
 }

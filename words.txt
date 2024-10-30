@@ -30,6 +30,7 @@ minafoundation
 MINAMESH
 navroot
 nocapture
+oneshot
 openai
 openapi
 piotr
