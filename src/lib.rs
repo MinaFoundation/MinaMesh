@@ -7,7 +7,7 @@ mod operation;
 mod playground;
 mod sql_to_mesh;
 mod types;
-mod util;
+pub mod util;
 
 use std::time::{Duration, Instant};
 
