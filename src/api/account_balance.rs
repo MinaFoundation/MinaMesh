@@ -30,15 +30,19 @@ impl MinaMesh {
     metadata: Option<serde_json::Value>,
     PartialBlockIdentifier { index, .. }: PartialBlockIdentifier,
   ) -> Result<AccountBalanceResponse, MinaMeshError> {
-    let block = sqlx::query_file!("sql/maybe_block.sql", index)
+    let block = sqlx::query_file!("sql/queries/maybe_block.sql", index)
       .fetch_optional(&self.pg_pool)
       .await?
       .ok_or(MinaMeshError::BlockMissing(index.unwrap().to_string()))?;
     // has canonical height / do we really need to do a different query?
-    let maybe_account_balance_info =
-      sqlx::query_file!("sql/maybe_account_balance_info.sql", public_key, index, Wrapper(metadata).to_token_id()?)
-        .fetch_optional(&self.pg_pool)
-        .await?;
+    let maybe_account_balance_info = sqlx::query_file!(
+      "sql/queries/maybe_account_balance_info.sql",
+      public_key,
+      index,
+      Wrapper(metadata).to_token_id()?
+    )
+    .fetch_optional(&self.pg_pool)
+    .await?;
     match maybe_account_balance_info {
       None => {
         Ok(AccountBalanceResponse::new(BlockIdentifier { hash: block.state_hash, index: block.height }, vec![Amount {
@@ -58,7 +62,7 @@ impl MinaMesh {
       Some(account_balance_info) => {
         println!("B");
         let last_relevant_command_balance = account_balance_info.balance.parse::<u64>()?;
-        let timing_info = sqlx::query_file!("sql/timing_info.sql", account_balance_info.timing_id)
+        let timing_info = sqlx::query_file!("sql/queries/timing_info.sql", account_balance_info.timing_id)
           .fetch_optional(&self.pg_pool)
           .await?;
         let liquid_balance = match timing_info {

@@ -15,6 +15,8 @@ pub struct MinaMeshConfig {
   pub genesis_block_identifier_height: i64,
   #[arg(long, env = "MINAMESH_GENESIS_BLOCK_IDENTIFIER_STATE_HASH")]
   pub genesis_block_identifier_state_hash: String,
+  #[arg(long, env = "USE_SEARCH_TX_OPTIMIZATIONS", default_value = "false")]
+  pub use_search_tx_optimizations: bool,
 }
 
 impl MinaMeshConfig {
@@ -37,6 +39,7 @@ impl MinaMeshConfig {
         self.genesis_block_identifier_height,
         self.genesis_block_identifier_state_hash.to_owned(),
       ),
+      search_tx_optimized: self.use_search_tx_optimizations,
     })
   }
 }

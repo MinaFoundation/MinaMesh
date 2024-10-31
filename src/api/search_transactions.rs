@@ -85,23 +85,41 @@ impl MinaMesh {
   ) -> Result<Vec<UserCommand>, MinaMeshError> {
     let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
 
-    let user_commands = sqlx::query_file_as!(
-      UserCommand,
-      "sql/indexer_user_commands.sql",
-      query_params.max_block,
-      query_params.transaction_hash,
-      query_params.account_identifier,
-      query_params.token_id,
-      query_params.status as Option<TransactionStatus>,
-      query_params.success_status as Option<TransactionStatus>,
-      query_params.address,
-      limit,
-      offset,
-    )
-    .fetch_all(&self.pg_pool)
-    .await?;
-
-    Ok(user_commands)
+    if !self.search_tx_optimized {
+      let user_commands = sqlx::query_file_as!(
+        UserCommand,
+        "sql/queries/indexer_user_commands.sql",
+        query_params.max_block,
+        query_params.transaction_hash,
+        query_params.account_identifier,
+        query_params.token_id,
+        query_params.status as Option<TransactionStatus>,
+        query_params.success_status as Option<TransactionStatus>,
+        query_params.address,
+        limit,
+        offset,
+      )
+      .fetch_all(&self.pg_pool)
+      .await?;
+      Ok(user_commands)
+    } else {
+      let user_commands = sqlx::query_file_as!(
+        UserCommand,
+        "sql/queries/indexer_user_commands_optimized.sql",
+        query_params.max_block,
+        query_params.transaction_hash,
+        query_params.account_identifier,
+        query_params.token_id,
+        query_params.status as Option<TransactionStatus>,
+        query_params.success_status as Option<TransactionStatus>,
+        query_params.address,
+        limit,
+        offset,
+      )
+      .fetch_all(&self.pg_pool)
+      .await?;
+      Ok(user_commands)
+    }
   }
 
   pub async fn fetch_internal_commands(
@@ -112,23 +130,43 @@ impl MinaMesh {
   ) -> Result<Vec<InternalCommand>, MinaMeshError> {
     let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
 
-    let internal_commands = sqlx::query_file_as!(
-      InternalCommand,
-      "sql/indexer_internal_commands.sql",
-      query_params.max_block,
-      query_params.transaction_hash,
-      query_params.account_identifier,
-      query_params.token_id,
-      query_params.status as Option<TransactionStatus>,
-      query_params.success_status as Option<TransactionStatus>,
-      query_params.address,
-      limit,
-      offset
-    )
-    .fetch_all(&self.pg_pool)
-    .await?;
+    if !self.search_tx_optimized {
+      let internal_commands = sqlx::query_file_as!(
+        InternalCommand,
+        "sql/queries/indexer_internal_commands.sql",
+        query_params.max_block,
+        query_params.transaction_hash,
+        query_params.account_identifier,
+        query_params.token_id,
+        query_params.status as Option<TransactionStatus>,
+        query_params.success_status as Option<TransactionStatus>,
+        query_params.address,
+        limit,
+        offset
+      )
+      .fetch_all(&self.pg_pool)
+      .await?;
 
-    Ok(internal_commands)
+      Ok(internal_commands)
+    } else {
+      let internal_commands = sqlx::query_file_as!(
+        InternalCommand,
+        "sql/queries/indexer_internal_commands_optimized.sql",
+        query_params.max_block,
+        query_params.transaction_hash,
+        query_params.account_identifier,
+        query_params.token_id,
+        query_params.status as Option<TransactionStatus>,
+        query_params.success_status as Option<TransactionStatus>,
+        query_params.address,
+        limit,
+        offset
+      )
+      .fetch_all(&self.pg_pool)
+      .await?;
+
+      Ok(internal_commands)
+    }
   }
 
   async fn fetch_zkapp_commands(
@@ -139,23 +177,43 @@ impl MinaMesh {
   ) -> Result<Vec<ZkAppCommand>, MinaMeshError> {
     let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
 
-    let zkapp_commands = sqlx::query_file_as!(
-      ZkAppCommand,
-      "sql/indexer_zkapp_commands.sql",
-      query_params.max_block,
-      query_params.transaction_hash,
-      query_params.account_identifier,
-      query_params.token_id,
-      query_params.status as Option<TransactionStatus>,
-      query_params.success_status as Option<TransactionStatus>,
-      query_params.address,
-      limit,
-      offset
-    )
-    .fetch_all(&self.pg_pool)
-    .await?;
+    if !self.search_tx_optimized {
+      let zkapp_commands = sqlx::query_file_as!(
+        ZkAppCommand,
+        "sql/queries/indexer_zkapp_commands.sql",
+        query_params.max_block,
+        query_params.transaction_hash,
+        query_params.account_identifier,
+        query_params.token_id,
+        query_params.status as Option<TransactionStatus>,
+        query_params.success_status as Option<TransactionStatus>,
+        query_params.address,
+        limit,
+        offset
+      )
+      .fetch_all(&self.pg_pool)
+      .await?;
 
-    Ok(zkapp_commands)
+      Ok(zkapp_commands)
+    } else {
+      let zkapp_commands = sqlx::query_file_as!(
+        ZkAppCommand,
+        "sql/queries/indexer_zkapp_commands_optimized.sql",
+        query_params.max_block,
+        query_params.transaction_hash,
+        query_params.account_identifier,
+        query_params.token_id,
+        query_params.status as Option<TransactionStatus>,
+        query_params.success_status as Option<TransactionStatus>,
+        query_params.address,
+        limit,
+        offset
+      )
+      .fetch_all(&self.pg_pool)
+      .await?;
+
+      Ok(zkapp_commands)
+    }
   }
 }
 
@@ -165,7 +223,7 @@ pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<
   for command in commands {
     // Group by block identifier (block index and block hash)
     let block_key = (command.height.unwrap_or(0), command.state_hash.clone().unwrap_or_default());
-    let tx_hash = command.hash.clone();
+    let tx_hash = command.hash;
 
     // Initialize or update the operation list for this transaction
     let operations = block_map.entry(block_key).or_default().entry(tx_hash.clone()).or_default();
