@@ -119,3 +119,98 @@ CREATE
 OR REPLACE trigger trigger_add_to_user_commands_aggregated
 AFTER insert ON blocks_user_commands FOR each ROW
 EXECUTE function add_to_user_commands_aggregated ();
+
+-- NEXT --
+-- Internal commands
+CREATE TABLE internal_commands_aggregated (
+  id INT NOT NULL,
+  command_type internal_command_type NOT NULL,
+  receiver_id INT NOT NULL,
+  fee TEXT NOT NULL,
+  hash TEXT NOT NULL,
+  receiver TEXT NOT NULL,
+  sequence_no INT NOT NULL,
+  secondary_sequence_no INT NOT NULL,
+  block_id INT NOT NULL,
+  status transaction_status NOT NULL,
+  CONSTRAINT internal_commands_aggregated_unique UNIQUE (id, block_id, sequence_no, secondary_sequence_no)
+);
+
+-- NEXT --
+CREATE INDEX idx_internal_commands_aggregated_hash ON internal_commands_aggregated (hash);
+
+-- NEXT --
+-- Populate the table with the existing data
+INSERT INTO
+  internal_commands_aggregated (
+    id,
+    command_type,
+    receiver_id,
+    fee,
+    hash,
+    receiver,
+    sequence_no,
+    secondary_sequence_no,
+    block_id,
+    status
+  )
+SELECT
+  i.id,
+  i.command_type AS command_type,
+  i.receiver_id,
+  i.fee,
+  i.hash,
+  pk.value AS receiver,
+  bic.sequence_no,
+  bic.secondary_sequence_no,
+  bic.block_id,
+  bic.status AS status
+FROM
+  internal_commands AS i
+  INNER JOIN blocks_internal_commands AS bic ON i.id=bic.internal_command_id
+  INNER JOIN public_keys AS pk ON i.receiver_id=pk.id;
+
+-- NEXT --
+-- Create the trigger function to insert a new row into internal_commands_aggregated
+CREATE
+OR REPLACE function add_to_internal_commands_aggregated () returns trigger AS $$
+BEGIN
+  -- Insert a new row into internal_commands_aggregated only if the corresponding entry doesn't already exist
+  INSERT INTO internal_commands_aggregated (
+      id,
+      command_type,
+      receiver_id,
+      fee,
+      hash,
+      receiver,
+      sequence_no,
+      secondary_sequence_no,
+      block_id,
+      status
+  )
+  SELECT
+    i.id,
+    i.command_type,
+    i.receiver_id,
+    i.fee,
+    i.hash,
+    pk.value AS receiver,
+    NEW.sequence_no,
+    NEW.secondary_sequence_no,
+    NEW.block_id,
+    NEW.status
+  FROM
+    internal_commands AS i
+    INNER JOIN public_keys AS pk ON i.receiver_id = pk.id
+  WHERE i.id = NEW.internal_command_id
+  ON CONFLICT (id, block_id, sequence_no, secondary_sequence_no) DO NOTHING;
+
+  RETURN NEW;
+END;
+$$ language plpgsql;
+
+-- NEXT --
+-- Create the trigger that fires after each insert into blocks_internal_commands
+CREATE TRIGGER trigger_add_to_internal_commands_aggregated
+AFTER insert ON blocks_internal_commands FOR each ROW
+EXECUTE function add_to_internal_commands_aggregated ();

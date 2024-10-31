@@ -23,48 +23,46 @@ WITH
   internal_commands_info AS (
     SELECT DISTINCT
       ON (
-        bic.block_id,
-        bic.internal_command_id,
-        bic.sequence_no,
-        bic.secondary_sequence_no
-      ) i.id,
-      i.command_type AS "command_type: InternalCommandType",
-      i.receiver_id,
-      i.fee,
-      i.hash,
-      pk.value AS receiver,
+        ica.block_id,
+        ica.id,
+        ica.sequence_no,
+        ica.secondary_sequence_no
+      ) ica.id,
+      ica.command_type AS "command_type: InternalCommandType",
+      ica.receiver_id,
+      ica.fee,
+      ica.hash,
+      ica.receiver AS receiver,
       cri.coinbase_receiver AS "coinbase_receiver?",
-      bic.sequence_no,
-      bic.secondary_sequence_no,
-      bic.block_id,
-      bic.status AS "status: TransactionStatus",
+      ica.sequence_no,
+      ica.secondary_sequence_no,
+      ica.block_id,
+      ica.status AS "status: TransactionStatus",
       b.state_hash,
       b.height
     FROM
-      internal_commands AS i
-      INNER JOIN blocks_internal_commands AS bic ON i.id=bic.internal_command_id
-      INNER JOIN public_keys AS pk ON i.receiver_id=pk.id
-      INNER JOIN blocks AS b ON bic.block_id=b.id
+      internal_commands_aggregated AS ica
+      INNER JOIN blocks AS b ON ica.block_id=b.id
       AND (
         b.chain_status='canonical'
         OR b.chain_status='pending'
       )
-      LEFT JOIN coinbase_receiver_info AS cri ON bic.block_id=cri.block_id
-      AND bic.internal_command_id=cri.internal_command_id
-      AND bic.sequence_no=cri.sequence_no
-      AND bic.secondary_sequence_no=cri.secondary_sequence_no
+      LEFT JOIN coinbase_receiver_info AS cri ON ica.block_id=cri.block_id
+      AND ica.id=cri.internal_command_id
+      AND ica.sequence_no=cri.sequence_no
+      AND ica.secondary_sequence_no=cri.secondary_sequence_no
     WHERE
       (
         $1>=b.height
         OR $1 IS NULL
       )
       AND (
-        $2=i.hash
+        $2=ica.hash
         OR $2 IS NULL
       )
       AND (
         (
-          $3=pk.value
+          $3=ica.receiver
           OR $3=cri.coinbase_receiver
         )
         AND $4=''
@@ -74,16 +72,16 @@ WITH
         )
       )
       AND (
-        $5=bic.status
+        $5=ica.status
         OR $5 IS NULL
       )
       AND (
-        $6=bic.status
+        $6=ica.status
         OR $6 IS NULL
       )
       AND (
         (
-          $7=pk.value
+          $7=ica.receiver
           OR $7=cri.coinbase_receiver
         )
         OR $7 IS NULL
