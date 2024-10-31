@@ -146,3 +146,9 @@ impl From<SerdeError> for MinaMeshError {
     MinaMeshError::JsonParse(Some(value.to_string()))
   }
 }
+
+impl From<reqwest::Error> for MinaMeshError {
+  fn from(value: reqwest::Error) -> Self {
+    MinaMeshError::Exception(value.to_string())
+  }
+}
