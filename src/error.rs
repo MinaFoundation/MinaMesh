@@ -348,6 +348,12 @@ impl From<JsonRejection> for MinaMeshError {
   }
 }
 
+impl From<reqwest::Error> for MinaMeshError {
+  fn from(value: reqwest::Error) -> Self {
+    MinaMeshError::Exception(value.to_string())
+  }
+}
+
 impl From<MinaMeshError> for coinbase_mesh::models::Error {
   fn from(error: MinaMeshError) -> Self {
     coinbase_mesh::models::Error {
