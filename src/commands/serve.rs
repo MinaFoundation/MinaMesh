@@ -1,18 +1,11 @@
-use std::{future::Future, sync::Arc};
+use std::future::Future;
 
 use anyhow::Result;
-use axum::{
-  debug_handler,
-  extract::State,
-  response::IntoResponse,
-  routing::{get, post},
-  serve, Json, Router,
-};
+use axum::serve;
 use clap::Args;
-use paste::paste;
-use tokio::{net::TcpListener, task::AbortHandle};
+use tokio::net::TcpListener;
 
-use crate::{playground::handle_playground, util::Wrapper, MinaMesh, MinaMeshConfig, MinaMeshError};
+use crate::{create_router, playground::handle_playground, util::Wrapper, MinaMesh, MinaMeshConfig, MinaMeshError};
 
 #[derive(Debug, Args)]
 #[command(about = "Start the Mina Mesh Server.")]
@@ -29,39 +22,13 @@ pub struct ServeCommand {
 }
 
 impl ServeCommand {
-  pub fn new(host: String, port: u16, playground: bool) -> Result<Self> {
-    Ok(Self { config: MinaMeshConfig::from_env(), host, port, playground })
-  }
-
   pub async fn run<F>(self, signal: F) -> Result<()>
   where
     F: Future<Output = ()> + Send + 'static,
   {
     tracing_subscriber::fmt::init();
     let mina_mesh = self.config.to_mina_mesh().await?;
-    let mut router = Router::new()
-      .route("/account/balance", post(handle_account_balance))
-      .route("/block", post(handle_block))
-      .route("/call", post(handle_call))
-      .route("/construction/combine", post(handle_construction_combine))
-      .route("/construction/derive", post(handle_construction_derive))
-      .route("/construction/hash", post(handle_construction_hash))
-      .route("/construction/metadata", post(handle_construction_metadata))
-      .route("/construction/parse", post(handle_construction_parse))
-      .route("/construction/payloads", post(handle_construction_payloads))
-      .route("/construction/preprocess", post(handle_construction_preprocess))
-      .route("/construction/submit", post(handle_construction_submit))
-      .route("/implemented_methods", get(handle_implemented_methods))
-      .route("/mempool", post(handle_mempool))
-      .route("/mempool/transaction", post(handle_mempool_transaction))
-      .route("/network/list", post(handle_network_list))
-      .route("/network/options", post(handle_network_options))
-      .route("/network/status", post(handle_network_status))
-      .route("/search/transactions", post(handle_search_transactions))
-      .with_state(Arc::new(mina_mesh));
-    if self.playground {
-      router = router.route("/", get(handle_playground));
-    }
+    let router = create_router(mina_mesh, self.playground);
     let listener = TcpListener::bind(format!("{}:{}", self.host, self.port)).await?;
     tracing::info!("listening on http://{}", listener.local_addr()?);
     serve(listener, router).with_graceful_shutdown(signal).await?;
