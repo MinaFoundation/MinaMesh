@@ -1,6 +1,7 @@
 mod api;
 mod commands;
 mod config;
+mod create_router;
 mod error;
 mod graphql;
 mod operation;
@@ -13,6 +14,7 @@ pub use coinbase_mesh::models;
 use coinbase_mesh::models::BlockIdentifier;
 pub use commands::*;
 pub use config::*;
+pub use create_router::create_router;
 pub use error::*;
 use graphql::GraphQLClient;
 pub use operation::*;
