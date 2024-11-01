@@ -1,19 +1,17 @@
 use anyhow::Result;
 use mina_mesh::{
-  create_router,
   models::{AccountBalanceRequest, AccountIdentifier, NetworkIdentifier, PartialBlockIdentifier},
-  test::LegacyComparisonContext,
+  test::ResponseComparisonContext,
   MinaMeshConfig,
 };
-use reqwest::Client;
+
+const LEGACY_ENDPOINT: &str = "https://rosetta-devnet.minaprotocol.network";
 
 #[tokio::test]
 async fn main() -> Result<()> {
   tracing_subscriber::fmt::init();
-  let client = Client::new();
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
-  let router = create_router(mina_mesh, false);
-  let legacy_comparison_ctx = LegacyComparisonContext { client, router };
+  let comparison_ctx = ResponseComparisonContext::new(mina_mesh, LEGACY_ENDPOINT.to_string());
 
   let req_json = serde_json::to_string(&AccountBalanceRequest {
     account_identifier: Box::new(AccountIdentifier {
@@ -31,7 +29,7 @@ async fn main() -> Result<()> {
   })?
   .into_bytes();
 
-  legacy_comparison_ctx.assert("/account/balance", Some(req_json)).await?;
+  comparison_ctx.assert_responses_eq("/account/balance", Some(req_json)).await?;
 
   Ok(())
 }
