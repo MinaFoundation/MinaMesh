@@ -12,15 +12,22 @@ use reqwest::Client;
 use serde_json::{Map, Value};
 use tower::ServiceExt;
 
-pub const LEGACY_DEV_ENDPOINT: &str = "https://rosetta-devnet.minaprotocol.network";
+use crate::{create_router, MinaMesh};
 
-pub struct LegacyComparisonContext {
+pub struct ResponseComparisonContext {
   pub router: Router,
   pub client: Client,
+  pub endpoint: String,
 }
 
-impl LegacyComparisonContext {
-  pub async fn assert(&self, subpath: &str, maybe_body_bytes: Option<Vec<u8>>) -> Result<()> {
+impl ResponseComparisonContext {
+  pub fn new(mina_mesh: MinaMesh, endpoint: String) -> Self {
+    let client = Client::new();
+    let router = create_router(mina_mesh, false);
+    Self { client, endpoint, router }
+  }
+
+  pub async fn assert_responses_eq(&self, subpath: &str, maybe_body_bytes: Option<Vec<u8>>) -> Result<()> {
     let body_bytes = maybe_body_bytes.clone().unwrap_or_default();
     let (a, b) =
       tokio::try_join!(self.mina_mesh_req(subpath, body_bytes.clone()), self.legacy_req(subpath, body_bytes))?;
@@ -46,7 +53,7 @@ impl LegacyComparisonContext {
   }
 
   async fn legacy_req(&self, subpath: &str, body_bytes: Vec<u8>) -> Result<String> {
-    let response = self.client.post(format!("{LEGACY_DEV_ENDPOINT}{subpath}")).body(body_bytes).send().await?;
+    let response = self.client.post(format!("{}{subpath}", self.endpoint)).body(body_bytes).send().await?;
     let status = response.status();
     let body = normalize_body(&response.text().await?)?;
     if status == StatusCode::OK {
