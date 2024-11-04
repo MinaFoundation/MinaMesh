@@ -9,7 +9,6 @@ const LEGACY_ENDPOINT: &str = "https://rosetta-devnet.minaprotocol.network";
 
 #[tokio::test]
 async fn main() -> Result<()> {
-  tracing_subscriber::fmt::init();
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
   let comparison_ctx = ResponseComparisonContext::new(mina_mesh, LEGACY_ENDPOINT.to_string());
 
