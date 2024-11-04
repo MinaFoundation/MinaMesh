@@ -107,5 +107,6 @@ async fn handle_implemented_methods() -> impl IntoResponse {
     "network_list",
     "network_options",
     "network_status",
+    "search_transactions",
   ])
 }
