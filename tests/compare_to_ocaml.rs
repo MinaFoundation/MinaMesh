@@ -1,9 +1,8 @@
+mod compare;
+
 use anyhow::Result;
-use mina_mesh::{
-  models::{AccountBalanceRequest, AccountIdentifier, NetworkIdentifier, PartialBlockIdentifier},
-  test::ResponseComparisonContext,
-  MinaMeshConfig,
-};
+use futures::future::join_all;
+use mina_mesh::{test::ResponseComparisonContext, MinaMeshConfig};
 
 const LEGACY_ENDPOINT: &str = "https://rosetta-devnet.minaprotocol.network";
 
@@ -11,24 +10,17 @@ const LEGACY_ENDPOINT: &str = "https://rosetta-devnet.minaprotocol.network";
 async fn main() -> Result<()> {
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
   let comparison_ctx = ResponseComparisonContext::new(mina_mesh, LEGACY_ENDPOINT.to_string());
-
-  let req_json = serde_json::to_string(&AccountBalanceRequest {
-    account_identifier: Box::new(AccountIdentifier {
-      address: "B62qkYHGYmws5CYa3phYEKoZvrENTegEhUJYMhzHUQe5UZwCdWob8zv".to_string(),
-      sub_account: None,
-      metadata: None,
-    }),
-    block_identifier: Some(Box::new(PartialBlockIdentifier { index: Some(6265), hash: None })),
-    currencies: None,
-    network_identifier: Box::new(NetworkIdentifier {
-      blockchain: "mina".into(),
-      network: "testnet".into(),
-      sub_network_identifier: None,
-    }),
-  })?
-  .into_bytes();
-
-  comparison_ctx.assert_responses_eq("/account/balance", Some(req_json)).await?;
-
+  let groups = compare::groups();
+  let assertion_futures_result: Result<Vec<_>, _> = groups
+    .into_iter()
+    .map(|(subpath, reqs)| -> Result<Vec<_>, _> {
+      reqs
+        .iter()
+        .map(|r| serde_json::to_vec(r).map(|body| comparison_ctx.assert_responses_eq(subpath, Some(body))))
+        .collect()
+    })
+    .collect();
+  let assertion_futures: Vec<_> = assertion_futures_result?.into_iter().flatten().collect();
+  join_all(assertion_futures).await;
   Ok(())
 }

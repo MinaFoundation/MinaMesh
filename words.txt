@@ -37,6 +37,7 @@ piotr
 preprocess
 qnighy
 querygen
+reqs
 reqwest
 retriable
 RUSTFLAGS
