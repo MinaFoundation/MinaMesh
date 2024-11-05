@@ -1,8 +1,9 @@
-use erased_serde::Serialize as ErasedSerialize;
 use mina_mesh::models::{AccountBalanceRequest, AccountIdentifier, NetworkIdentifier, PartialBlockIdentifier};
 
-pub fn requests() -> Vec<Box<dyn ErasedSerialize>> {
-  vec![
+use super::CompareGroup;
+
+pub fn account_balance<'a>() -> CompareGroup<'a> {
+  ("/account/balance", vec![
     Box::new(AccountBalanceRequest {
       account_identifier: Box::new(AccountIdentifier::new(
         "B62qmo4nfFemr9hFtvz8F5h4JFSCxikVNsUJmZcfXQ9SGJ4abEC1RtH".to_string(),
@@ -25,5 +26,5 @@ pub fn requests() -> Vec<Box<dyn ErasedSerialize>> {
         sub_network_identifier: None,
       }),
     }),
-  ]
+  ])
 }

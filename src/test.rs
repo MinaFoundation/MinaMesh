@@ -31,6 +31,7 @@ impl ResponseComparisonContext {
     let body_bytes = maybe_body_bytes.clone().unwrap_or_default();
     let (a, b) =
       tokio::try_join!(self.mina_mesh_req(subpath, body_bytes.clone()), self.legacy_req(subpath, body_bytes))?;
+    println!("Here: {subpath}");
     assert_eq!(a, b);
     Ok(())
   }
