@@ -17,3 +17,5 @@ DROP INDEX if EXISTS idx_internal_commands_aggregated_hash;
 DROP TABLE IF EXISTS user_commands_aggregated;
 
 DROP TABLE IF EXISTS internal_commands_aggregated;
+
+DROP TABLE IF EXISTS zkapp_commands_aggregated;

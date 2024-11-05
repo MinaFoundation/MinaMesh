@@ -214,3 +214,64 @@ $$ language plpgsql;
 CREATE TRIGGER trigger_add_to_internal_commands_aggregated
 AFTER insert ON blocks_internal_commands FOR each ROW
 EXECUTE function add_to_internal_commands_aggregated ();
+
+-- NEXT --
+-- ZkApp commands
+CREATE TABLE zkapp_commands_aggregated (
+  id INT NOT NULL,
+  memo TEXT NOT NULL,
+  hash TEXT NOT NULL,
+  zkapp_account_updates_ids INT[] NOT NULL,
+  sequence_no INT NOT NULL,
+  status transaction_status NOT NULL,
+  block_id INT NOT NULL,
+  failure_reasons_ids INT[],
+  fee TEXT NOT NULL,
+  valid_until BIGINT,
+  nonce BIGINT NOT NULL,
+  fee_payer TEXT NOT NULL
+);
+
+-- NEXT --
+CREATE INDEX idx_zkapp_commands_aggregated_hash ON zkapp_commands_aggregated (hash);
+
+-- NEXT --
+-- Populate the table with the existing data
+INSERT INTO
+  zkapp_commands_aggregated (
+    id,
+    memo,
+    hash,
+    zkapp_account_updates_ids,
+    sequence_no,
+    status,
+    block_id,
+    failure_reasons_ids,
+    fee,
+    valid_until,
+    nonce,
+    fee_payer
+  )
+SELECT
+  zc.id,
+  zc.memo,
+  zc.hash,
+  zc.zkapp_account_updates_ids,
+  bzc.sequence_no,
+  bzc.status,
+  bzc.block_id,
+  bzc.failure_reasons_ids,
+  zfpb.fee,
+  zfpb.valid_until,
+  zfpb.nonce,
+  pk.value AS fee_payer
+FROM
+  zkapp_commands AS zc
+  INNER JOIN blocks_zkapp_commands AS bzc ON zc.id=bzc.zkapp_command_id
+  INNER JOIN zkapp_fee_payer_body AS zfpb ON zc.zkapp_fee_payer_body_id=zfpb.id
+  INNER JOIN public_keys AS pk ON zfpb.public_key_id=pk.id;
+
+-- NEXT --
+-- Create the trigger function to insert a new row into zkapp_commands_aggregated
+-- CREATE
+-- OR REPLACE function add_to_zkapp_commands_aggregated () returns trigger AS $$
