@@ -23,6 +23,7 @@ cynic = { version = "3.7.3", features = ["http-reqwest-blocking"] }
 dashmap = "6.1.0"
 derive_more = { version = "1.0.0", features = ["full"] }
 dotenv = "0.15.0"
+erased-serde = "0.4.5"
 futures = "0.3.31"
 http = "1.1.0"
 http-body-util = "0.1.2"
