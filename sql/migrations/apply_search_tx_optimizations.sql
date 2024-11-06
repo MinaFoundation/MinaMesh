@@ -273,5 +273,50 @@ FROM
 
 -- NEXT --
 -- Create the trigger function to insert a new row into zkapp_commands_aggregated
--- CREATE
--- OR REPLACE function add_to_zkapp_commands_aggregated () returns trigger AS $$
+CREATE
+OR REPLACE function add_to_zkapp_commands_aggregated () returns trigger AS $$
+BEGIN
+  -- Insert a new row into zkapp_commands_aggregated only if the corresponding entry doesn't already exist
+  INSERT INTO zkapp_commands_aggregated (
+      id,
+      memo,
+      hash,
+      zkapp_account_updates_ids,
+      sequence_no,
+      status,
+      block_id,
+      failure_reasons_ids,
+      fee,
+      valid_until,
+      nonce,
+      fee_payer
+  )
+  SELECT
+    zc.id,
+    zc.memo,
+    zc.hash,
+    zc.zkapp_account_updates_ids,
+    NEW.sequence_no,
+    NEW.status,
+    NEW.block_id,
+    NEW.failure_reasons_ids,
+    zfpb.fee,
+    zfpb.valid_until,
+    zfpb.nonce,
+    pk.value AS fee_payer
+  FROM
+    zkapp_commands AS zc
+    INNER JOIN zkapp_fee_payer_body AS zfpb ON zc.zkapp_fee_payer_body_id=zfpb.id
+    INNER JOIN public_keys AS pk ON zfpb.public_key_id=pk.id
+  WHERE zc.id = NEW.zkapp_command_id
+  ON CONFLICT (id, block_id, sequence_no) DO NOTHING;
+
+  RETURN NEW;
+END;
+$$ language plpgsql;
+
+-- NEXT --
+-- Create the trigger that fires after each insert into blocks_zkapp_commands
+CREATE TRIGGER trigger_add_to_zkapp_commands_aggregated
+AFTER insert ON blocks_zkapp_commands FOR each ROW
+EXECUTE function add_to_zkapp_commands_aggregated ();

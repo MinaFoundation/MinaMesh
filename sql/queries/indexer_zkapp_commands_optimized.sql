@@ -26,9 +26,6 @@ WITH
       ) AS failure_reasons
     FROM
       zkapp_commands_aggregated AS zca
-      -- INNER JOIN blocks_zkapp_commands AS bzc ON zc.id=bzc.zkapp_command_id
-      -- INNER JOIN zkapp_fee_payer_body AS zfpb ON zc.zkapp_fee_payer_body_id=zfpb.id
-      -- INNER JOIN public_keys AS pk_fee_payer ON zfpb.public_key_id=pk_fee_payer.id
       INNER JOIN blocks AS b ON zca.block_id=b.id
       AND (
         b.chain_status='canonical'
