@@ -1,7 +1,9 @@
+use std::time::Duration;
+
 use anyhow::Result;
 use clap::{Args, Parser};
 use coinbase_mesh::models::BlockIdentifier;
-use sqlx::PgPool;
+use sqlx::postgres::PgPoolOptions;
 
 use crate::{graphql::GraphQLClient, util::default_mina_proxy_url, MinaMesh};
 
@@ -17,6 +19,16 @@ pub struct MinaMeshConfig {
   pub genesis_block_identifier_state_hash: String,
   #[arg(long, env = "USE_SEARCH_TX_OPTIMIZATIONS", default_value = "false")]
   pub use_search_tx_optimizations: bool,
+
+  /// The maximum number of concurrent connections allowed in the Archive
+  /// Database connection pool.
+  #[arg(long, env = "MINAMESH_MAX_DB_POOL_SIZE", default_value_t = 10)]
+  pub max_db_pool_size: u32,
+
+  /// The duration (in seconds) that an unused connection can remain idle in the
+  /// pool before being closed.
+  #[arg(long, env = "MINAMESH_DB_POOL_IDLE_TIMEOUT", default_value_t = 1)]
+  pub db_pool_idle_timeout: u64,
 }
 
 impl MinaMeshConfig {
@@ -34,7 +46,12 @@ impl MinaMeshConfig {
   pub async fn to_mina_mesh(self) -> Result<MinaMesh> {
     Ok(MinaMesh {
       graphql_client: GraphQLClient::new(self.proxy_url.to_owned()),
-      pg_pool: PgPool::connect(self.archive_database_url.as_str()).await?,
+      pg_pool: PgPoolOptions::new()
+        .max_connections(self.max_db_pool_size)
+        .min_connections(0)
+        .idle_timeout(Duration::from_secs(self.db_pool_idle_timeout))
+        .connect(self.archive_database_url.as_str())
+        .await?,
       genesis_block_identifier: BlockIdentifier::new(
         self.genesis_block_identifier_height,
         self.genesis_block_identifier_state_hash.to_owned(),
