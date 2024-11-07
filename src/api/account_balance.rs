@@ -7,31 +7,34 @@ use cynic::QueryBuilder;
 use crate::{
   graphql::{Account, AnnotatedBalance, Balance, Length, QueryBalance, QueryBalanceVariables, StateHash},
   util::Wrapper,
-  MinaMesh, MinaMeshError,
+  MinaMesh, MinaMeshError, MinaNetwork,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/account.ml#L11
 impl MinaMesh {
   pub async fn account_balance(
-    &self,
-    AccountBalanceRequest { account_identifier, block_identifier: maybe_block_identifier, .. }: AccountBalanceRequest,
+    &mut self,
+    AccountBalanceRequest { account_identifier, block_identifier: maybe_block_identifier, network_identifier, .. }: AccountBalanceRequest,
   ) -> Result<AccountBalanceResponse, MinaMeshError> {
+    let network = &MinaNetwork::from(network_identifier);
     let AccountIdentifier { address, metadata, .. } = *account_identifier;
     match maybe_block_identifier {
-      Some(block_identifier) => self.block_balance(address, metadata, *block_identifier).await,
-      None => self.frontier_balance(address).await,
+      Some(block_identifier) => self.block_balance(&network, address, metadata, *block_identifier).await,
+      None => self.frontier_balance(&network, address).await,
     }
   }
 
   // TODO: can we get the block via the hash and not the index?
   async fn block_balance(
-    &self,
+    &mut self,
+    network: &MinaNetwork,
     public_key: String,
     metadata: Option<serde_json::Value>,
     PartialBlockIdentifier { index, .. }: PartialBlockIdentifier,
   ) -> Result<AccountBalanceResponse, MinaMeshError> {
+    let pool = self.pool(network).await?;
     let block = sqlx::query_file!("sql/queries/maybe_block.sql", index)
-      .fetch_optional(&self.pg_pool)
+      .fetch_optional(&pool)
       .await?
       .ok_or(MinaMeshError::BlockMissing(index.unwrap().to_string()))?;
     // has canonical height / do we really need to do a different query?
@@ -41,7 +44,7 @@ impl MinaMesh {
       index,
       Wrapper(metadata).to_token_id()?
     )
-    .fetch_optional(&self.pg_pool)
+    .fetch_optional(&pool)
     .await?;
     match maybe_account_balance_info {
       None => {
@@ -63,7 +66,7 @@ impl MinaMesh {
         println!("B");
         let last_relevant_command_balance = account_balance_info.balance.parse::<u64>()?;
         let timing_info = sqlx::query_file!("sql/queries/timing_info.sql", account_balance_info.timing_id)
-          .fetch_optional(&self.pg_pool)
+          .fetch_optional(&pool)
           .await?;
         let liquid_balance = match timing_info {
           Some(timing_info) => {
@@ -99,10 +102,14 @@ impl MinaMesh {
     }
   }
 
-  async fn frontier_balance(&self, public_key: String) -> Result<AccountBalanceResponse, MinaMeshError> {
+  async fn frontier_balance(
+    &self,
+    network: &MinaNetwork,
+    public_key: String,
+  ) -> Result<AccountBalanceResponse, MinaMeshError> {
     let result = self
       .graphql_client
-      .send(QueryBalance::build(QueryBalanceVariables { public_key: public_key.clone().into() }))
+      .send(network, QueryBalance::build(QueryBalanceVariables { public_key: public_key.clone().into() }))
       .await?;
     if let QueryBalance {
       account:

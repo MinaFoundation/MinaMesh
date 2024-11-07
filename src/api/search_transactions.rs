@@ -15,7 +15,7 @@ use crate::{
 
 impl MinaMesh {
   pub async fn search_transactions(
-    &self,
+    &mut self,
     req: SearchTransactionsRequest,
   ) -> Result<SearchTransactionsResponse, MinaMeshError> {
     let original_offset = req.offset.unwrap_or(0);
@@ -78,12 +78,14 @@ impl MinaMesh {
   }
 
   pub async fn fetch_user_commands(
-    &self,
+    &mut self,
     req: &SearchTransactionsRequest,
     offset: i64,
     limit: i64,
   ) -> Result<Vec<UserCommand>, MinaMeshError> {
     let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
+
+    let pool = self.pool(&req.network_identifier.clone().into()).await?;
 
     if !self.search_tx_optimized {
       let user_commands = sqlx::query_file_as!(
@@ -99,7 +101,7 @@ impl MinaMesh {
         limit,
         offset,
       )
-      .fetch_all(&self.pg_pool)
+      .fetch_all(&pool)
       .await?;
       Ok(user_commands)
     } else {
@@ -116,19 +118,20 @@ impl MinaMesh {
         limit,
         offset,
       )
-      .fetch_all(&self.pg_pool)
+      .fetch_all(&pool)
       .await?;
       Ok(user_commands)
     }
   }
 
   pub async fn fetch_internal_commands(
-    &self,
+    &mut self,
     req: &SearchTransactionsRequest,
     offset: i64,
     limit: i64,
   ) -> Result<Vec<InternalCommand>, MinaMeshError> {
     let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
+    let pool = self.pool(&req.network_identifier.clone().into()).await?;
 
     if !self.search_tx_optimized {
       let internal_commands = sqlx::query_file_as!(
@@ -144,7 +147,7 @@ impl MinaMesh {
         limit,
         offset
       )
-      .fetch_all(&self.pg_pool)
+      .fetch_all(&pool)
       .await?;
 
       Ok(internal_commands)
@@ -162,7 +165,7 @@ impl MinaMesh {
         limit,
         offset
       )
-      .fetch_all(&self.pg_pool)
+      .fetch_all(&pool)
       .await?;
 
       Ok(internal_commands)
@@ -170,12 +173,13 @@ impl MinaMesh {
   }
 
   async fn fetch_zkapp_commands(
-    &self,
+    &mut self,
     req: &SearchTransactionsRequest,
     offset: i64,
     limit: i64,
   ) -> Result<Vec<ZkAppCommand>, MinaMeshError> {
     let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
+    let pool = self.pool(&req.network_identifier.clone().into()).await?;
 
     if !self.search_tx_optimized {
       let zkapp_commands = sqlx::query_file_as!(
@@ -191,7 +195,7 @@ impl MinaMesh {
         limit,
         offset
       )
-      .fetch_all(&self.pg_pool)
+      .fetch_all(&pool)
       .await?;
 
       Ok(zkapp_commands)
@@ -209,7 +213,7 @@ impl MinaMesh {
         limit,
         offset
       )
-      .fetch_all(&self.pg_pool)
+      .fetch_all(&pool)
       .await?;
 
       Ok(zkapp_commands)

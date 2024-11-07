@@ -4,24 +4,25 @@ use coinbase_mesh::models::{
   Transaction, TransactionIdentifier,
 };
 use serde::Serialize;
-use sqlx::FromRow;
+use sqlx::{FromRow, Pool, Postgres};
 
 use crate::{
   operation, sql_to_mesh::zkapp_commands_to_transactions, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType,
-  MinaMesh, MinaMeshError, OperationType, TransactionStatus, UserCommandType, ZkAppCommand,
+  MinaMesh, MinaMeshError, MinaNetwork, OperationType, TransactionStatus, UserCommandType, ZkAppCommand,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
 impl MinaMesh {
-  pub async fn block(&self, request: BlockRequest) -> Result<BlockResponse, MinaMeshError> {
-    let partial_block_identifier = *request.block_identifier;
-    let metadata = match self.block_metadata(&partial_block_identifier).await? {
+  pub async fn block(&mut self, req: BlockRequest) -> Result<BlockResponse, MinaMeshError> {
+    let partial_block_identifier = *req.block_identifier;
+    let pool = self.pool(&MinaNetwork::from(req.network_identifier)).await?;
+    let metadata = match self.block_metadata(&pool, &partial_block_identifier).await? {
       Some(metadata) => metadata,
       None => return Err(MinaMeshError::BlockMissing(serde_json::to_string(&partial_block_identifier)?)),
     };
     let parent_block_metadata = match &metadata.parent_id {
       Some(parent_id) => {
-        sqlx::query_file_as!(BlockMetadata, "sql/queries/query_id.sql", parent_id).fetch_optional(&self.pg_pool).await?
+        sqlx::query_file_as!(BlockMetadata, "sql/queries/query_id.sql", parent_id).fetch_optional(&pool).await?
       }
       None => None,
     };
@@ -31,9 +32,9 @@ impl MinaMesh {
       None => block_identifier.clone(),
     };
     let (mut user_commands, internal_commands, zkapp_commands) = tokio::try_join!(
-      self.user_commands(&metadata),
-      self.internal_commands(&metadata),
-      self.zkapp_commands(&metadata)
+      self.user_commands(&pool, &metadata),
+      self.internal_commands(&pool, &metadata),
+      self.zkapp_commands(&pool, &metadata)
     )?;
     user_commands.extend(internal_commands.into_iter());
     user_commands.extend(zkapp_commands.into_iter());
@@ -49,10 +50,14 @@ impl MinaMesh {
   }
 
   // TODO: use default token value, check how to best handle this
-  pub async fn user_commands(&self, metadata: &BlockMetadata) -> Result<Vec<Transaction>, MinaMeshError> {
+  pub async fn user_commands(
+    &self,
+    pool: &Pool<Postgres>,
+    metadata: &BlockMetadata,
+  ) -> Result<Vec<Transaction>, MinaMeshError> {
     let metadata =
       sqlx::query_file_as!(UserCommandMetadata, "sql/queries/user_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
-        .fetch_all(&self.pg_pool)
+        .fetch_all(pool)
         .await?;
     let transactions = metadata
       .into_iter()
@@ -63,10 +68,14 @@ impl MinaMesh {
     Ok(transactions)
   }
 
-  pub async fn internal_commands(&self, metadata: &BlockMetadata) -> Result<Vec<Transaction>, MinaMeshError> {
+  pub async fn internal_commands(
+    &self,
+    pool: &Pool<Postgres>,
+    metadata: &BlockMetadata,
+  ) -> Result<Vec<Transaction>, MinaMeshError> {
     let metadata =
       sqlx::query_file_as!(InternalCommandMetadata, "sql/queries/internal_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
-        .fetch_all(&self.pg_pool)
+        .fetch_all(pool)
         .await?;
     let transactions = metadata
       .into_iter()
@@ -78,9 +87,13 @@ impl MinaMesh {
     Ok(transactions)
   }
 
-  pub async fn zkapp_commands(&self, metadata: &BlockMetadata) -> Result<Vec<Transaction>, MinaMeshError> {
+  pub async fn zkapp_commands(
+    &self,
+    pool: &Pool<Postgres>,
+    metadata: &BlockMetadata,
+  ) -> Result<Vec<Transaction>, MinaMeshError> {
     let metadata = sqlx::query_file_as!(ZkAppCommand, "sql/queries/zkapp_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
-      .fetch_all(&self.pg_pool)
+      .fetch_all(pool)
       .await?;
     let transactions = zkapp_commands_to_transactions(metadata);
     Ok(transactions)
@@ -88,25 +101,24 @@ impl MinaMesh {
 
   pub async fn block_metadata(
     &self,
+    pool: &Pool<Postgres>,
     PartialBlockIdentifier { index, hash }: &PartialBlockIdentifier,
   ) -> Result<Option<BlockMetadata>, sqlx::Error> {
     if let (Some(index), Some(hash)) = (&index, &hash) {
       sqlx::query_file_as!(BlockMetadata, "sql/queries/query_both.sql", hash.to_string(), index)
-        .fetch_optional(&self.pg_pool)
+        .fetch_optional(pool)
         .await
     } else if let Some(index) = index {
-      let record = sqlx::query_file!("sql/queries/max_canonical_height.sql").fetch_one(&self.pg_pool).await?;
+      let record = sqlx::query_file!("sql/queries/max_canonical_height.sql").fetch_one(pool).await?;
       if index <= &record.max_canonical_height.unwrap() {
-        sqlx::query_file_as!(BlockMetadata, "sql/queries/query_canonical.sql", index)
-          .fetch_optional(&self.pg_pool)
-          .await
+        sqlx::query_file_as!(BlockMetadata, "sql/queries/query_canonical.sql", index).fetch_optional(pool).await
       } else {
-        sqlx::query_file_as!(BlockMetadata, "sql/queries/query_pending.sql", index).fetch_optional(&self.pg_pool).await
+        sqlx::query_file_as!(BlockMetadata, "sql/queries/query_pending.sql", index).fetch_optional(pool).await
       }
     } else if let Some(hash) = &hash {
-      sqlx::query_file_as!(BlockMetadata, "sql/queries/query_hash.sql", hash).fetch_optional(&self.pg_pool).await
+      sqlx::query_file_as!(BlockMetadata, "sql/queries/query_hash.sql", hash).fetch_optional(pool).await
     } else {
-      sqlx::query_file_as!(BlockMetadata, "sql/queries/query_best.sql").fetch_optional(&self.pg_pool).await
+      sqlx::query_file_as!(BlockMetadata, "sql/queries/query_best.sql").fetch_optional(pool).await
     }
   }
 }

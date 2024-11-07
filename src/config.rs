@@ -1,36 +1,53 @@
-use std::time::Duration;
-
 use anyhow::Result;
 use clap::{Args, Parser};
 use coinbase_mesh::models::BlockIdentifier;
-use sqlx::postgres::PgPoolOptions;
+use reqwest::Client;
 
-use crate::{graphql::GraphQLClient, util::default_mina_proxy_url, MinaMesh};
+use crate::{
+  graphql::GraphQLClient,
+  util::{default_devnet_proxy_url, default_mainnet_proxy_url},
+  MinaMesh,
+};
 
 #[derive(Debug, Args)]
 pub struct MinaMeshConfig {
-  /// The URL of the Mina GraphQL
-  #[arg(long, env = "MINAMESH_PROXY_URL", default_value_t = default_mina_proxy_url())]
-  pub proxy_url: String,
+  /// The mainnet GraphQL endpoint.
+  #[arg(long, env = "MINAMESH_MAINNET_PROXY_URL", default_value_t = default_mainnet_proxy_url())]
+  pub mainnet_proxy_url: String,
+  /// The devnet GraphQL endpoint.
+  #[arg(long, env = "MINAMESH_DEVNET_PROXY_URL", default_value_t = default_devnet_proxy_url())]
+  pub devnet_proxy_url: String,
 
-  /// The URL of the Archive Database
-  #[arg(long, env = "MINAMESH_ARCHIVE_DATABASE_URL")]
-  pub archive_database_url: String,
+  /// The mainnet archive database connection.
+  #[arg(long, env = "MINAMESH_MAINNET_ARCHIVE_DATABASE_URL")]
+  pub mainnet_archive_database_url: String,
+  /// The mainnet archive database connection.
+  #[arg(long, env = "MINAMESH_DEVNET_ARCHIVE_DATABASE_URL")]
+  pub devnet_archive_database_url: String,
+
+  /// The mainnet genesis block identifier height.
+  #[arg(long, env = "MINAMESH_MAINNET_GENESIS_BLOCK_IDENTIFIER_HEIGHT")]
+  pub mainnet_genesis_block_identifier_height: i64,
+  /// The devnet genesis block identifier height.
+  #[arg(long, env = "MINAMESH_DEVNET_GENESIS_BLOCK_IDENTIFIER_HEIGHT")]
+  pub devnet_genesis_block_identifier_height: i64,
+
+  /// The mainnet genesis block identifier state hash.
+  #[arg(long, env = "MINAMESH_MAINNET_GENESIS_BLOCK_IDENTIFIER_STATE_HASH")]
+  pub mainnet_genesis_block_identifier_state_hash: String,
+  /// The devnet genesis block identifier state hash.
+  #[arg(long, env = "MINAMESH_DEVNET_GENESIS_BLOCK_IDENTIFIER_STATE_HASH")]
+  pub devnet_genesis_block_identifier_state_hash: String,
 
   /// The maximum number of concurrent connections allowed in the Archive
   /// Database connection pool.
   #[arg(long, env = "MINAMESH_MAX_DB_POOL_SIZE", default_value_t = 128)]
-  pub max_db_pool_size: u32,
+  pub db_pool_max_size: u32,
 
   /// The duration (in seconds) that an unused connection can remain idle in the
   /// pool before being closed.
   #[arg(long, env = "MINAMESH_DB_POOL_IDLE_TIMEOUT", default_value_t = 1)]
   pub db_pool_idle_timeout: u64,
-
-  #[arg(long, env = "MINAMESH_GENESIS_BLOCK_IDENTIFIER_HEIGHT")]
-  pub genesis_block_identifier_height: i64,
-  #[arg(long, env = "MINAMESH_GENESIS_BLOCK_IDENTIFIER_STATE_HASH")]
-  pub genesis_block_identifier_state_hash: String,
 
   /// Whether to use optimizations for searching transactions. Requires the
   /// optimizations to be enabled via the `mina-mesh search-tx-optimizations`
@@ -53,18 +70,22 @@ impl MinaMeshConfig {
 
   pub async fn to_mina_mesh(self) -> Result<MinaMesh> {
     Ok(MinaMesh {
-      graphql_client: GraphQLClient::new(self.proxy_url.to_owned()),
-      pg_pool: PgPoolOptions::new()
-        .max_connections(self.max_db_pool_size)
-        .min_connections(0)
-        .idle_timeout(Duration::from_secs(self.db_pool_idle_timeout))
-        .connect(self.archive_database_url.as_str())
-        .await?,
+      graphql_client: GraphQLClient {
+        mainnet_endpoint: self.mainnet_proxy_url.to_owned(),
+        devnet_endpoint: self.devnet_proxy_url.to_owned(),
+        client: Client::new(),
+      },
+      mainnet_pg_pool: None,
+      devnet_pg_pool: None,
       genesis_block_identifier: BlockIdentifier::new(
-        self.genesis_block_identifier_height,
-        self.genesis_block_identifier_state_hash.to_owned(),
+        self.devnet_genesis_block_identifier_height,
+        self.devnet_genesis_block_identifier_state_hash.to_owned(),
       ),
       search_tx_optimized: self.use_search_tx_optimizations,
+      mainnet_archive_database_url: self.mainnet_archive_database_url,
+      devnet_archive_database_url: self.devnet_archive_database_url,
+      db_pool_idle_timeout: self.db_pool_idle_timeout,
+      db_pool_max_size: self.db_pool_max_size,
     })
   }
 }
