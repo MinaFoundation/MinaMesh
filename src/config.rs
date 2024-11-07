@@ -9,16 +9,13 @@ use crate::{graphql::GraphQLClient, util::default_mina_proxy_url, MinaMesh};
 
 #[derive(Debug, Args)]
 pub struct MinaMeshConfig {
+  /// The URL of the Mina GraphQL
   #[arg(long, env = "MINAMESH_PROXY_URL", default_value_t = default_mina_proxy_url())]
   pub proxy_url: String,
+
+  /// The URL of the Archive Database
   #[arg(long, env = "MINAMESH_ARCHIVE_DATABASE_URL")]
   pub archive_database_url: String,
-  #[arg(long, env = "MINAMESH_GENESIS_BLOCK_IDENTIFIER_HEIGHT")]
-  pub genesis_block_identifier_height: i64,
-  #[arg(long, env = "MINAMESH_GENESIS_BLOCK_IDENTIFIER_STATE_HASH")]
-  pub genesis_block_identifier_state_hash: String,
-  #[arg(long, env = "USE_SEARCH_TX_OPTIMIZATIONS", default_value = "false")]
-  pub use_search_tx_optimizations: bool,
 
   /// The maximum number of concurrent connections allowed in the Archive
   /// Database connection pool.
@@ -29,6 +26,17 @@ pub struct MinaMeshConfig {
   /// pool before being closed.
   #[arg(long, env = "MINAMESH_DB_POOL_IDLE_TIMEOUT", default_value_t = 1)]
   pub db_pool_idle_timeout: u64,
+
+  #[arg(long, env = "MINAMESH_GENESIS_BLOCK_IDENTIFIER_HEIGHT")]
+  pub genesis_block_identifier_height: i64,
+  #[arg(long, env = "MINAMESH_GENESIS_BLOCK_IDENTIFIER_STATE_HASH")]
+  pub genesis_block_identifier_state_hash: String,
+
+  /// Whether to use optimizations for searching transactions. Requires the
+  /// optimizations to be enabled via the `mina-mesh search-tx-optimizations`
+  /// command.
+  #[arg(long, env = "USE_SEARCH_TX_OPTIMIZATIONS", default_value = "false")]
+  pub use_search_tx_optimizations: bool,
 }
 
 impl MinaMeshConfig {
