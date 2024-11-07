@@ -1,8 +1,10 @@
-mod compare;
+mod fixtures;
+mod test_util;
 
 use anyhow::Result;
 use futures::future::join_all;
-use mina_mesh::{test::ResponseComparisonContext, MinaMeshConfig};
+use mina_mesh::MinaMeshConfig;
+use test_util::ResponseComparisonContext;
 
 const LEGACY_ENDPOINT: &str = "https://rosetta-devnet.minaprotocol.network";
 
@@ -10,13 +12,13 @@ const LEGACY_ENDPOINT: &str = "https://rosetta-devnet.minaprotocol.network";
 async fn main() -> Result<()> {
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
   let comparison_ctx = ResponseComparisonContext::new(mina_mesh, LEGACY_ENDPOINT.to_string());
-  let groups = compare::groups();
+  let groups = fixtures::groups();
   let assertion_futures_result: Result<Vec<_>, _> = groups
     .into_iter()
     .map(|(subpath, reqs)| -> Result<Vec<_>, _> {
       reqs
-        .iter()
-        .map(|r| serde_json::to_vec(r).map(|body| comparison_ctx.assert_responses_eq(subpath, Some(body))))
+        .into_iter()
+        .map(|(i, r)| serde_json::to_vec(&r).map(|body| comparison_ctx.assert_responses_eq(i, subpath, Some(body))))
         .collect()
     })
     .collect();

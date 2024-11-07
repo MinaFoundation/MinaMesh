@@ -7,12 +7,18 @@ use axum::{
   response::IntoResponse,
   Router,
 };
+use mina_mesh::{create_router, MinaMesh};
 use pretty_assertions::assert_eq;
 use reqwest::Client;
 use serde_json::{Map, Value};
 use tower::ServiceExt;
 
-use crate::{create_router, MinaMesh};
+#[macro_export]
+macro_rules! make_loc {
+  () => {
+    format!("{}:{}", file!(), line!())
+  };
+}
 
 pub struct ResponseComparisonContext {
   pub router: Router,
@@ -27,12 +33,14 @@ impl ResponseComparisonContext {
     Self { client, endpoint, router }
   }
 
-  pub async fn assert_responses_eq(&self, subpath: &str, maybe_body_bytes: Option<Vec<u8>>) -> Result<()> {
+  pub async fn assert_responses_eq<I>(&self, info: I, subpath: &str, maybe_body_bytes: Option<Vec<u8>>) -> Result<()>
+  where
+    I: Display,
+  {
     let body_bytes = maybe_body_bytes.clone().unwrap_or_default();
     let (a, b) =
       tokio::try_join!(self.mina_mesh_req(subpath, body_bytes.clone()), self.legacy_req(subpath, body_bytes))?;
-    println!("Here: {subpath}");
-    assert_eq!(a, b);
+    assert_eq!(a, b, "{info}");
     Ok(())
   }
 

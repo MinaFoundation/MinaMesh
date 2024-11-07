@@ -7,7 +7,6 @@ mod graphql;
 mod operation;
 mod playground;
 mod sql_to_mesh;
-pub mod test;
 mod types;
 pub mod util;
 
