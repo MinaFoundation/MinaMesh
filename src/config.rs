@@ -22,7 +22,7 @@ pub struct MinaMeshConfig {
 
   /// The maximum number of concurrent connections allowed in the Archive
   /// Database connection pool.
-  #[arg(long, env = "MINAMESH_MAX_DB_POOL_SIZE", default_value_t = 10)]
+  #[arg(long, env = "MINAMESH_MAX_DB_POOL_SIZE", default_value_t = 128)]
   pub max_db_pool_size: u32,
 
   /// The duration (in seconds) that an unused connection can remain idle in the
