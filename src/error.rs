@@ -5,7 +5,7 @@ use serde_json::Error as SerdeError;
 use sqlx::Error as SqlxError;
 use thiserror::Error;
 
-#[derive(Error, Debug, PartialEq)]
+#[derive(Error, Debug, PartialEq, Clone)]
 pub enum MinaMeshError {
   #[error("SQL failure: {0}")]
   Sql(String),
@@ -86,7 +86,7 @@ pub enum MinaMeshError {
   TransactionSubmitExpired,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum PartialReason {
   LengthMismatch,
   FeePayerAndSourceMismatch,

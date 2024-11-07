@@ -10,7 +10,7 @@ use crate::{graphql::QueryMempool, MinaMesh};
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/mempool.ml#L56
 impl MinaMesh {
-  pub async fn mempool(&self, req: NetworkRequest) -> Result<MempoolResponse> {
+  pub async fn mempool(&mut self, req: NetworkRequest) -> Result<MempoolResponse> {
     let QueryMempool { daemon_status: _0, initial_peers: _1, pooled_user_commands } =
       self.graphql_client.send(&req.network_identifier.into(), QueryMempool::build(())).await?;
     let hashes = pooled_user_commands

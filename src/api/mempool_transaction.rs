@@ -11,7 +11,7 @@ use crate::{
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/mempool.ml#L137
 impl MinaMesh {
   pub async fn mempool_transaction(
-    &self,
+    &mut self,
     req: MempoolTransactionRequest,
   ) -> Result<MempoolTransactionResponse, MinaMeshError> {
     let QueryMempoolTransactions { daemon_status: _daemon_status, initial_peers: _initial_peers, pooled_user_commands } =

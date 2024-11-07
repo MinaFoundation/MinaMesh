@@ -19,8 +19,8 @@ impl MinaMesh {
     let network = &MinaNetwork::from(network_identifier);
     let AccountIdentifier { address, metadata, .. } = *account_identifier;
     match maybe_block_identifier {
-      Some(block_identifier) => self.block_balance(&network, address, metadata, *block_identifier).await,
-      None => self.frontier_balance(&network, address).await,
+      Some(block_identifier) => self.block_balance(network, address, metadata, *block_identifier).await,
+      None => self.frontier_balance(network, address).await,
     }
   }
 
