@@ -8,12 +8,11 @@ use axum::{
   Json, Router,
 };
 use paste::paste;
-use tokio::sync::Mutex;
 
 use crate::{playground::handle_playground, util::Wrapper, MinaMesh};
 
 pub fn create_router(mina_mesh: MinaMesh, playground: bool) -> Router {
-  let mut router = Router::<Arc<Mutex<MinaMesh>>>::new()
+  let mut router = Router::<Arc<MinaMesh>>::new()
     .route("/account/balance", post(handle_account_balance))
     .route("/block", post(handle_block))
     .route("/call", post(handle_call))
@@ -32,7 +31,7 @@ pub fn create_router(mina_mesh: MinaMesh, playground: bool) -> Router {
     .route("/network/options", post(handle_network_options))
     .route("/network/status", post(handle_network_status))
     .route("/search/transactions", post(handle_search_transactions))
-    .with_state(Arc::new(Mutex::new(mina_mesh)));
+    .with_state(Arc::new(mina_mesh));
   if playground {
     router = router.route("/", get(handle_playground));
   }
@@ -42,8 +41,7 @@ pub fn create_router(mina_mesh: MinaMesh, playground: bool) -> Router {
 macro_rules! create_handler {
   ($name:ident, $request_type:ty) => {
     paste! {
-      async fn [<handle _ $name>](state: State<Arc<Mutex<MinaMesh>>>, Json(req): Json<coinbase_mesh::models::$request_type>) -> Response {
-        let mut mina_mesh = state.lock().await;
+      async fn [<handle _ $name>](State(mina_mesh): State<Arc<MinaMesh>>, Json(req): Json<coinbase_mesh::models::$request_type>) -> Response {
         Wrapper(mina_mesh.$name(req).await).into_response()
       }
     }

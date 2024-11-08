@@ -13,7 +13,7 @@ use crate::{
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
 impl MinaMesh {
-  pub async fn block(&mut self, req: BlockRequest) -> Result<BlockResponse, MinaMeshError> {
+  pub async fn block(&self, req: BlockRequest) -> Result<BlockResponse, MinaMeshError> {
     let partial_block_identifier = *req.block_identifier;
     let pool = self.pool(&MinaNetwork::from(req.network_identifier)).await?;
     let metadata = match self.block_metadata(&pool, &partial_block_identifier).await? {

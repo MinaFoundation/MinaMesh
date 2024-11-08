@@ -15,7 +15,7 @@ use crate::{
 
 impl MinaMesh {
   pub async fn search_transactions(
-    &mut self,
+    &self,
     req: SearchTransactionsRequest,
   ) -> Result<SearchTransactionsResponse, MinaMeshError> {
     let original_offset = req.offset.unwrap_or(0);
@@ -78,7 +78,7 @@ impl MinaMesh {
   }
 
   pub async fn fetch_user_commands(
-    &mut self,
+    &self,
     req: &SearchTransactionsRequest,
     offset: i64,
     limit: i64,
@@ -125,7 +125,7 @@ impl MinaMesh {
   }
 
   pub async fn fetch_internal_commands(
-    &mut self,
+    &self,
     req: &SearchTransactionsRequest,
     offset: i64,
     limit: i64,
@@ -173,7 +173,7 @@ impl MinaMesh {
   }
 
   async fn fetch_zkapp_commands(
-    &mut self,
+    &self,
     req: &SearchTransactionsRequest,
     offset: i64,
     limit: i64,

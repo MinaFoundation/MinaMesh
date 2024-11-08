@@ -2,6 +2,7 @@ use anyhow::Result;
 use clap::{Args, Parser};
 use coinbase_mesh::models::BlockIdentifier;
 use reqwest::Client;
+use tokio::sync::OnceCell;
 
 use crate::{
   graphql::GraphQLClient,
@@ -75,8 +76,8 @@ impl MinaMeshConfig {
         devnet_endpoint: self.devnet_proxy_url.to_owned(),
         client: Client::new(),
       },
-      mainnet_pg_pool: None,
-      devnet_pg_pool: None,
+      mainnet_pg_pool: OnceCell::new(),
+      devnet_pg_pool: OnceCell::new(),
       genesis_block_identifier: BlockIdentifier::new(
         self.devnet_genesis_block_identifier_height,
         self.devnet_genesis_block_identifier_state_hash.to_owned(),

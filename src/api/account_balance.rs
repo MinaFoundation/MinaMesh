@@ -13,7 +13,7 @@ use crate::{
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/account.ml#L11
 impl MinaMesh {
   pub async fn account_balance(
-    &mut self,
+    &self,
     AccountBalanceRequest { account_identifier, block_identifier: maybe_block_identifier, network_identifier, .. }: AccountBalanceRequest,
   ) -> Result<AccountBalanceResponse, MinaMeshError> {
     let network = &MinaNetwork::from(network_identifier);
@@ -26,7 +26,7 @@ impl MinaMesh {
 
   // TODO: can we get the block via the hash and not the index?
   async fn block_balance(
-    &mut self,
+    &self,
     network: &MinaNetwork,
     public_key: String,
     metadata: Option<serde_json::Value>,

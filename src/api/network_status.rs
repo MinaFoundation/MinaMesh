@@ -10,7 +10,7 @@ use crate::{
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/network.ml#L201
 impl MinaMesh {
-  pub async fn network_status(&mut self, req: NetworkRequest) -> Result<NetworkStatusResponse, MinaMeshError> {
+  pub async fn network_status(&self, req: NetworkRequest) -> Result<NetworkStatusResponse, MinaMeshError> {
     let QueryNetworkStatus { best_chain, daemon_status: DaemonStatus3 { peers }, sync_status } =
       self.graphql_client.send(&req.network_identifier.clone().into(), QueryNetworkStatus::build(())).await?;
     let blocks = best_chain.ok_or(MinaMeshError::ChainInfoMissing)?;

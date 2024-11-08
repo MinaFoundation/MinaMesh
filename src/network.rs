@@ -5,7 +5,7 @@ use coinbase_mesh::models::{NetworkIdentifier, NetworkRequest};
 
 use crate::util::Wrapper;
 
-#[derive(ValueEnum, Clone, Debug)]
+#[derive(ValueEnum, Clone, Debug, Copy)]
 pub enum MinaNetwork {
   Mainnet,
   Devnet,
