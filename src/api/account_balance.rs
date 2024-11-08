@@ -16,11 +16,11 @@ impl MinaMesh {
     &self,
     AccountBalanceRequest { account_identifier, block_identifier: maybe_block_identifier, network_identifier, .. }: AccountBalanceRequest,
   ) -> Result<AccountBalanceResponse, MinaMeshError> {
-    let network = &MinaNetwork::from(network_identifier);
+    let network: MinaNetwork = network_identifier.try_into()?;
     let AccountIdentifier { address, metadata, .. } = *account_identifier;
     match maybe_block_identifier {
-      Some(block_identifier) => self.block_balance(network, address, metadata, *block_identifier).await,
-      None => self.frontier_balance(network, address).await,
+      Some(block_identifier) => self.block_balance(&network, address, metadata, *block_identifier).await,
+      None => self.frontier_balance(&network, address).await,
     }
   }
 

@@ -1,4 +1,7 @@
-use mina_mesh::models::{BlockRequest, NetworkIdentifier, PartialBlockIdentifier};
+use mina_mesh::{
+  models::{BlockRequest, PartialBlockIdentifier},
+  MinaNetwork,
+};
 
 use super::CompareGroup;
 use crate::make_loc;
@@ -8,14 +11,14 @@ pub fn block<'a>() -> CompareGroup<'a> {
     (
       make_loc!(),
       Box::new(BlockRequest {
-        network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "debug".to_string())),
+        network_identifier: Box::new(MinaNetwork::Devnet.into()),
         block_identifier: Box::new(PartialBlockIdentifier::new()),
       }),
     ),
     (
       make_loc!(),
       Box::new(BlockRequest {
-        network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "debug".to_string())),
+        network_identifier: Box::new(MinaNetwork::Devnet.into()),
         block_identifier: Box::new(PartialBlockIdentifier { index: Some(52676), hash: None }),
       }),
     ),

@@ -3,7 +3,7 @@ use std::fmt::Display;
 use clap::ValueEnum;
 use coinbase_mesh::models::{NetworkIdentifier, NetworkRequest};
 
-use crate::util::Wrapper;
+use crate::{util::Wrapper, MinaMeshError};
 
 #[derive(ValueEnum, Clone, Debug, Copy)]
 pub enum MinaNetwork {
@@ -42,27 +42,30 @@ impl From<MinaNetwork> for NetworkIdentifier {
   }
 }
 
-impl From<NetworkIdentifier> for MinaNetwork {
-  fn from(value: NetworkIdentifier) -> Self {
+impl TryFrom<NetworkIdentifier> for MinaNetwork {
+  type Error = MinaMeshError;
+  fn try_from(value: NetworkIdentifier) -> Result<Self, Self::Error> {
     if value.network == "mainnet" {
-      MinaNetwork::Mainnet
+      Ok(MinaNetwork::Mainnet)
     } else if value.network == "devnet" {
-      MinaNetwork::Devnet
+      Ok(MinaNetwork::Devnet)
     } else {
-      unimplemented!()
+      Err(MinaMeshError::ChainInfoMissing)
     }
   }
 }
 
-impl From<&NetworkIdentifier> for MinaNetwork {
-  fn from(value: &NetworkIdentifier) -> Self {
-    value.clone().into()
+impl TryFrom<&NetworkIdentifier> for MinaNetwork {
+  type Error = MinaMeshError;
+  fn try_from(value: &NetworkIdentifier) -> Result<Self, Self::Error> {
+    value.clone().try_into()
   }
 }
 
-impl From<Box<NetworkIdentifier>> for MinaNetwork {
-  fn from(value: Box<NetworkIdentifier>) -> Self {
+impl TryFrom<Box<NetworkIdentifier>> for MinaNetwork {
+  type Error = MinaMeshError;
+  fn try_from(value: Box<NetworkIdentifier>) -> Result<Self, Self::Error> {
     let network = *value;
-    network.into()
+    network.try_into()
   }
 }

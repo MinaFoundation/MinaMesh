@@ -22,7 +22,7 @@ pub use error::*;
 use graphql::GraphQLClient;
 pub use network::*;
 pub use operation::*;
-use sqlx::{postgres::PgPoolOptions, PgPool, Pool, Postgres};
+use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::sync::OnceCell;
 pub use types::*;
 
@@ -40,7 +40,7 @@ pub struct MinaMesh {
 }
 
 impl MinaMesh {
-  async fn pool(&self, network: &MinaNetwork) -> Result<Pool<Postgres>, MinaMeshError> {
+  async fn pool(&self, network: &MinaNetwork) -> Result<PgPool, MinaMeshError> {
     let pool = match &network {
       MinaNetwork::Mainnet => &self.mainnet_pg_pool,
       MinaNetwork::Devnet => &self.devnet_pg_pool,

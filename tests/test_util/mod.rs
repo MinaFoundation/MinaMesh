@@ -33,11 +33,10 @@ impl ResponseComparisonContext {
     Self { client, endpoint, router }
   }
 
-  pub async fn assert_responses_eq<I>(&self, info: I, subpath: &str, maybe_body_bytes: Option<Vec<u8>>) -> Result<()>
+  pub async fn assert_responses_eq<I>(&self, info: I, subpath: &str, body_bytes: Vec<u8>) -> Result<()>
   where
     I: Display,
   {
-    let body_bytes = maybe_body_bytes.clone().unwrap_or_default();
     let (a, b) =
       tokio::try_join!(self.mina_mesh_req(subpath, body_bytes.clone()), self.legacy_req(subpath, body_bytes))?;
     assert_eq!(a, b, "{info}");

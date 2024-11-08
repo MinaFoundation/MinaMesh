@@ -8,7 +8,7 @@ use crate::{graphql::QueryNetworkId, MinaMesh};
 impl MinaMesh {
   pub async fn network_list(&self, req: NetworkRequest) -> Result<NetworkListResponse> {
     let QueryNetworkId { network_id } =
-      self.graphql_client.send(&req.network_identifier.into(), QueryNetworkId::build(())).await?;
+      self.graphql_client.send(&req.network_identifier.try_into()?, QueryNetworkId::build(())).await?;
     let (chain_id, network_id) = network_id.split_once(':').map_or_else(
       || ("unknown".to_string(), "unknown".to_string()),
       |(chain, network)| (chain.to_string(), network.to_string()),

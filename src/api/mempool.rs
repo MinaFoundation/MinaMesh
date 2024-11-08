@@ -12,7 +12,7 @@ use crate::{graphql::QueryMempool, MinaMesh};
 impl MinaMesh {
   pub async fn mempool(&self, req: NetworkRequest) -> Result<MempoolResponse> {
     let QueryMempool { daemon_status: _0, initial_peers: _1, pooled_user_commands } =
-      self.graphql_client.send(&req.network_identifier.into(), QueryMempool::build(())).await?;
+      self.graphql_client.send(&req.network_identifier.try_into()?, QueryMempool::build(())).await?;
     let hashes = pooled_user_commands
       .into_iter()
       .map(|command| TransactionIdentifier::new(command.hash.0))

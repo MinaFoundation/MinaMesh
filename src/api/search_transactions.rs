@@ -6,7 +6,7 @@ use coinbase_mesh::models::{
 };
 use convert_case::{Case, Casing};
 use serde_json::{json, Map, Value};
-use sqlx::FromRow;
+use sqlx::{FromRow, PgPool};
 
 use crate::{
   operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationType,
@@ -25,8 +25,10 @@ impl MinaMesh {
     let mut txs_len = 0;
     let mut total_count = 0;
 
+    let pool = self.pool(&req.network_identifier.clone().try_into()?).await?;
+
     // User Commands
-    let user_commands = self.fetch_user_commands(&req, offset, limit).await?;
+    let user_commands = self.fetch_user_commands(&req, &pool, offset, limit).await?;
     let user_commands_len = user_commands.len() as i64;
     let user_commands_total_count = user_commands.first().and_then(|uc| uc.total_count).unwrap_or(0);
     transactions.extend(user_commands.into_iter().map(|ic| ic.into()));
@@ -37,7 +39,7 @@ impl MinaMesh {
     if limit > total_count {
       // if we are below the limit, fetch internal commands
       (offset, limit) = adjust_limit_and_offset(limit, offset, txs_len);
-      let internal_commands = self.fetch_internal_commands(&req, offset, limit).await?;
+      let internal_commands = self.fetch_internal_commands(&req, &pool, offset, limit).await?;
       let internal_commands_len = internal_commands.len() as i64;
       let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
       transactions.extend(internal_commands.into_iter().map(|uc| uc.into()));
@@ -45,7 +47,7 @@ impl MinaMesh {
       total_count += internal_commands_total_count;
     } else {
       // otherwise only fetch the first internal command to get the total count
-      let internal_commands = self.fetch_internal_commands(&req, 0, 1).await?;
+      let internal_commands = self.fetch_internal_commands(&req, &pool, 0, 1).await?;
       let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
       total_count += internal_commands_total_count;
     }
@@ -54,7 +56,7 @@ impl MinaMesh {
     if limit > total_count {
       // if we are below the limit, fetch zkapp commands
       (offset, limit) = adjust_limit_and_offset(limit, offset, txs_len);
-      let zkapp_commands = self.fetch_zkapp_commands(&req, offset, limit).await?;
+      let zkapp_commands = self.fetch_zkapp_commands(&req, &pool, offset, limit).await?;
       let zkapp_commands_len = zkapp_commands.len() as i64;
       let zkapp_commands_total_count = zkapp_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
       transactions.extend(zkapp_commands_to_block_transactions(zkapp_commands));
@@ -62,7 +64,7 @@ impl MinaMesh {
       total_count += zkapp_commands_total_count;
     } else {
       // otherwise only fetch the first zkapp command to get the total count
-      let zkapp_commands = self.fetch_zkapp_commands(&req, 0, 1).await?;
+      let zkapp_commands = self.fetch_zkapp_commands(&req, &pool, 0, 1).await?;
       let zkapp_commands_total_count = zkapp_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
       total_count += zkapp_commands_total_count;
     }
@@ -80,12 +82,11 @@ impl MinaMesh {
   pub async fn fetch_user_commands(
     &self,
     req: &SearchTransactionsRequest,
+    pool: &PgPool,
     offset: i64,
     limit: i64,
   ) -> Result<Vec<UserCommand>, MinaMeshError> {
     let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
-
-    let pool = self.pool(&req.network_identifier.clone().into()).await?;
 
     if !self.search_tx_optimized {
       let user_commands = sqlx::query_file_as!(
@@ -101,7 +102,7 @@ impl MinaMesh {
         limit,
         offset,
       )
-      .fetch_all(&pool)
+      .fetch_all(pool)
       .await?;
       Ok(user_commands)
     } else {
@@ -118,7 +119,7 @@ impl MinaMesh {
         limit,
         offset,
       )
-      .fetch_all(&pool)
+      .fetch_all(pool)
       .await?;
       Ok(user_commands)
     }
@@ -127,11 +128,11 @@ impl MinaMesh {
   pub async fn fetch_internal_commands(
     &self,
     req: &SearchTransactionsRequest,
+    pool: &PgPool,
     offset: i64,
     limit: i64,
   ) -> Result<Vec<InternalCommand>, MinaMeshError> {
     let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
-    let pool = self.pool(&req.network_identifier.clone().into()).await?;
 
     if !self.search_tx_optimized {
       let internal_commands = sqlx::query_file_as!(
@@ -147,7 +148,7 @@ impl MinaMesh {
         limit,
         offset
       )
-      .fetch_all(&pool)
+      .fetch_all(pool)
       .await?;
 
       Ok(internal_commands)
@@ -165,7 +166,7 @@ impl MinaMesh {
         limit,
         offset
       )
-      .fetch_all(&pool)
+      .fetch_all(pool)
       .await?;
 
       Ok(internal_commands)
@@ -175,11 +176,11 @@ impl MinaMesh {
   async fn fetch_zkapp_commands(
     &self,
     req: &SearchTransactionsRequest,
+    pool: &PgPool,
     offset: i64,
     limit: i64,
   ) -> Result<Vec<ZkAppCommand>, MinaMeshError> {
     let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
-    let pool = self.pool(&req.network_identifier.clone().into()).await?;
 
     if !self.search_tx_optimized {
       let zkapp_commands = sqlx::query_file_as!(
@@ -195,7 +196,7 @@ impl MinaMesh {
         limit,
         offset
       )
-      .fetch_all(&pool)
+      .fetch_all(pool)
       .await?;
 
       Ok(zkapp_commands)
@@ -213,7 +214,7 @@ impl MinaMesh {
         limit,
         offset
       )
-      .fetch_all(&pool)
+      .fetch_all(pool)
       .await?;
 
       Ok(zkapp_commands)

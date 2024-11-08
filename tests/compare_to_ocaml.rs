@@ -18,7 +18,7 @@ async fn main() -> Result<()> {
     .map(|(subpath, reqs)| -> Result<Vec<_>, _> {
       reqs
         .into_iter()
-        .map(|(i, r)| serde_json::to_vec(&r).map(|body| comparison_ctx.assert_responses_eq(i, subpath, Some(body))))
+        .map(|(i, r)| serde_json::to_vec(&r).map(|body| comparison_ctx.assert_responses_eq(i, subpath, body)))
         .collect()
     })
     .collect();

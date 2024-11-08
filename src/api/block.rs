@@ -4,18 +4,18 @@ use coinbase_mesh::models::{
   Transaction, TransactionIdentifier,
 };
 use serde::Serialize;
-use sqlx::{FromRow, Pool, Postgres};
+use sqlx::{FromRow, PgPool};
 
 use crate::{
   operation, sql_to_mesh::zkapp_commands_to_transactions, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType,
-  MinaMesh, MinaMeshError, MinaNetwork, OperationType, TransactionStatus, UserCommandType, ZkAppCommand,
+  MinaMesh, MinaMeshError, OperationType, TransactionStatus, UserCommandType, ZkAppCommand,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
 impl MinaMesh {
   pub async fn block(&self, req: BlockRequest) -> Result<BlockResponse, MinaMeshError> {
     let partial_block_identifier = *req.block_identifier;
-    let pool = self.pool(&MinaNetwork::from(req.network_identifier)).await?;
+    let pool = self.pool(&req.network_identifier.try_into()?).await?;
     let metadata = match self.block_metadata(&pool, &partial_block_identifier).await? {
       Some(metadata) => metadata,
       None => return Err(MinaMeshError::BlockMissing(serde_json::to_string(&partial_block_identifier)?)),
@@ -52,7 +52,7 @@ impl MinaMesh {
   // TODO: use default token value, check how to best handle this
   pub async fn user_commands(
     &self,
-    pool: &Pool<Postgres>,
+    pool: &PgPool,
     metadata: &BlockMetadata,
   ) -> Result<Vec<Transaction>, MinaMeshError> {
     let metadata =
@@ -70,7 +70,7 @@ impl MinaMesh {
 
   pub async fn internal_commands(
     &self,
-    pool: &Pool<Postgres>,
+    pool: &PgPool,
     metadata: &BlockMetadata,
   ) -> Result<Vec<Transaction>, MinaMeshError> {
     let metadata =
@@ -89,7 +89,7 @@ impl MinaMesh {
 
   pub async fn zkapp_commands(
     &self,
-    pool: &Pool<Postgres>,
+    pool: &PgPool,
     metadata: &BlockMetadata,
   ) -> Result<Vec<Transaction>, MinaMeshError> {
     let metadata = sqlx::query_file_as!(ZkAppCommand, "sql/queries/zkapp_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
@@ -101,7 +101,7 @@ impl MinaMesh {
 
   pub async fn block_metadata(
     &self,
-    pool: &Pool<Postgres>,
+    pool: &PgPool,
     PartialBlockIdentifier { index, hash }: &PartialBlockIdentifier,
   ) -> Result<Option<BlockMetadata>, sqlx::Error> {
     if let (Some(index), Some(hash)) = (&index, &hash) {

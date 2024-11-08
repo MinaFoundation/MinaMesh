@@ -18,7 +18,7 @@ impl MinaMesh {
       self
         .graphql_client
         .send(
-          &req.network_identifier.into(),
+          &req.network_identifier.try_into()?,
           QueryMempoolTransactions::build(QueryMempoolTransactionsVariables {
             hashes: Some(vec![req.transaction_identifier.hash.as_str()]),
           }),
