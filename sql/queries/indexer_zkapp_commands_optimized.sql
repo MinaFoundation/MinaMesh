@@ -1,18 +1,18 @@
 WITH
   zkapp_commands_info AS (
     SELECT
-      zc.id,
-      zc.memo,
-      zc.hash,
-      pk_fee_payer.value AS fee_payer,
+      zca.id,
+      zca.memo,
+      zca.hash,
+      zca.fee_payer,
       pk_update_body.value AS pk_update_body,
-      zfpb.fee,
-      zfpb.valid_until,
-      zfpb.nonce,
-      bzc.sequence_no,
-      bzc.status AS "status: TransactionStatus",
+      zca.fee,
+      zca.valid_until,
+      zca.nonce,
+      zca.sequence_no,
+      zca.status AS "status: TransactionStatus",
       zaub.balance_change,
-      bzc.block_id,
+      zca.block_id,
       b.state_hash,
       b.height,
       token_update_body.value AS token,
@@ -22,19 +22,16 @@ WITH
         FROM
           zkapp_account_update_failures AS zauf
         WHERE
-          zauf.id=ANY (bzc.failure_reasons_ids)
+          zauf.id=ANY (zca.failure_reasons_ids)
       ) AS failure_reasons
     FROM
-      zkapp_commands AS zc
-      INNER JOIN blocks_zkapp_commands AS bzc ON zc.id=bzc.zkapp_command_id
-      INNER JOIN zkapp_fee_payer_body AS zfpb ON zc.zkapp_fee_payer_body_id=zfpb.id
-      INNER JOIN public_keys AS pk_fee_payer ON zfpb.public_key_id=pk_fee_payer.id
-      INNER JOIN blocks AS b ON bzc.block_id=b.id
+      zkapp_commands_aggregated AS zca
+      INNER JOIN blocks AS b ON zca.block_id=b.id
       AND (
         b.chain_status='canonical'
         OR b.chain_status='pending'
       )
-      LEFT JOIN zkapp_account_update AS zau ON zau.id=ANY (zc.zkapp_account_updates_ids)
+      LEFT JOIN zkapp_account_update AS zau ON zau.id=ANY (zca.zkapp_account_updates_ids)
       INNER JOIN zkapp_account_update_body AS zaub ON zau.body_id=zaub.id
       INNER JOIN account_identifiers AS ai_update_body ON zaub.account_identifier_id=ai_update_body.id
       INNER JOIN public_keys AS pk_update_body ON ai_update_body.public_key_id=pk_update_body.id
@@ -45,13 +42,13 @@ WITH
         OR $1 IS NULL
       )
       AND (
-        $2=zc.hash
+        $2=zca.hash
         OR $2 IS NULL
       )
       AND (
         (
           (
-            $3=pk_fee_payer.value
+            $3=zca.fee_payer
             AND $4=''
           )
           OR (
@@ -65,16 +62,16 @@ WITH
         )
       )
       AND (
-        $5=bzc.status
+        $5=zca.status
         OR $5 IS NULL
       )
       AND (
-        $6=bzc.status
+        $6=zca.status
         OR $6 IS NULL
       )
       AND (
         (
-          $7=pk_fee_payer.value
+          $7=zca.fee_payer
           OR $7=pk_update_body.value
         )
         OR $7 IS NULL
