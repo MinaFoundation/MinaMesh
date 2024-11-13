@@ -28,6 +28,7 @@ pub fn zkapp_commands_to_transactions(commands: Vec<ZkAppCommand>) -> Vec<Transa
         Some(&TransactionStatus::Applied),
         None,
         None,
+        None,
       ));
     }
 
@@ -42,6 +43,7 @@ pub fn zkapp_commands_to_transactions(commands: Vec<ZkAppCommand>) -> Vec<Transa
       },
       OperationType::ZkappBalanceUpdate,
       Some(&command.status),
+      None,
       None,
       None,
     ));

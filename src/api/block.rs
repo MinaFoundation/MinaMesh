@@ -221,6 +221,7 @@ fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Op
       None,
       None,
       None,
+      None,
     ));
   }
   if metadata.failure_reason.is_none() {
@@ -231,6 +232,7 @@ fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Op
         receiver_account_id,
         OperationType::AccountCreationFeeViaPayment,
         Some(&metadata.status),
+        None,
         None,
         None,
       ));
@@ -245,6 +247,7 @@ fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Op
           Some(&metadata.status),
           None,
           None,
+          None,
         ));
       }
       UserCommandType::Payment => {
@@ -257,6 +260,7 @@ fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Op
             Some(&metadata.status),
             None,
             None,
+            None,
           ),
           operation(
             3,
@@ -264,6 +268,7 @@ fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Op
             receiver_account_id,
             OperationType::PaymentReceiverInc,
             Some(&metadata.status),
+            None,
             None,
             None,
           ),
@@ -286,6 +291,7 @@ fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) ->
       None,
       None,
       None,
+      None,
     ));
   }
   match metadata.command_type {
@@ -298,6 +304,7 @@ fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) ->
         None,
         None,
         None,
+        None,
       ));
     }
     InternalCommandType::FeeTransfer => {
@@ -306,6 +313,7 @@ fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) ->
         Some(&metadata.fee),
         receiver_account_id,
         OperationType::FeeReceiverInc,
+        None,
         None,
         None,
         None,
@@ -321,12 +329,14 @@ fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) ->
           None,
           None,
           None,
+          None,
         ));
         operations.push(operation(
           3,
           Some(&metadata.fee),
           &AccountIdentifier::new(coinbase_receiver.to_string()),
           OperationType::FeePayerDec,
+          None,
           None,
           None,
           None,
