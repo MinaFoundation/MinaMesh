@@ -49,13 +49,7 @@ WITH
       )
       AND (
         (
-          (
-            $3=zca.fee_payer
-            AND (
-              $4=''
-              OR $4 IS NULL
-            )
-          )
+          ($3=zca.fee_payer)
           OR (
             $3=pk_update_body.value
             AND $4=token_update_body.value

@@ -83,13 +83,7 @@ WITH
       )
       AND (
         (
-          (
-            $3=pk_fee_payer.value
-            AND (
-              $4=''
-              OR $4 IS NULL
-            )
-          )
+          ($3=pk_fee_payer.value)
           OR (
             $3=pk_update_body.value
             AND $4=token_update_body.value

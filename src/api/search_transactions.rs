@@ -599,7 +599,14 @@ impl TryFrom<SearchTransactionsRequest> for SearchTransactionsQueryParams {
   fn try_from(req: SearchTransactionsRequest) -> Result<Self, Self::Error> {
     let max_block = req.max_block;
     let transaction_hash = req.transaction_identifier.map(|t| t.hash);
-    let token_id = req.account_identifier.as_ref().and_then(|a| a.metadata.as_ref().map(|meta| meta.to_string()));
+
+    // token_id can be found in the metadata of the account_identifier
+    let token_id = req
+      .account_identifier
+      .as_ref()
+      .and_then(|a| a.metadata.as_ref())
+      .and_then(|m| m.get("token_id"))
+      .map(|t| t.as_str().unwrap().to_string());
     let account_identifier = req.account_identifier.map(|a| a.address);
 
     let status = match req.status.as_deref() {
