@@ -9,7 +9,7 @@ use serde_json::{json, Map, Value};
 use sqlx::FromRow;
 
 use crate::{
-  operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationType,
+  operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationType, Token,
   TransactionStatus, UserCommandType, ZkAppCommand,
 };
 
@@ -260,7 +260,7 @@ pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<
       Some(&command.status),
       None,
       None,
-      command.token.as_ref(),
+      Some(&Token::new_or_default_opt(command.token.as_ref(), command.token_symbol.as_ref())),
     ));
   }
 
@@ -599,7 +599,7 @@ impl TryFrom<SearchTransactionsRequest> for SearchTransactionsQueryParams {
   fn try_from(req: SearchTransactionsRequest) -> Result<Self, Self::Error> {
     let max_block = req.max_block;
     let transaction_hash = req.transaction_identifier.map(|t| t.hash);
-    let token_id = req.account_identifier.as_ref().and_then(|a| a.metadata.as_ref().map(|meta| meta.to_string()));
+    let token_id = req.coin_identifier.map(|c| c.identifier);
     let account_identifier = req.account_identifier.map(|a| a.address);
 
     let status = match req.status.as_deref() {

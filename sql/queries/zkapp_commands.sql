@@ -22,7 +22,8 @@ SELECT
   ) AS failure_reasons,
   zaub.balance_change,
   pk_update_body.value AS pk_update_body,
-  token_update_body.value AS token
+  token_update_body.value AS token,
+  ts.value AS "token_symbol?"
 FROM
   blocks_zkapp_commands AS bzc
   INNER JOIN zkapp_commands AS zc ON bzc.zkapp_command_id=zc.id
@@ -34,6 +35,7 @@ FROM
   LEFT JOIN account_identifiers AS ai_update_body ON zaub.account_identifier_id=ai_update_body.id
   LEFT JOIN public_keys AS pk_update_body ON ai_update_body.public_key_id=pk_update_body.id
   LEFT JOIN tokens AS token_update_body ON ai_update_body.token_id=token_update_body.id
+  LEFT JOIN token_symbols AS ts ON token_update_body.id=ts.id
 WHERE
   bzc.block_id=$1
   AND (

@@ -2,7 +2,7 @@ use coinbase_mesh::models::{AccountIdentifier, Amount, Currency, Operation, Oper
 use convert_case::{Case, Casing};
 use serde_json::json;
 
-use crate::{util::DEFAULT_TOKEN_ID, OperationStatus, OperationType, TransactionStatus};
+use crate::{util::DEFAULT_TOKEN_ID, OperationStatus, OperationType, Token, TransactionStatus};
 
 pub fn operation(
   ident: i64,
@@ -12,19 +12,25 @@ pub fn operation(
   status: Option<&TransactionStatus>,
   related_operations: Option<Vec<i64>>,
   metadata: Option<&serde_json::Value>,
-  token: Option<&String>,
+  token: Option<&Token>,
 ) -> Operation {
-  // if token is provided and different from DEFAULT_TOKEN_ID, then create a new
-  // currency with the token else create a new currency with "MINA"
-  let currency = token
-    .map(|token_id| {
-      if token_id != DEFAULT_TOKEN_ID {
-        Currency { symbol: "MINA+".to_owned(), decimals: 9, metadata: Some(json!({ "token_id": token_id })) }
+  // Determine the currency symbol and metadata based on the token
+  let currency = match token {
+    // If a custom token is provided and is not the default, use its symbol and id
+    Some(token) if token.id != DEFAULT_TOKEN_ID => {
+      if token.symbol.is_some() {
+        Currency {
+          symbol: token.symbol.to_owned().unwrap(),
+          decimals: 9,
+          metadata: Some(json!({ "token_id": token.id })),
+        }
       } else {
-        Currency::new("MINA".to_owned(), 9)
+        Currency { symbol: "MINA+".to_owned(), decimals: 9, metadata: Some(json!({ "token_id": token.id })) }
       }
-    })
-    .unwrap_or(Currency::new("MINA".to_owned(), 9));
+    }
+    // Default case: Use "MINA" as the currency
+    _ => Currency::new("MINA".to_owned(), 9),
+  };
 
   Operation {
     operation_identifier: Box::new(OperationIdentifier::new(ident)),

@@ -51,6 +51,7 @@ WITH
       b.state_hash,
       b.height,
       token_update_body.value AS token,
+      ts.value AS "token_symbol?",
       ARRAY(
         SELECT
           unnest(zauf.failures)
@@ -70,6 +71,7 @@ WITH
       INNER JOIN account_identifiers AS ai_update_body ON zaub.account_identifier_id=ai_update_body.id
       INNER JOIN public_keys AS pk_update_body ON ai_update_body.public_key_id=pk_update_body.id
       INNER JOIN tokens AS token_update_body ON ai_update_body.token_id=token_update_body.id
+      LEFT JOIN token_symbols AS ts ON token_update_body.id=ts.id
     WHERE
       (
         $1>=b.height
