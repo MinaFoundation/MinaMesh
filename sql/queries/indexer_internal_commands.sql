@@ -98,7 +98,10 @@ WITH
           $3=pk.value
           OR $3=cri.coinbase_receiver
         )
-        AND $4=''
+        AND (
+          $4=''
+          OR $4 IS NULL
+        )
         OR (
           $3 IS NULL
           AND $4 IS NULL

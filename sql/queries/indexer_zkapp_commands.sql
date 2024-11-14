@@ -85,7 +85,10 @@ WITH
         (
           (
             $3=pk_fee_payer.value
-            AND $4=''
+            AND (
+              $4=''
+              OR $4 IS NULL
+            )
           )
           OR (
             $3=pk_update_body.value

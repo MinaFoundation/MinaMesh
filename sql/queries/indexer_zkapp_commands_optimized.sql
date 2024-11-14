@@ -51,7 +51,10 @@ WITH
         (
           (
             $3=zca.fee_payer
-            AND $4=''
+            AND (
+              $4=''
+              OR $4 IS NULL
+            )
           )
           OR (
             $3=pk_update_body.value
