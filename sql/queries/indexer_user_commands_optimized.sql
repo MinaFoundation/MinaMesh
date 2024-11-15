@@ -45,11 +45,11 @@ WITH
       )
       AND (
         $3=pk.value
-        AND $4=''
-        OR (
-          $3 IS NULL
-          AND $4 IS NULL
-        )
+        OR $3 IS NULL
+      )
+      AND (
+        $4=''
+        OR $4 IS NULL
       )
       AND (
         $5=uca.status

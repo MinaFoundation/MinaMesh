@@ -82,13 +82,24 @@ WITH
       AND (
         (
           (
+            (
+              $4=token_update_body.value
+              AND (
+                $3=pk_update_body.value
+                OR $3=pk_fee_payer.value
+              )
+            )
+          )
+          AND $3 IS NOT NULL
+          AND $4 IS NOT NULL
+        )
+        OR (
+          (
             $3=pk_fee_payer.value
-            AND $4=''
+            OR $3=pk_update_body.value
           )
-          OR (
-            $3=pk_update_body.value
-            AND $4=token_update_body.value
-          )
+          AND $3 IS NOT NULL
+          AND $4 IS NULL
         )
         OR (
           $3 IS NULL
@@ -150,4 +161,5 @@ FROM
 ORDER BY
   ids.block_id,
   ids.id,
-  ids.sequence_no
+  ids.sequence_no,
+  zc.balance_change

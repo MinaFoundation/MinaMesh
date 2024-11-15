@@ -62,14 +62,16 @@ WITH
       )
       AND (
         (
-          $3=ica.receiver
-          OR $3=cri.coinbase_receiver
+          (
+            $3=ica.receiver
+            OR $3=cri.coinbase_receiver
+          )
+          OR $3 IS NULL
         )
-        AND $4=''
-        OR (
-          $3 IS NULL
-          AND $4 IS NULL
-        )
+      )
+      AND (
+        $4=''
+        OR $4 IS NULL
       )
       AND (
         $5=ica.status
