@@ -4,6 +4,7 @@ use serde_json::json;
 
 use crate::{util::DEFAULT_TOKEN_ID, OperationStatus, OperationType, TransactionStatus};
 
+#[allow(clippy::too_many_arguments)]
 pub fn operation(
   ident: i64,
   amount: Option<&String>,
