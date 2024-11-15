@@ -593,13 +593,29 @@ pub struct SearchTransactionsQueryParams {
   pub address: Option<String>,
 }
 
+impl std::fmt::Display for SearchTransactionsQueryParams {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(
+      f,
+      "max_block: {:?}, transaction_hash: {:?}, account_identifier: {:?}, token_id: {:?}, status: {:?}, success_status: {:?}, address: {:?}",
+      self.max_block, self.transaction_hash, self.account_identifier, self.token_id, self.status, self.success_status, self.address
+    )
+  }
+}
+
 impl TryFrom<SearchTransactionsRequest> for SearchTransactionsQueryParams {
   type Error = MinaMeshError;
 
   fn try_from(req: SearchTransactionsRequest) -> Result<Self, Self::Error> {
     let max_block = req.max_block;
     let transaction_hash = req.transaction_identifier.map(|t| t.hash);
-    let token_id = req.account_identifier.as_ref().and_then(|a| a.metadata.as_ref().map(|meta| meta.to_string()));
+    // token_id can be found in the metadata of the account_identifier
+    let token_id = req
+      .account_identifier
+      .as_ref()
+      .and_then(|a| a.metadata.as_ref())
+      .and_then(|m| m.get("token_id"))
+      .map(|t| t.as_str().unwrap().to_string());
     let account_identifier = req.account_identifier.map(|a| a.address);
 
     let status = match req.status.as_deref() {
@@ -621,8 +637,7 @@ impl TryFrom<SearchTransactionsRequest> for SearchTransactionsQueryParams {
     };
 
     let address = req.address;
-
-    Ok(SearchTransactionsQueryParams {
+    let st = SearchTransactionsQueryParams {
       max_block,
       transaction_hash,
       account_identifier,
@@ -630,7 +645,8 @@ impl TryFrom<SearchTransactionsRequest> for SearchTransactionsQueryParams {
       status,
       success_status,
       address,
-    })
+    };
+    Ok(st)
   }
 }
 
