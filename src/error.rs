@@ -1,11 +1,12 @@
 use std::num::ParseIntError;
 
 use cynic::http::CynicReqwestError;
-use serde_json::Error as SerdeError;
+use serde::Serialize;
+use serde_json::{json, Error as SerdeError};
 use sqlx::Error as SqlxError;
 use thiserror::Error;
 
-#[derive(Error, Debug, PartialEq)]
+#[derive(Error, Debug, PartialEq, Serialize)]
 pub enum MinaMeshError {
   #[error("SQL failure: {0}")]
   Sql(String),
@@ -13,7 +14,7 @@ pub enum MinaMeshError {
   #[error("JSON parse error")]
   JsonParse(Option<String>),
 
-  #[error("GraphQL query failed")]
+  #[error("GraphQL query failed: {0}")]
   GraphqlMinaQuery(String),
 
   #[error("Network doesn't exist")]
@@ -86,7 +87,7 @@ pub enum MinaMeshError {
   TransactionSubmitExpired,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub enum PartialReason {
   LengthMismatch,
   FeePayerAndSourceMismatch,
@@ -101,26 +102,111 @@ pub enum PartialReason {
 }
 
 impl MinaMeshError {
+  /// Returns the error code for the error.
   pub fn error_code(&self) -> u8 {
-    unimplemented!();
-  }
-
-  pub fn description(&self) -> String {
     match self {
-      MinaMeshError::Sql(s) => s.clone(),
-      _ => unimplemented!(),
+      MinaMeshError::Sql(_) => 1,
+      MinaMeshError::JsonParse(_) => 2,
+      MinaMeshError::GraphqlMinaQuery(_) => 3,
+      MinaMeshError::NetworkDne(_, _) => 4,
+      MinaMeshError::ChainInfoMissing => 5,
+      MinaMeshError::AccountNotFound(_) => 6,
+      MinaMeshError::InvariantViolation => 7,
+      MinaMeshError::TransactionNotFound(_) => 8,
+      MinaMeshError::BlockMissing(_) => 9,
+      MinaMeshError::MalformedPublicKey => 10,
+      MinaMeshError::OperationsNotValid(_) => 11,
+      MinaMeshError::UnsupportedOperationForConstruction => 12,
+      MinaMeshError::SignatureMissing => 13,
+      MinaMeshError::PublicKeyFormatNotValid => 14,
+      MinaMeshError::NoOptionsProvided => 15,
+      MinaMeshError::Exception(_) => 16,
+      MinaMeshError::SignatureInvalid => 17,
+      MinaMeshError::MemoInvalid => 18,
+      MinaMeshError::GraphqlUriNotSet => 19,
+      MinaMeshError::TransactionSubmitNoSender => 20,
+      MinaMeshError::TransactionSubmitDuplicate => 21,
+      MinaMeshError::TransactionSubmitBadNonce => 22,
+      MinaMeshError::TransactionSubmitFeeSmall => 23,
+      MinaMeshError::TransactionSubmitInvalidSignature => 24,
+      MinaMeshError::TransactionSubmitInsufficientBalance => 25,
+      MinaMeshError::TransactionSubmitExpired => 26,
     }
   }
 
+  /// Returns whether the error is retriable.
   pub fn is_retriable(&self) -> bool {
-    unimplemented!();
+    matches!(
+      self,
+      MinaMeshError::GraphqlMinaQuery(_)
+        | MinaMeshError::TransactionSubmitNoSender
+        | MinaMeshError::AccountNotFound(_)
+        | MinaMeshError::TransactionNotFound(_)
+        | MinaMeshError::BlockMissing(_)
+        | MinaMeshError::ChainInfoMissing
+    )
   }
 
-  pub fn context(&self) -> Option<String> {
-    unimplemented!();
+  /// Provides additional details about the error.
+  pub fn details(&self) -> serde_json::Value {
+    match self {
+      MinaMeshError::GraphqlMinaQuery(msg) => json!({
+          "error": msg,
+          "extra": "Internal POST to Mina Daemon failed"
+      }),
+      MinaMeshError::Sql(msg) => json!({ "error": msg }),
+      MinaMeshError::JsonParse(Some(msg)) => json!({ "error": msg }),
+      _ => json!(null),
+    }
+  }
+
+  /// Converts the error into a JSON representation.
+  pub fn to_json(&self) -> serde_json::Value {
+    json!({
+        "code": self.error_code(),
+        "message": self.to_string(),
+        "description": self.description(),
+        "retriable": self.is_retriable(),
+        "details": self.details(),
+    })
+  }
+
+  /// Returns a human-readable description of the error.
+  pub fn description(&self) -> String {
+    match self {
+      MinaMeshError::Sql(_) => "An SQL error occurred.".to_string(),
+      MinaMeshError::JsonParse(_) => "Failed to parse JSON.".to_string(),
+      MinaMeshError::GraphqlMinaQuery(_) => "The GraphQL query failed.".to_string(),
+      MinaMeshError::NetworkDne(_, _) => "The specified network does not exist.".to_string(),
+      MinaMeshError::ChainInfoMissing => "Chain info is missing.".to_string(),
+      MinaMeshError::AccountNotFound(_) => "The specified account could not be found.".to_string(),
+      MinaMeshError::InvariantViolation => "An internal invariant was violated.".to_string(),
+      MinaMeshError::TransactionNotFound(_) => "The specified transaction could not be found.".to_string(),
+      MinaMeshError::BlockMissing(_) => "The specified block could not be found.".to_string(),
+      MinaMeshError::MalformedPublicKey => "The provided public key is malformed.".to_string(),
+      MinaMeshError::OperationsNotValid(_) => "The provided operations are not valid.".to_string(),
+      MinaMeshError::UnsupportedOperationForConstruction => {
+        "The operation is not supported for transaction construction.".to_string()
+      }
+      MinaMeshError::SignatureMissing => "A signature is missing.".to_string(),
+      MinaMeshError::PublicKeyFormatNotValid => "The public key format is not valid.".to_string(),
+      MinaMeshError::NoOptionsProvided => "No options were provided.".to_string(),
+      MinaMeshError::Exception(_) => "An internal exception occurred.".to_string(),
+      MinaMeshError::SignatureInvalid => "The signature is invalid.".to_string(),
+      MinaMeshError::MemoInvalid => "The memo is invalid.".to_string(),
+      MinaMeshError::GraphqlUriNotSet => "No GraphQL URI has been set.".to_string(),
+      MinaMeshError::TransactionSubmitNoSender => "No sender was found in the ledger.".to_string(),
+      MinaMeshError::TransactionSubmitDuplicate => "A duplicate transaction was detected.".to_string(),
+      MinaMeshError::TransactionSubmitBadNonce => "The nonce is invalid.".to_string(),
+      MinaMeshError::TransactionSubmitFeeSmall => "The transaction fee is too small.".to_string(),
+      MinaMeshError::TransactionSubmitInvalidSignature => "The transaction signature is invalid.".to_string(),
+      MinaMeshError::TransactionSubmitInsufficientBalance => "The account has insufficient balance.".to_string(),
+      MinaMeshError::TransactionSubmitExpired => "The transaction has expired.".to_string(),
+    }
   }
 }
 
+/// Implement `From` conversions for third-party errors.
 impl From<SqlxError> for MinaMeshError {
   fn from(value: SqlxError) -> Self {
     MinaMeshError::Sql(value.to_string())
