@@ -160,8 +160,14 @@ impl MinaMeshError {
           "error": msg,
           "extra": "Internal POST to Mina Daemon failed"
       }),
-      MinaMeshError::Sql(msg) => json!({ "error": msg }),
-      MinaMeshError::JsonParse(Some(msg)) => json!({ "error": msg }),
+      MinaMeshError::Sql(msg) => json!({
+        "error": msg,
+        "extra": "Internal SQL query failed"
+      }),
+      MinaMeshError::JsonParse(Some(msg)) => json!({
+        "error": msg,
+        "extra": "Failed to parse JSON body"
+      }),
       _ => json!(""),
     }
   }
@@ -181,7 +187,7 @@ impl MinaMeshError {
   pub fn description(&self) -> String {
     match self {
       MinaMeshError::Sql(_) => "An SQL error occurred.".to_string(),
-      MinaMeshError::JsonParse(_) => "Failed to parse JSON.".to_string(),
+      MinaMeshError::JsonParse(_) => "We encountered an error while parsing JSON.".to_string(),
       MinaMeshError::GraphqlMinaQuery(_) => "The GraphQL query failed.".to_string(),
       MinaMeshError::NetworkDne(_, _) => "The specified network does not exist.".to_string(),
       MinaMeshError::ChainInfoMissing => "Chain info is missing.".to_string(),
@@ -214,7 +220,35 @@ impl MinaMeshError {
 
 impl IntoResponse for MinaMeshError {
   fn into_response(self) -> Response {
-    let status_code = StatusCode::BAD_REQUEST;
+    let status_code = match self {
+      MinaMeshError::Sql(_) => StatusCode::INTERNAL_SERVER_ERROR,
+      MinaMeshError::JsonParse(_) => StatusCode::BAD_REQUEST,
+      MinaMeshError::GraphqlMinaQuery(_) => StatusCode::BAD_GATEWAY,
+      MinaMeshError::NetworkDne(_, _) => StatusCode::NOT_FOUND,
+      MinaMeshError::ChainInfoMissing => StatusCode::INTERNAL_SERVER_ERROR,
+      MinaMeshError::AccountNotFound(_) => StatusCode::NOT_FOUND,
+      MinaMeshError::InvariantViolation => StatusCode::INTERNAL_SERVER_ERROR,
+      MinaMeshError::TransactionNotFound(_) => StatusCode::NOT_FOUND,
+      MinaMeshError::BlockMissing(_) => StatusCode::NOT_FOUND,
+      MinaMeshError::MalformedPublicKey => StatusCode::BAD_REQUEST,
+      MinaMeshError::OperationsNotValid(_) => StatusCode::BAD_REQUEST,
+      MinaMeshError::UnsupportedOperationForConstruction => StatusCode::BAD_REQUEST,
+      MinaMeshError::SignatureMissing => StatusCode::BAD_REQUEST,
+      MinaMeshError::PublicKeyFormatNotValid => StatusCode::BAD_REQUEST,
+      MinaMeshError::NoOptionsProvided => StatusCode::BAD_REQUEST,
+      MinaMeshError::Exception(_) => StatusCode::INTERNAL_SERVER_ERROR,
+      MinaMeshError::SignatureInvalid => StatusCode::BAD_REQUEST,
+      MinaMeshError::MemoInvalid => StatusCode::BAD_REQUEST,
+      MinaMeshError::GraphqlUriNotSet => StatusCode::INTERNAL_SERVER_ERROR,
+      MinaMeshError::TransactionSubmitNoSender => StatusCode::BAD_REQUEST,
+      MinaMeshError::TransactionSubmitDuplicate => StatusCode::CONFLICT,
+      MinaMeshError::TransactionSubmitBadNonce => StatusCode::BAD_REQUEST,
+      MinaMeshError::TransactionSubmitFeeSmall => StatusCode::BAD_REQUEST,
+      MinaMeshError::TransactionSubmitInvalidSignature => StatusCode::BAD_REQUEST,
+      MinaMeshError::TransactionSubmitInsufficientBalance => StatusCode::BAD_REQUEST,
+      MinaMeshError::TransactionSubmitExpired => StatusCode::BAD_REQUEST,
+    };
+
     let body = json!({
         "code": self.error_code(),
         "message": self.to_string(),
@@ -258,7 +292,7 @@ impl From<anyhow::Error> for MinaMeshError {
   fn from(error: anyhow::Error) -> Self {
     if let Some(mina_error) = error.downcast_ref::<MinaMeshError>() {
       // Clone the original MinaMeshError if it exists
-      (*mina_error).clone()
+      mina_error.clone()
     } else {
       // Fallback to wrapping as Exception if it's not a MinaMeshError
       MinaMeshError::Exception(error.to_string())
@@ -269,6 +303,6 @@ impl From<anyhow::Error> for MinaMeshError {
 /// Convert Axum's JsonRejection into MinaMeshError.
 impl From<JsonRejection> for MinaMeshError {
   fn from(err: JsonRejection) -> Self {
-    MinaMeshError::JsonParse(Some(err.to_string()))
+    MinaMeshError::JsonParse(Some(err.body_text()))
   }
 }
