@@ -1,12 +1,18 @@
 use std::num::ParseIntError;
 
+use axum::{
+  extract::rejection::JsonRejection,
+  http::StatusCode,
+  response::{IntoResponse, Response},
+  Json,
+};
 use cynic::http::CynicReqwestError;
 use serde::Serialize;
 use serde_json::{json, Error as SerdeError};
 use sqlx::Error as SqlxError;
 use thiserror::Error;
 
-#[derive(Error, Debug, PartialEq, Serialize)]
+#[derive(Error, Debug, PartialEq, Serialize, Clone)]
 pub enum MinaMeshError {
   #[error("SQL failure: {0}")]
   Sql(String),
@@ -87,7 +93,7 @@ pub enum MinaMeshError {
   TransactionSubmitExpired,
 }
 
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub enum PartialReason {
   LengthMismatch,
   FeePayerAndSourceMismatch,
@@ -156,7 +162,7 @@ impl MinaMeshError {
       }),
       MinaMeshError::Sql(msg) => json!({ "error": msg }),
       MinaMeshError::JsonParse(Some(msg)) => json!({ "error": msg }),
-      _ => json!(null),
+      _ => json!(""),
     }
   }
 
@@ -206,6 +212,21 @@ impl MinaMeshError {
   }
 }
 
+impl IntoResponse for MinaMeshError {
+  fn into_response(self) -> Response {
+    let status_code = StatusCode::BAD_REQUEST;
+    let body = json!({
+        "code": self.error_code(),
+        "message": self.to_string(),
+        "description": self.description(),
+        "retriable": self.is_retriable(),
+        "details": self.details(),
+    });
+
+    (status_code, Json(body)).into_response()
+  }
+}
+
 /// Implement `From` conversions for third-party errors.
 impl From<SqlxError> for MinaMeshError {
   fn from(value: SqlxError) -> Self {
@@ -230,5 +251,24 @@ impl From<CynicReqwestError> for MinaMeshError {
 impl From<SerdeError> for MinaMeshError {
   fn from(value: SerdeError) -> Self {
     MinaMeshError::JsonParse(Some(value.to_string()))
+  }
+}
+
+impl From<anyhow::Error> for MinaMeshError {
+  fn from(error: anyhow::Error) -> Self {
+    if let Some(mina_error) = error.downcast_ref::<MinaMeshError>() {
+      // Clone the original MinaMeshError if it exists
+      (*mina_error).clone()
+    } else {
+      // Fallback to wrapping as Exception if it's not a MinaMeshError
+      MinaMeshError::Exception(error.to_string())
+    }
+  }
+}
+
+/// Convert Axum's JsonRejection into MinaMeshError.
+impl From<JsonRejection> for MinaMeshError {
+  fn from(err: JsonRejection) -> Self {
+    MinaMeshError::JsonParse(Some(err.to_string()))
   }
 }
