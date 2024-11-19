@@ -1,4 +1,4 @@
-use std::{env, usize::MAX};
+use std::env;
 
 use axum::{body::to_bytes, http::StatusCode, response::IntoResponse};
 use mina_mesh::{MinaMeshConfig, MinaMeshError};
@@ -18,7 +18,7 @@ async fn assert_error_properties(
   let response = error.into_response();
   assert_eq!(response.status(), expected_status);
 
-  let body = to_bytes(response.into_body(), MAX).await.unwrap();
+  let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
   let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
 
   assert_eq!(json["code"], expected_code);
