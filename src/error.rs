@@ -29,7 +29,7 @@ pub enum MinaMeshError {
   #[error("Chain info missing")]
   ChainInfoMissing,
 
-  #[error("Account not found")]
+  #[error("Account not found: {0}")]
   AccountNotFound(String),
 
   #[error("Internal invariant violation (you found a bug)")]
@@ -167,6 +167,10 @@ impl MinaMeshError {
       MinaMeshError::JsonParse(Some(msg)) => json!({
         "error": msg,
         "extra": "Failed to parse JSON body"
+      }),
+      MinaMeshError::AccountNotFound(account) => json!({
+        "error": format!("You attempted to lookup {}, but we couldn't find it in the ledger.", account),
+        "account": account,
       }),
       _ => json!(""),
     }
