@@ -1,140 +1,104 @@
-use std::env;
+use std::{env, usize::MAX};
 
-// use axum::http::StatusCode;
+use axum::{body::to_bytes, http::StatusCode, response::IntoResponse};
 use mina_mesh::{MinaMeshConfig, MinaMeshError};
-// use serde_json::json;
 
-#[test]
-fn test_error_codes_and_descriptions() {
-  let error = MinaMeshError::Sql("SQL syntax error".to_string());
-  assert_eq!(error.error_code(), 1);
-  assert_eq!(error.description(), "An SQL error occurred.");
-  assert!(!error.is_retriable());
+async fn assert_error_properties(
+  error: MinaMeshError,
+  expected_code: u8,
+  expected_description: &str,
+  expected_retriable: bool,
+  expected_status: StatusCode,
+) {
+  assert_eq!(error.error_code(), expected_code);
+  assert_eq!(error.description(), expected_description);
+  assert_eq!(error.is_retriable(), expected_retriable);
 
-  let error = MinaMeshError::JsonParse(Some("Missing field".to_string()));
-  assert_eq!(error.error_code(), 2);
-  assert_eq!(error.description(), "We encountered an error while parsing JSON.");
-  assert!(!error.is_retriable());
+  let message = error.to_string();
+  let response = error.into_response();
+  assert_eq!(response.status(), expected_status);
 
-  let error = MinaMeshError::GraphqlMinaQuery("Timeout".to_string());
-  assert_eq!(error.error_code(), 3);
-  assert_eq!(error.description(), "The GraphQL query failed.");
-  assert!(error.is_retriable());
+  let body = to_bytes(response.into_body(), MAX).await.unwrap();
+  let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
 
-  let error = MinaMeshError::NetworkDne("blockchain".to_string(), "network".to_string());
-  assert_eq!(error.error_code(), 4);
-  assert_eq!(error.description(), "The specified network does not exist.");
-  assert!(!error.is_retriable());
+  assert_eq!(json["code"], expected_code);
+  assert_eq!(json["message"], message);
+  assert_eq!(json["description"], expected_description);
+  assert_eq!(json["retriable"], expected_retriable);
+}
 
-  let error = MinaMeshError::ChainInfoMissing;
-  assert_eq!(error.error_code(), 5);
-  assert_eq!(error.description(), "Chain info is missing.");
-  assert!(error.is_retriable());
+#[tokio::test]
+async fn test_error_properties() {
+  use MinaMeshError::*;
 
-  let error = MinaMeshError::AccountNotFound("Account ID".to_string());
-  assert_eq!(error.error_code(), 6);
-  assert_eq!(error.description(), "The specified account could not be found.");
-  assert!(error.is_retriable());
+  let cases = vec![
+    (Sql("SQL syntax error".to_string()), 1, "An SQL error occurred.", false, StatusCode::INTERNAL_SERVER_ERROR),
+    (
+      JsonParse(Some("Missing field".to_string())),
+      2,
+      "We encountered an error while parsing JSON.",
+      false,
+      StatusCode::BAD_REQUEST,
+    ),
+    (GraphqlMinaQuery("Timeout".to_string()), 3, "The GraphQL query failed.", true, StatusCode::BAD_GATEWAY),
+    (
+      NetworkDne("blockchain".to_string(), "network".to_string()),
+      4,
+      "The specified network does not exist.",
+      false,
+      StatusCode::NOT_FOUND,
+    ),
+    (ChainInfoMissing, 5, "Chain info is missing.", true, StatusCode::INTERNAL_SERVER_ERROR),
+    (
+      AccountNotFound("Account ID".to_string()),
+      6,
+      "The specified account could not be found.",
+      true,
+      StatusCode::NOT_FOUND,
+    ),
+    (InvariantViolation, 7, "An internal invariant was violated.", false, StatusCode::INTERNAL_SERVER_ERROR),
+    (
+      TransactionNotFound("Transaction ID".to_string()),
+      8,
+      "The specified transaction could not be found.",
+      true,
+      StatusCode::NOT_FOUND,
+    ),
+    (BlockMissing("Block ID".to_string()), 9, "The specified block could not be found.", true, StatusCode::NOT_FOUND),
+    (MalformedPublicKey, 10, "The provided public key is malformed.", false, StatusCode::BAD_REQUEST),
+    (OperationsNotValid(vec![]), 11, "The provided operations are not valid.", false, StatusCode::BAD_REQUEST),
+    (
+      UnsupportedOperationForConstruction,
+      12,
+      "The operation is not supported for transaction construction.",
+      false,
+      StatusCode::BAD_REQUEST,
+    ),
+    (SignatureMissing, 13, "A signature is missing.", false, StatusCode::BAD_REQUEST),
+    (PublicKeyFormatNotValid, 14, "The public key format is not valid.", false, StatusCode::BAD_REQUEST),
+    (NoOptionsProvided, 15, "No options were provided.", false, StatusCode::BAD_REQUEST),
+    (
+      Exception("Unexpected error".to_string()),
+      16,
+      "An internal exception occurred.",
+      false,
+      StatusCode::INTERNAL_SERVER_ERROR,
+    ),
+    (SignatureInvalid, 17, "The signature is invalid.", false, StatusCode::BAD_REQUEST),
+    (MemoInvalid, 18, "The memo is invalid.", false, StatusCode::BAD_REQUEST),
+    (GraphqlUriNotSet, 19, "No GraphQL URI has been set.", false, StatusCode::INTERNAL_SERVER_ERROR),
+    (TransactionSubmitNoSender, 20, "No sender was found in the ledger.", true, StatusCode::BAD_REQUEST),
+    (TransactionSubmitDuplicate, 21, "A duplicate transaction was detected.", false, StatusCode::CONFLICT),
+    (TransactionSubmitBadNonce, 22, "The nonce is invalid.", false, StatusCode::BAD_REQUEST),
+    (TransactionSubmitFeeSmall, 23, "The transaction fee is too small.", false, StatusCode::BAD_REQUEST),
+    (TransactionSubmitInvalidSignature, 24, "The transaction signature is invalid.", false, StatusCode::BAD_REQUEST),
+    (TransactionSubmitInsufficientBalance, 25, "The account has insufficient balance.", false, StatusCode::BAD_REQUEST),
+    (TransactionSubmitExpired, 26, "The transaction has expired.", false, StatusCode::BAD_REQUEST),
+  ];
 
-  let error = MinaMeshError::InvariantViolation;
-  assert_eq!(error.error_code(), 7);
-  assert_eq!(error.description(), "An internal invariant was violated.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::TransactionNotFound("Transaction ID".to_string());
-  assert_eq!(error.error_code(), 8);
-  assert_eq!(error.description(), "The specified transaction could not be found.");
-  assert!(error.is_retriable());
-
-  let error = MinaMeshError::BlockMissing("Block ID".to_string());
-  assert_eq!(error.error_code(), 9);
-  assert_eq!(error.description(), "The specified block could not be found.");
-  assert!(error.is_retriable());
-
-  let error = MinaMeshError::MalformedPublicKey;
-  assert_eq!(error.error_code(), 10);
-  assert_eq!(error.description(), "The provided public key is malformed.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::OperationsNotValid(vec![]);
-  assert_eq!(error.error_code(), 11);
-  assert_eq!(error.description(), "The provided operations are not valid.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::UnsupportedOperationForConstruction;
-  assert_eq!(error.error_code(), 12);
-  assert_eq!(error.description(), "The operation is not supported for transaction construction.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::SignatureMissing;
-  assert_eq!(error.error_code(), 13);
-  assert_eq!(error.description(), "A signature is missing.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::PublicKeyFormatNotValid;
-  assert_eq!(error.error_code(), 14);
-  assert_eq!(error.description(), "The public key format is not valid.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::NoOptionsProvided;
-  assert_eq!(error.error_code(), 15);
-  assert_eq!(error.description(), "No options were provided.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::Exception("Unexpected error".to_string());
-  assert_eq!(error.error_code(), 16);
-  assert_eq!(error.description(), "An internal exception occurred.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::SignatureInvalid;
-  assert_eq!(error.error_code(), 17);
-  assert_eq!(error.description(), "The signature is invalid.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::MemoInvalid;
-  assert_eq!(error.error_code(), 18);
-  assert_eq!(error.description(), "The memo is invalid.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::GraphqlUriNotSet;
-  assert_eq!(error.error_code(), 19);
-  assert_eq!(error.description(), "No GraphQL URI has been set.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::TransactionSubmitNoSender;
-  assert_eq!(error.error_code(), 20);
-  assert_eq!(error.description(), "No sender was found in the ledger.");
-  assert!(error.is_retriable());
-
-  let error = MinaMeshError::TransactionSubmitDuplicate;
-  assert_eq!(error.error_code(), 21);
-  assert_eq!(error.description(), "A duplicate transaction was detected.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::TransactionSubmitBadNonce;
-  assert_eq!(error.error_code(), 22);
-  assert_eq!(error.description(), "The nonce is invalid.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::TransactionSubmitFeeSmall;
-  assert_eq!(error.error_code(), 23);
-  assert_eq!(error.description(), "The transaction fee is too small.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::TransactionSubmitInvalidSignature;
-  assert_eq!(error.error_code(), 24);
-  assert_eq!(error.description(), "The transaction signature is invalid.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::TransactionSubmitInsufficientBalance;
-  assert_eq!(error.error_code(), 25);
-  assert_eq!(error.description(), "The account has insufficient balance.");
-  assert!(!error.is_retriable());
-
-  let error = MinaMeshError::TransactionSubmitExpired;
-  assert_eq!(error.error_code(), 26);
-  assert_eq!(error.description(), "The transaction has expired.");
-  assert!(!error.is_retriable());
+  for (error, code, description, retriable, status) in cases {
+    assert_error_properties(error, code, description, retriable, status).await;
+  }
 }
 
 #[test]
@@ -172,6 +136,14 @@ async fn test_conversion_from_cynic_reqwest_error() -> Result<(), MinaMeshError>
   // Assert that the error matches MinaMeshError::GraphqlMinaQuery
   assert!(matches!(res, Err(MinaMeshError::GraphqlMinaQuery(_))));
   Ok(())
+}
+
+#[test]
+fn test_conversion_from_anyhow_error() {
+  let anyhow_error = anyhow::Error::msg("Unexpected issue");
+  let error: MinaMeshError = anyhow_error.into();
+
+  assert!(matches!(error, MinaMeshError::Exception(_)));
 }
 
 #[tokio::test]

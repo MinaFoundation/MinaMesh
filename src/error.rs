@@ -172,6 +172,9 @@ impl MinaMeshError {
         "error": format!("You attempted to lookup {}, but we couldn't find it in the ledger.", account),
         "account": account,
       }),
+      MinaMeshError::Exception(msg) => json!({
+        "error": msg,
+      }),
       _ => json!(""),
     }
   }
