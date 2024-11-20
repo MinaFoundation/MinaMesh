@@ -1,27 +1,39 @@
 use anyhow::Result;
 use insta::assert_debug_snapshot;
 use mina_mesh::{
-  models::{NetworkIdentifier, SearchTransactionsRequest, TransactionIdentifier},
+  models::{AccountIdentifier, NetworkIdentifier, SearchTransactionsRequest, TransactionIdentifier},
   MinaMeshConfig,
 };
 
 #[tokio::test]
 async fn search_transactions_specified() -> Result<()> {
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
+  // cspell:disable-next-line
+  let address = "B62qkd6yYALkQMq2SFd5B57bJbGBMA2QuGtLPMzRhhnvexRtVRycZWP";
 
-  let request = SearchTransactionsRequest {
-    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "mainnet".to_string())),
-    // cspell:disable-next-line
-    address: Some("B62qkd6yYALkQMq2SFd5B57bJbGBMA2QuGtLPMzRhhnvexRtVRycZWP".to_string()),
+  let request_addr = SearchTransactionsRequest {
+    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "testnet".to_string())),
+    address: Some(address.to_string()),
     limit: Some(5),
     offset: Some(0),
     ..Default::default()
   };
 
-  let response = mina_mesh.search_transactions(request).await;
+  let response_addr = mina_mesh.search_transactions(request_addr).await;
 
-  assert!(response.is_ok());
-  assert_debug_snapshot!(response);
+  let request_acct_id = SearchTransactionsRequest {
+    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "testnet".to_string())),
+    account_identifier: Some(Box::new(AccountIdentifier::new(address.to_string()))),
+    limit: Some(5),
+    offset: Some(0),
+    ..Default::default()
+  };
+
+  let response_acct_id = mina_mesh.search_transactions(request_acct_id).await;
+
+  assert_eq!(response_addr, response_acct_id);
+  assert!(response_addr.is_ok());
+  assert_debug_snapshot!(response_addr);
   Ok(())
 }
 
@@ -105,5 +117,68 @@ async fn search_transactions_zkapp_failed() -> Result<()> {
 
   assert!(response.is_ok());
   assert_debug_snapshot!(response);
+  Ok(())
+}
+
+#[tokio::test]
+async fn search_transactions_zkapp_tokens_account_identifier() -> Result<()> {
+  let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
+  let max_block = 319857;
+  // cspell:disable
+  let token_id = "xBxjFpJkbWpbGua7Lf36S1NLhffFoEChyP3pz6SYKnx7dFCTwg";
+  let address1 = "B62qituGxc1ZNbWfz4SnftNUaJ78YYYsmuuuJr1FFHjbRqLir7tvBew";
+  let address2 = "B62qjwDWxjf4LtJ4YWJQDdTNPqZ69ZyeCzbpAFKN7EoZzYig5ZRz8JE";
+  // cspell:enable
+  let metadata = serde_json::json!({ "token_id": token_id });
+
+  let request_address1_token = SearchTransactionsRequest {
+    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "testnet".to_string())),
+    max_block: Some(max_block),
+    account_identifier: Some(Box::new(AccountIdentifier {
+      address: address1.to_string(),
+      metadata: Some(metadata.clone()),
+      ..Default::default()
+    })),
+    limit: Some(1),
+    ..Default::default()
+  };
+  let response_address1_token = mina_mesh.search_transactions(request_address1_token).await;
+
+  let request_address2_token = SearchTransactionsRequest {
+    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "testnet".to_string())),
+    max_block: Some(max_block),
+    account_identifier: Some(Box::new(AccountIdentifier {
+      address: address2.to_string(),
+      metadata: Some(metadata.clone()),
+      ..Default::default()
+    })),
+    limit: Some(1),
+    ..Default::default()
+  };
+  let response_address2_token = mina_mesh.search_transactions(request_address2_token).await;
+
+  assert!(response_address1_token.is_ok());
+  assert_eq!(response_address1_token, response_address2_token);
+  assert_debug_snapshot!(response_address1_token);
+  Ok(())
+}
+
+#[tokio::test]
+async fn search_transactions_zkapp_tokens_tx_hash() -> Result<()> {
+  let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
+
+  let request_tx_hash = SearchTransactionsRequest {
+    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "testnet".to_string())),
+    transaction_identifier: Some(Box::new(TransactionIdentifier::new(
+      // cspell:disable-next-line
+      "5JuotEHhjuYbu2oucyTiVhJX3Abx5DPL4NXnM7CP9hfJZLE5G8n9".to_string(),
+    ))),
+    limit: Some(1),
+    ..Default::default()
+  };
+  let response_tx_hash = mina_mesh.search_transactions(request_tx_hash).await;
+
+  assert!(response_tx_hash.is_ok());
+  assert_debug_snapshot!(response_tx_hash);
   Ok(())
 }

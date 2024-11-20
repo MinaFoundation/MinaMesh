@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 
 use coinbase_mesh::models::{
   AccountIdentifier, BlockIdentifier, BlockTransaction, Operation, SearchTransactionsRequest,
@@ -42,6 +42,7 @@ impl MinaMesh {
       let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
       transactions.extend(internal_commands.into_iter().map(|uc| uc.into()));
       txs_len += internal_commands_len;
+
       total_count += internal_commands_total_count;
     } else {
       // otherwise only fetch the first internal command to get the total count
@@ -218,7 +219,7 @@ impl MinaMesh {
 }
 
 pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<BlockTransaction> {
-  let mut block_map: HashMap<(i64, String), BTreeMap<String, Vec<Operation>>> = HashMap::new();
+  let mut block_map: BTreeMap<(i64, String), BTreeMap<String, Vec<Operation>>> = BTreeMap::new();
 
   for command in commands {
     // Group by block identifier (block index and block hash)
@@ -242,6 +243,7 @@ pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<
         Some(&TransactionStatus::Applied),
         None,
         None,
+        None,
       ));
     }
 
@@ -251,13 +253,14 @@ pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<
       Some(&command.balance_change),
       &AccountIdentifier {
         address: command.pk_update_body.clone(),
-        metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
+        metadata: Some(json!({ "token_id": command.token })),
         sub_account: None,
       },
       OperationType::ZkappBalanceUpdate,
       Some(&command.status),
       None,
       None,
+      command.token.as_ref(),
     ));
   }
 
@@ -338,6 +341,7 @@ impl From<InternalCommand> for BlockTransaction {
         Some(status),
         None,
         None,
+        None,
       ));
       operation_index += 1;
     }
@@ -352,6 +356,7 @@ impl From<InternalCommand> for BlockTransaction {
           Some(status),
           None,
           None,
+          None,
         ));
       }
 
@@ -362,6 +367,7 @@ impl From<InternalCommand> for BlockTransaction {
           receiver_account_id,
           OperationType::FeeReceiverInc,
           Some(status),
+          None,
           None,
           None,
         ));
@@ -377,6 +383,7 @@ impl From<InternalCommand> for BlockTransaction {
             Some(status),
             None,
             None,
+            None,
           ));
           operation_index += 1;
 
@@ -387,6 +394,7 @@ impl From<InternalCommand> for BlockTransaction {
             OperationType::FeePayerDec,
             Some(status),
             Some(vec![operation_index - 1]),
+            None,
             None,
           ));
         }
@@ -497,6 +505,7 @@ impl From<UserCommand> for BlockTransaction {
       Some(&TransactionStatus::Applied),
       None,
       operations_metadata_value.as_ref(),
+      None,
     ));
 
     operation_index += 1;
@@ -511,6 +520,7 @@ impl From<UserCommand> for BlockTransaction {
         Some(&user_command.status),
         None,
         operations_metadata_value.as_ref(),
+        None,
       ));
 
       operation_index += 1;
@@ -528,6 +538,7 @@ impl From<UserCommand> for BlockTransaction {
           Some(&user_command.status),
           None,
           operations_metadata_value.as_ref(),
+          None,
         ));
 
         operation_index += 1;
@@ -541,6 +552,7 @@ impl From<UserCommand> for BlockTransaction {
           Some(&user_command.status),
           Some(vec![operation_index - 1]),
           operations_metadata_value.as_ref(),
+          None,
         ));
       }
 
@@ -554,6 +566,7 @@ impl From<UserCommand> for BlockTransaction {
           Some(&user_command.status),
           None,
           Some(&json!({ "delegate_change_target": user_command.receiver })),
+          None,
         ));
       }
     }
@@ -580,13 +593,29 @@ pub struct SearchTransactionsQueryParams {
   pub address: Option<String>,
 }
 
+impl std::fmt::Display for SearchTransactionsQueryParams {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(
+      f,
+      "max_block: {:?}, transaction_hash: {:?}, account_identifier: {:?}, token_id: {:?}, status: {:?}, success_status: {:?}, address: {:?}",
+      self.max_block, self.transaction_hash, self.account_identifier, self.token_id, self.status, self.success_status, self.address
+    )
+  }
+}
+
 impl TryFrom<SearchTransactionsRequest> for SearchTransactionsQueryParams {
   type Error = MinaMeshError;
 
   fn try_from(req: SearchTransactionsRequest) -> Result<Self, Self::Error> {
     let max_block = req.max_block;
     let transaction_hash = req.transaction_identifier.map(|t| t.hash);
-    let token_id = req.account_identifier.as_ref().and_then(|a| a.metadata.as_ref().map(|meta| meta.to_string()));
+    // token_id can be found in the metadata of the account_identifier
+    let token_id = req
+      .account_identifier
+      .as_ref()
+      .and_then(|a| a.metadata.as_ref())
+      .and_then(|m| m.get("token_id"))
+      .map(|t| t.as_str().unwrap().to_string());
     let account_identifier = req.account_identifier.map(|a| a.address);
 
     let status = match req.status.as_deref() {
@@ -608,8 +637,7 @@ impl TryFrom<SearchTransactionsRequest> for SearchTransactionsQueryParams {
     };
 
     let address = req.address;
-
-    Ok(SearchTransactionsQueryParams {
+    let st = SearchTransactionsQueryParams {
       max_block,
       transaction_hash,
       account_identifier,
@@ -617,7 +645,8 @@ impl TryFrom<SearchTransactionsRequest> for SearchTransactionsQueryParams {
       status,
       success_status,
       address,
-    })
+    };
+    Ok(st)
   }
 }
 
