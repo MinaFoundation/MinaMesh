@@ -5,7 +5,7 @@ use mina_mesh::{MinaMeshConfig, MinaMeshError};
 
 async fn assert_error_properties(
   error: MinaMeshError,
-  expected_code: u8,
+  expected_code: i32,
   expected_description: &str,
   expected_retriable: bool,
   expected_status: StatusCode,

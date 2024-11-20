@@ -60,7 +60,6 @@ impl MinaMesh {
         }]))
       }
       Some(account_balance_info) => {
-        println!("B");
         let last_relevant_command_balance = account_balance_info.balance.parse::<u64>()?;
         let timing_info = sqlx::query_file!("sql/queries/timing_info.sql", account_balance_info.timing_id)
           .fetch_optional(&self.pg_pool)

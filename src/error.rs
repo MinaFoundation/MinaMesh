@@ -108,8 +108,39 @@ pub enum PartialReason {
 }
 
 impl MinaMeshError {
+  pub fn all_errors() -> Vec<Self> {
+    vec![
+      MinaMeshError::Sql("SQL syntax error".to_string()),
+      MinaMeshError::JsonParse(Some("Missing field".to_string())),
+      MinaMeshError::GraphqlMinaQuery("Timeout".to_string()),
+      MinaMeshError::NetworkDne("blockchain".to_string(), "network".to_string()),
+      MinaMeshError::ChainInfoMissing,
+      MinaMeshError::AccountNotFound("Account ID".to_string()),
+      MinaMeshError::InvariantViolation,
+      MinaMeshError::TransactionNotFound("Transaction ID".to_string()),
+      MinaMeshError::BlockMissing("Block ID".to_string()),
+      MinaMeshError::MalformedPublicKey,
+      MinaMeshError::OperationsNotValid(vec![]),
+      MinaMeshError::UnsupportedOperationForConstruction,
+      MinaMeshError::SignatureMissing,
+      MinaMeshError::PublicKeyFormatNotValid,
+      MinaMeshError::NoOptionsProvided,
+      MinaMeshError::Exception("Unexpected error".to_string()),
+      MinaMeshError::SignatureInvalid,
+      MinaMeshError::MemoInvalid,
+      MinaMeshError::GraphqlUriNotSet,
+      MinaMeshError::TransactionSubmitNoSender,
+      MinaMeshError::TransactionSubmitDuplicate,
+      MinaMeshError::TransactionSubmitBadNonce,
+      MinaMeshError::TransactionSubmitFeeSmall,
+      MinaMeshError::TransactionSubmitInvalidSignature,
+      MinaMeshError::TransactionSubmitInsufficientBalance,
+      MinaMeshError::TransactionSubmitExpired,
+    ]
+  }
+
   /// Returns the error code for the error.
-  pub fn error_code(&self) -> u8 {
+  pub fn error_code(&self) -> i32 {
     match self {
       MinaMeshError::Sql(_) => 1,
       MinaMeshError::JsonParse(_) => 2,
@@ -311,5 +342,17 @@ impl From<anyhow::Error> for MinaMeshError {
 impl From<JsonRejection> for MinaMeshError {
   fn from(err: JsonRejection) -> Self {
     MinaMeshError::JsonParse(Some(err.body_text()))
+  }
+}
+
+impl From<MinaMeshError> for coinbase_mesh::models::Error {
+  fn from(error: MinaMeshError) -> Self {
+    coinbase_mesh::models::Error {
+      code: error.error_code(),
+      message: error.to_string(),
+      description: Some(error.description()),
+      retriable: error.is_retriable(),
+      details: Some(error.details()),
+    }
   }
 }
