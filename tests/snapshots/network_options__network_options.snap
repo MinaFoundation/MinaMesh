@@ -1,0 +1,349 @@
+---
+source: tests/network_options.rs
+expression: "&response.allow"
+---
+Allow {
+    operation_statuses: [
+        OperationStatus {
+            status: "Success",
+            successful: true,
+        },
+        OperationStatus {
+            status: "Failed",
+            successful: false,
+        },
+    ],
+    operation_types: [
+        "fee_payer_dec",
+        "fee_receiver_inc",
+        "coinbase_inc",
+        "account_creation_fee_via_payment",
+        "account_creation_fee_via_fee_payer",
+        "account_creation_fee_via_fee_receiver",
+        "payment_source_dec",
+        "payment_receiver_inc",
+        "fee_payment",
+        "delegate_change",
+        "create_token",
+        "mint_tokens",
+        "zkapp_fee_payer_dec",
+        "zkapp_balance_update",
+    ],
+    errors: [
+        Error {
+            code: 1,
+            message: "SQL failure: SQL syntax error",
+            description: Some(
+                "An SQL error occurred.",
+            ),
+            retriable: false,
+            details: Some(
+                Object {
+                    "error": String("SQL syntax error"),
+                    "extra": String("Internal SQL query failed"),
+                },
+            ),
+        },
+        Error {
+            code: 2,
+            message: "JSON parse error",
+            description: Some(
+                "We encountered an error while parsing JSON.",
+            ),
+            retriable: false,
+            details: Some(
+                Object {
+                    "error": String("Missing field"),
+                    "extra": String("Failed to parse JSON body"),
+                },
+            ),
+        },
+        Error {
+            code: 3,
+            message: "GraphQL query failed: Timeout",
+            description: Some(
+                "The GraphQL query failed.",
+            ),
+            retriable: true,
+            details: Some(
+                Object {
+                    "error": String("Timeout"),
+                    "extra": String("Internal POST to Mina Daemon failed"),
+                },
+            ),
+        },
+        Error {
+            code: 4,
+            message: "Network doesn't exist",
+            description: Some(
+                "The specified network does not exist.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 5,
+            message: "Chain info missing",
+            description: Some(
+                "Chain info is missing.",
+            ),
+            retriable: true,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 6,
+            message: "Account not found: Account ID",
+            description: Some(
+                "The specified account could not be found.",
+            ),
+            retriable: true,
+            details: Some(
+                Object {
+                    "account": String("Account ID"),
+                    "error": String("You attempted to lookup Account ID, but we couldn't find it in the ledger."),
+                },
+            ),
+        },
+        Error {
+            code: 7,
+            message: "Internal invariant violation (you found a bug)",
+            description: Some(
+                "An internal invariant was violated.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 8,
+            message: "Transaction not found",
+            description: Some(
+                "The specified transaction could not be found.",
+            ),
+            retriable: true,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 9,
+            message: "Block not found",
+            description: Some(
+                "The specified block could not be found.",
+            ),
+            retriable: true,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 10,
+            message: "Malformed public key",
+            description: Some(
+                "The provided public key is malformed.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 11,
+            message: "Cannot convert operations to valid transaction",
+            description: Some(
+                "The provided operations are not valid.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 12,
+            message: "Unsupported operation for construction",
+            description: Some(
+                "The operation is not supported for transaction construction.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 13,
+            message: "Signature missing",
+            description: Some(
+                "A signature is missing.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 14,
+            message: "Invalid public key format",
+            description: Some(
+                "The public key format is not valid.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 15,
+            message: "No options provided",
+            description: Some(
+                "No options were provided.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 16,
+            message: "Exception Unexpected error",
+            description: Some(
+                "An internal exception occurred.",
+            ),
+            retriable: false,
+            details: Some(
+                Object {
+                    "error": String("Unexpected error"),
+                },
+            ),
+        },
+        Error {
+            code: 17,
+            message: "Invalid signature",
+            description: Some(
+                "The signature is invalid.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 18,
+            message: "Invalid memo",
+            description: Some(
+                "The memo is invalid.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 19,
+            message: "No GraphQL URI set",
+            description: Some(
+                "No GraphQL URI has been set.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 20,
+            message: "Can't send transaction: No sender found in ledger",
+            description: Some(
+                "No sender was found in the ledger.",
+            ),
+            retriable: true,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 21,
+            message: "Can't send transaction: A duplicate is detected",
+            description: Some(
+                "A duplicate transaction was detected.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 22,
+            message: "Can't send transaction: Nonce invalid",
+            description: Some(
+                "The nonce is invalid.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 23,
+            message: "Can't send transaction: Fee too small",
+            description: Some(
+                "The transaction fee is too small.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 24,
+            message: "Can't send transaction: Invalid signature",
+            description: Some(
+                "The transaction signature is invalid.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 25,
+            message: "Can't send transaction: Insufficient balance",
+            description: Some(
+                "The account has insufficient balance.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+        Error {
+            code: 26,
+            message: "Can't send transaction: Expired",
+            description: Some(
+                "The transaction has expired.",
+            ),
+            retriable: false,
+            details: Some(
+                String(""),
+            ),
+        },
+    ],
+    historical_balance_lookup: true,
+    timestamp_start_index: None,
+    call_methods: [],
+    balance_exemptions: [],
+    mempool_coins: false,
+    block_hash_case: Some(
+        Some(
+            CaseSensitive,
+        ),
+    ),
+    transaction_hash_case: Some(
+        Some(
+            CaseSensitive,
+        ),
+    ),
+}

@@ -5,7 +5,7 @@ use mina_mesh::{
   models::{
     AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, NetworkIdentifier, PartialBlockIdentifier,
   },
-  MinaMeshConfig,
+  MinaMeshConfig, MinaMeshError,
 };
 
 #[tokio::test]
@@ -35,5 +35,30 @@ async fn responses() -> Result<()> {
   .collect();
   let results: Vec<AccountBalanceResponse> = try_join_all(futures).await?;
   assert_debug_snapshot!(results);
+  Ok(())
+}
+
+#[tokio::test]
+async fn account_not_found_error() -> Result<()> {
+  let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
+  let response = mina_mesh
+    .account_balance(AccountBalanceRequest {
+      account_identifier: Box::new(AccountIdentifier {
+        //cspell:disable-next-line
+        address: "B62qp3LaAUKQ76DdFYaQ7bj46HDTgpCaFpwhDqbjNJUC79Rf6x8CxV3".into(),
+        sub_account: None,
+        metadata: None,
+      }),
+      block_identifier: None,
+      currencies: None,
+      network_identifier: Box::new(NetworkIdentifier {
+        blockchain: "mina".into(),
+        network: "testnet".into(),
+        sub_network_identifier: None,
+      }),
+    })
+    .await;
+  assert!(matches!(response, Err(MinaMeshError::AccountNotFound(_))));
+
   Ok(())
 }

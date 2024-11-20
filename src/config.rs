@@ -5,7 +5,7 @@ use clap::{Args, Parser};
 use coinbase_mesh::models::BlockIdentifier;
 use sqlx::postgres::PgPoolOptions;
 
-use crate::{graphql::GraphQLClient, util::default_mina_proxy_url, MinaMesh};
+use crate::{graphql::GraphQLClient, util::default_mina_proxy_url, MinaMesh, MinaMeshError};
 
 #[derive(Debug, Args)]
 pub struct MinaMeshConfig {
@@ -51,7 +51,11 @@ impl MinaMeshConfig {
     }
   }
 
-  pub async fn to_mina_mesh(self) -> Result<MinaMesh> {
+  pub async fn to_mina_mesh(self) -> Result<MinaMesh, MinaMeshError> {
+    if self.proxy_url.is_empty() {
+      return Err(MinaMeshError::GraphqlUriNotSet);
+    }
+
     Ok(MinaMesh {
       graphql_client: GraphQLClient::new(self.proxy_url.to_owned()),
       pg_pool: PgPoolOptions::new()

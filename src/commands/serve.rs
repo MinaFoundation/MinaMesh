@@ -12,7 +12,7 @@ use clap::Args;
 use paste::paste;
 use tokio::net::TcpListener;
 
-use crate::{playground::handle_playground, util::Wrapper, MinaMesh, MinaMeshConfig};
+use crate::{playground::handle_playground, util::Wrapper, MinaMesh, MinaMeshConfig, MinaMeshError};
 
 #[derive(Debug, Args)]
 #[command(about = "Start the Mina Mesh Server.")]
@@ -64,18 +64,21 @@ impl ServeCommand {
 
 macro_rules! create_handler {
   ($name:ident, $request_type:ty) => {
-    paste! {
-      async fn [<handle _ $name>](mina_mesh: State<Arc<MinaMesh>>, Json(req): Json<coinbase_mesh::models::$request_type>) -> impl IntoResponse {
-        Wrapper(mina_mesh.$name(req).await)
+      paste! {
+          async fn [<handle _ $name>](mina_mesh: State<Arc<MinaMesh>>, req: Result<Json<coinbase_mesh::models::$request_type>, axum::extract::rejection::JsonRejection>) -> impl IntoResponse {
+              match req {
+                  Ok(Json(req)) => Wrapper(mina_mesh.$name(req).await.map_err(MinaMeshError::from)), // Normalize errors to MinaMeshError
+                  Err(err) => Wrapper(Err(MinaMeshError::from(err))), // Convert JsonRejection to MinaMeshError
+              }
+          }
       }
-    }
   };
   ($name:ident) => {
-    paste! {
-      async fn [<handle _ $name>](mina_mesh: State<Arc<MinaMesh>>) -> impl IntoResponse {
-        Wrapper(mina_mesh.$name().await)
+      paste! {
+          async fn [<handle _ $name>](mina_mesh: State<Arc<MinaMesh>>) -> impl IntoResponse {
+              Wrapper(mina_mesh.$name().await.map_err(MinaMeshError::from)) // Normalize errors to MinaMeshError
+          }
       }
-    }
   };
 }
 

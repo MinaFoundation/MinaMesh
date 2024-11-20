@@ -1,7 +1,6 @@
 use anyhow::Result;
 use axum::{
   extract::Json,
-  http::StatusCode,
   response::{IntoResponse, Response},
 };
 use serde::Serialize;
@@ -10,11 +9,17 @@ use crate::MinaMeshError;
 
 pub struct Wrapper<T>(pub T);
 
-impl<T: Serialize, E: ToString> IntoResponse for Wrapper<Result<T, E>> {
+impl<T: Serialize, E: ToString> IntoResponse for Wrapper<Result<T, E>>
+where
+  MinaMeshError: From<E>,
+{
   fn into_response(self) -> Response {
     match self.0 {
       Ok(v) => Json(v).into_response(),
-      Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+      Err(err) => {
+        let mina_error: MinaMeshError = err.into();
+        mina_error.into_response()
+      }
     }
   }
 }
