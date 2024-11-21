@@ -7,8 +7,9 @@ use crate::MinaMesh;
 impl MinaMesh {
   pub async fn construction_metadata(
     &self,
-    _request: ConstructionMetadataRequest,
+    request: ConstructionMetadataRequest,
   ) -> Result<ConstructionMetadataResponse> {
+    self.validate_network(&request.network_identifier).await?;
     Ok(ConstructionMetadataResponse::new(serde_json::Value::Null))
   }
 }

@@ -42,7 +42,7 @@ async fn search_transactions_failed() -> Result<()> {
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
 
   let request = SearchTransactionsRequest {
-    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "mainnet".to_string())),
+    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "testnet".to_string())),
     max_block: Some(44),
     status: Some("failed".to_string()),
     limit: Some(5),
@@ -61,7 +61,7 @@ async fn search_transactions_internal_command() -> Result<()> {
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
 
   let request = SearchTransactionsRequest {
-    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "mainnet".to_string())),
+    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "testnet".to_string())),
     max_block: Some(44),
     transaction_identifier: Some(Box::new(TransactionIdentifier::new(
       // cspell:disable-next-line

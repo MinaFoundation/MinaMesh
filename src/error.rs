@@ -23,7 +23,7 @@ pub enum MinaMeshError {
   #[error("GraphQL query failed: {0}")]
   GraphqlMinaQuery(String),
 
-  #[error("Network doesn't exist")]
+  #[error("Network doesn't exist, expected: {0}, actual: {1}")]
   NetworkDne(String, String),
 
   #[error("Chain info missing")]
@@ -113,7 +113,7 @@ impl MinaMeshError {
       MinaMeshError::Sql("SQL syntax error".to_string()),
       MinaMeshError::JsonParse(Some("Missing field".to_string())),
       MinaMeshError::GraphqlMinaQuery("Timeout".to_string()),
-      MinaMeshError::NetworkDne("blockchain".to_string(), "network".to_string()),
+      MinaMeshError::NetworkDne("mina:expected".to_string(), "mina:actual".to_string()),
       MinaMeshError::ChainInfoMissing,
       MinaMeshError::AccountNotFound("Account ID".to_string()),
       MinaMeshError::InvariantViolation,
@@ -205,6 +205,9 @@ impl MinaMeshError {
       }),
       MinaMeshError::Exception(msg) => json!({
         "error": msg,
+      }),
+      MinaMeshError::NetworkDne(expected, actual) => json!({
+        "error": format!("You are requesting the status for the network {}, but you are connected to the network {}", expected, actual),
       }),
       _ => json!(""),
     }

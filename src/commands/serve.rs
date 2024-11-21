@@ -93,11 +93,11 @@ create_handler!(construction_parse, ConstructionParseRequest);
 create_handler!(construction_payloads, ConstructionPayloadsRequest);
 create_handler!(construction_preprocess, ConstructionPreprocessRequest);
 create_handler!(construction_submit, ConstructionSubmitRequest);
-create_handler!(mempool);
+create_handler!(mempool, NetworkRequest);
 create_handler!(mempool_transaction, MempoolTransactionRequest);
 create_handler!(network_list);
-create_handler!(network_options);
-create_handler!(network_status);
+create_handler!(network_options, NetworkRequest);
+create_handler!(network_status, NetworkRequest);
 create_handler!(search_transactions, SearchTransactionsRequest);
 
 #[debug_handler]

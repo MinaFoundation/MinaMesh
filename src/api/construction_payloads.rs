@@ -7,8 +7,9 @@ use crate::MinaMesh;
 impl MinaMesh {
   pub async fn construction_payloads(
     &self,
-    _request: ConstructionPayloadsRequest,
+    request: ConstructionPayloadsRequest,
   ) -> Result<ConstructionPayloadsResponse> {
+    self.validate_network(&request.network_identifier).await?;
     Ok(ConstructionPayloadsResponse::new("".to_string(), vec![]))
   }
 }

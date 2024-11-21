@@ -74,13 +74,15 @@ Allow {
         },
         Error {
             code: 4,
-            message: "Network doesn't exist",
+            message: "Network doesn't exist, expected: mina:expected, actual: mina:actual",
             description: Some(
                 "The specified network does not exist.",
             ),
             retriable: false,
             details: Some(
-                String(""),
+                Object {
+                    "error": String("You are requesting the status for the network mina:expected, but you are connected to the network mina:actual"),
+                },
             ),
         },
         Error {

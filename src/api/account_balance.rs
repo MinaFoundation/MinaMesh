@@ -12,12 +12,10 @@ use crate::{
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/account.ml#L11
 impl MinaMesh {
-  pub async fn account_balance(
-    &self,
-    AccountBalanceRequest { account_identifier, block_identifier: maybe_block_identifier, .. }: AccountBalanceRequest,
-  ) -> Result<AccountBalanceResponse, MinaMeshError> {
-    let AccountIdentifier { address, metadata, .. } = *account_identifier;
-    match maybe_block_identifier {
+  pub async fn account_balance(&self, req: AccountBalanceRequest) -> Result<AccountBalanceResponse, MinaMeshError> {
+    self.validate_network(&req.network_identifier).await?;
+    let AccountIdentifier { address, metadata, .. } = *req.account_identifier;
+    match req.block_identifier {
       Some(block_identifier) => self.block_balance(address, metadata, *block_identifier).await,
       None => self.frontier_balance(address).await,
     }

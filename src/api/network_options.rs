@@ -1,13 +1,14 @@
 // TODO: double-check the data is correct
 // TODO: why do long string literals in the error metadata break rustfmt?
 
-use coinbase_mesh::models::{Allow, Case, Error, NetworkOptionsResponse, OperationStatus, Version};
+use coinbase_mesh::models::{Allow, Case, Error, NetworkOptionsResponse, NetworkRequest, OperationStatus, Version};
 
 use crate::{MinaMesh, MinaMeshError};
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/network.ml#L444
 impl MinaMesh {
-  pub async fn network_options(&self) -> Result<NetworkOptionsResponse, MinaMeshError> {
+  pub async fn network_options(&self, req: NetworkRequest) -> Result<NetworkOptionsResponse, MinaMeshError> {
+    self.validate_network(&req.network_identifier).await?;
     let errors: Vec<Error> = MinaMeshError::all_errors().into_iter().map(Error::from).collect();
 
     Ok(NetworkOptionsResponse::new(Version::new("1.4.9".to_string(), "1.0.0".to_string()), Allow {
