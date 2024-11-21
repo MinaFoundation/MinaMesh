@@ -21,6 +21,7 @@ clap = { version = "4.5.11", features = ["derive", "env"] }
 coinbase-mesh = "0.1.0"
 convert_case = "0.6.0"
 cynic = { version = "3.7.3", features = ["http-reqwest-blocking"] }
+dashmap = "6.1.0"
 derive_more = { version = "1.0.0", features = ["full"] }
 dotenv = "0.15.0"
 envy = "0.4.2"
