@@ -14,6 +14,7 @@ impl MinaMesh {
     &self,
     request: MempoolTransactionRequest,
   ) -> Result<MempoolTransactionResponse, MinaMeshError> {
+    self.validate_network(&request.network_identifier).await?;
     let QueryMempoolTransactions { daemon_status: _daemon_status, initial_peers: _initial_peers, pooled_user_commands } =
       self
         .graphql_client

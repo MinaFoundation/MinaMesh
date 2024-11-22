@@ -46,7 +46,7 @@ fn specified_identifiers() -> &'static [PartialBlockIdentifier; 3] {
 
 fn network_identifier() -> &'static NetworkIdentifier {
   static NETWORK_IDENTIFIER: OnceLock<NetworkIdentifier> = OnceLock::new();
-  NETWORK_IDENTIFIER.get_or_init(|| NetworkIdentifier::new("mina".to_string(), "mainnet".to_string()))
+  NETWORK_IDENTIFIER.get_or_init(|| NetworkIdentifier::new("mina".to_string(), "testnet".to_string()))
 }
 
 #[tokio::test]

@@ -14,6 +14,7 @@ use crate::{
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
 impl MinaMesh {
   pub async fn block(&self, request: BlockRequest) -> Result<BlockResponse, MinaMeshError> {
+    self.validate_network(&request.network_identifier).await?;
     let partial_block_identifier = *request.block_identifier;
     let metadata = match self.block_metadata(&partial_block_identifier).await? {
       Some(metadata) => metadata,

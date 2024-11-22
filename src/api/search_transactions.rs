@@ -18,6 +18,7 @@ impl MinaMesh {
     &self,
     req: SearchTransactionsRequest,
   ) -> Result<SearchTransactionsResponse, MinaMeshError> {
+    self.validate_network(&req.network_identifier).await?;
     let original_offset = req.offset.unwrap_or(0);
     let mut offset = original_offset;
     let mut limit = req.limit.unwrap_or(100);

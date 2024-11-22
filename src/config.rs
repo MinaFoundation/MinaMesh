@@ -3,6 +3,7 @@ use std::time::Duration;
 use anyhow::Result;
 use clap::{Args, Parser};
 use coinbase_mesh::models::BlockIdentifier;
+use dashmap::DashMap;
 use sqlx::postgres::PgPoolOptions;
 
 use crate::{graphql::GraphQLClient, util::default_mina_proxy_url, MinaMesh, MinaMeshError};
@@ -69,6 +70,8 @@ impl MinaMeshConfig {
         self.genesis_block_identifier_state_hash.to_owned(),
       ),
       search_tx_optimized: self.use_search_tx_optimizations,
+      cache: DashMap::new(),
+      cache_ttl: Duration::from_secs(300),
     })
   }
 }

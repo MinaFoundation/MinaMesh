@@ -27,7 +27,7 @@ async fn responses() -> Result<()> {
       currencies: None,
       network_identifier: Box::new(NetworkIdentifier {
         blockchain: "mina".into(),
-        network: "mainnet".into(),
+        network: "testnet".into(),
         sub_network_identifier: None,
       }),
     })

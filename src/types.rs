@@ -105,3 +105,8 @@ pub struct ZkAppCommand {
   pub total_count: Option<i64>,
   pub block_id: Option<i32>,
 }
+
+#[derive(Debug, Display, Hash, PartialEq, Eq)]
+pub enum CacheKey {
+  NetworkId,
+}

@@ -7,8 +7,9 @@ use crate::MinaMesh;
 impl MinaMesh {
   pub async fn construction_preprocess(
     &self,
-    _request: ConstructionPreprocessRequest,
+    request: ConstructionPreprocessRequest,
   ) -> Result<ConstructionPreprocessResponse> {
+    self.validate_network(&request.network_identifier).await?;
     Ok(ConstructionPreprocessResponse::new())
   }
 }

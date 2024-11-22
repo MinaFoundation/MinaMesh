@@ -1,5 +1,6 @@
 mod account_balance;
 mod block;
+mod cache;
 mod call;
 mod construction_combine;
 mod construction_derive;
@@ -11,8 +12,8 @@ mod construction_preprocess;
 mod construction_submit;
 mod mempool;
 mod mempool_transaction;
-mod network_health_check;
 mod network_list;
 mod network_options;
 mod network_status;
 mod search_transactions;
+mod validate_network;
