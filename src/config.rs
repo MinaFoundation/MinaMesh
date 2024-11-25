@@ -59,8 +59,10 @@ impl MinaMeshConfig {
     tracing::info!("Connecting to Mina GraphQL endpoint at {}", self.proxy_url);
     let graphql_client = GraphQLClient::new(self.proxy_url.to_owned());
     let res = graphql_client.send(graphql::QueryGenesisBlockIdentifier::build(())).await?;
-    tracing::debug!("Genesis block identifier: {}", res.genesis_block.protocol_state.consensus_state.block_height.0);
-    tracing::debug!("Genesis block state hash: {}", res.genesis_block.state_hash.0);
+    let block_height = res.genesis_block.protocol_state.consensus_state.block_height.0.parse::<i64>()?;
+    let state_hash = res.genesis_block.state_hash.0.clone();
+    tracing::debug!("Genesis block identifier: {}", block_height);
+    tracing::debug!("Genesis block state hash: {}", state_hash);
 
     Ok(MinaMesh {
       graphql_client,
@@ -70,10 +72,7 @@ impl MinaMeshConfig {
         .idle_timeout(Duration::from_secs(self.db_pool_idle_timeout))
         .connect(self.archive_database_url.as_str())
         .await?,
-      genesis_block_identifier: BlockIdentifier::new(
-        res.genesis_block.protocol_state.consensus_state.block_height.0.parse::<i64>().unwrap(),
-        res.genesis_block.state_hash.0.clone(),
-      ),
+      genesis_block_identifier: BlockIdentifier::new(block_height, state_hash),
       search_tx_optimized: self.use_search_tx_optimizations,
       cache: DashMap::new(),
       cache_ttl: Duration::from_secs(300),
