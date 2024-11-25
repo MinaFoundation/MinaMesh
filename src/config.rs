@@ -3,10 +3,15 @@ use std::time::Duration;
 use anyhow::Result;
 use clap::{Args, Parser};
 use coinbase_mesh::models::BlockIdentifier;
+use cynic::QueryBuilder;
 use dashmap::DashMap;
 use sqlx::postgres::PgPoolOptions;
 
-use crate::{graphql::GraphQLClient, util::default_mina_proxy_url, MinaMesh, MinaMeshError};
+use crate::{
+  graphql::{self, GraphQLClient},
+  util::default_mina_proxy_url,
+  MinaMesh, MinaMeshError,
+};
 
 #[derive(Debug, Args)]
 pub struct MinaMeshConfig {
@@ -56,9 +61,14 @@ impl MinaMeshConfig {
     if self.proxy_url.is_empty() {
       return Err(MinaMeshError::GraphqlUriNotSet);
     }
+    tracing::info!("Connecting to Mina GraphQL endpoint at {}", self.proxy_url);
+    let graphql_client = GraphQLClient::new(self.proxy_url.to_owned());
+    let res = graphql_client.send(graphql::QueryGenesisBlockIdentifier::build(())).await?;
+    tracing::debug!("Genesis block identifier: {}", res.genesis_block.protocol_state.consensus_state.block_height.0);
+    tracing::debug!("Genesis block state hash: {}", res.genesis_block.state_hash.0);
 
     Ok(MinaMesh {
-      graphql_client: GraphQLClient::new(self.proxy_url.to_owned()),
+      graphql_client,
       pg_pool: PgPoolOptions::new()
         .max_connections(self.max_db_pool_size)
         .min_connections(0)
@@ -66,8 +76,8 @@ impl MinaMeshConfig {
         .connect(self.archive_database_url.as_str())
         .await?,
       genesis_block_identifier: BlockIdentifier::new(
-        self.genesis_block_identifier_height,
-        self.genesis_block_identifier_state_hash.to_owned(),
+        res.genesis_block.protocol_state.consensus_state.block_height.0.parse::<i64>().unwrap(),
+        res.genesis_block.state_hash.0.clone(),
       ),
       search_tx_optimized: self.use_search_tx_optimizations,
       cache: DashMap::new(),
