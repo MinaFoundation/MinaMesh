@@ -2,6 +2,17 @@ use anyhow::Result;
 use mina_mesh::{models::NetworkIdentifier, CacheKey::NetworkId, MinaMeshConfig, MinaMeshError};
 
 #[tokio::test]
+async fn genesis_block_identifier() -> Result<()> {
+  let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
+  assert_eq!(mina_mesh.genesis_block_identifier.index, 296372, "Devnet genesis block index does not match");
+  assert_eq!(
+    mina_mesh.genesis_block_identifier.hash, "3NL93SipJfAMNDBRfQ8Uo8LPovC74mnJZfZYB5SK7mTtkL72dsPx",
+    "Devnet genesis block hash does not match"
+  );
+  Ok(())
+}
+
+#[tokio::test]
 async fn validate_network_ok() -> Result<()> {
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
   let network = NetworkIdentifier::new("mina".to_string(), "testnet".to_string());
