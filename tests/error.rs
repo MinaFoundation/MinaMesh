@@ -125,13 +125,9 @@ async fn test_conversion_from_cynic_reqwest_error() -> Result<(), MinaMeshError>
     archive_database_url: env::var("MINAMESH_ARCHIVE_DATABASE_URL").unwrap(),
     max_db_pool_size: 10,
     db_pool_idle_timeout: 1,
-    genesis_block_identifier_height: 1,
-    genesis_block_identifier_state_hash: "test".to_string(),
     use_search_tx_optimizations: false,
   }
   .to_mina_mesh()
-  .await?
-  .network_list()
   .await;
   // Assert that the error matches MinaMeshError::GraphqlMinaQuery
   assert!(matches!(res, Err(MinaMeshError::GraphqlMinaQuery(_))));
@@ -154,8 +150,6 @@ async fn test_graphql_uri_not_set_error() -> Result<(), MinaMeshError> {
     archive_database_url: env::var("MINAMESH_ARCHIVE_DATABASE_URL").unwrap(),
     max_db_pool_size: 10,
     db_pool_idle_timeout: 1,
-    genesis_block_identifier_height: 1,
-    genesis_block_identifier_state_hash: "test".to_string(),
     use_search_tx_optimizations: false,
   }
   .to_mina_mesh()

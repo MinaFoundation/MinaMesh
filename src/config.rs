@@ -33,11 +33,6 @@ pub struct MinaMeshConfig {
   #[arg(long, env = "MINAMESH_DB_POOL_IDLE_TIMEOUT", default_value_t = 1)]
   pub db_pool_idle_timeout: u64,
 
-  #[arg(long, env = "MINAMESH_GENESIS_BLOCK_IDENTIFIER_HEIGHT")]
-  pub genesis_block_identifier_height: i64,
-  #[arg(long, env = "MINAMESH_GENESIS_BLOCK_IDENTIFIER_STATE_HASH")]
-  pub genesis_block_identifier_state_hash: String,
-
   /// Whether to use optimizations for searching transactions. Requires the
   /// optimizations to be enabled via the `mina-mesh search-tx-optimizations`
   /// command.
