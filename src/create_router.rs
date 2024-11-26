@@ -9,7 +9,7 @@ use axum::{
 };
 use paste::paste;
 
-use crate::{playground::handle_playground, util::Wrapper, MinaMesh};
+use crate::{playground::handle_playground, util::Wrapper, MinaMesh, MinaMeshError};
 
 pub fn create_router(mina_mesh: MinaMesh, playground: bool) -> Router {
   let mut router = Router::new()
@@ -40,18 +40,21 @@ pub fn create_router(mina_mesh: MinaMesh, playground: bool) -> Router {
 
 macro_rules! create_handler {
   ($name:ident, $request_type:ty) => {
-    paste! {
-      async fn [<handle _ $name>](mina_mesh: State<Arc<MinaMesh>>, Json(req): Json<coinbase_mesh::models::$request_type>) -> impl IntoResponse {
-        Wrapper(mina_mesh.$name(req).await)
+      paste! {
+          async fn [<handle _ $name>](mina_mesh: State<Arc<MinaMesh>>, req: Result<Json<coinbase_mesh::models::$request_type>, axum::extract::rejection::JsonRejection>) -> impl IntoResponse {
+              match req {
+                  Ok(Json(req)) => Wrapper(mina_mesh.$name(req).await.map_err(MinaMeshError::from)), // Normalize errors to MinaMeshError
+                  Err(err) => Wrapper(Err(MinaMeshError::from(err))), // Convert JsonRejection to MinaMeshError
+              }
+          }
       }
-    }
   };
   ($name:ident) => {
-    paste! {
-      async fn [<handle _ $name>](mina_mesh: State<Arc<MinaMesh>>) -> impl IntoResponse {
-        Wrapper(mina_mesh.$name().await)
+      paste! {
+          async fn [<handle _ $name>](mina_mesh: State<Arc<MinaMesh>>) -> impl IntoResponse {
+              Wrapper(mina_mesh.$name().await.map_err(MinaMeshError::from)) // Normalize errors to MinaMeshError
+          }
       }
-    }
   };
 }
 
@@ -66,11 +69,11 @@ create_handler!(construction_parse, ConstructionParseRequest);
 create_handler!(construction_payloads, ConstructionPayloadsRequest);
 create_handler!(construction_preprocess, ConstructionPreprocessRequest);
 create_handler!(construction_submit, ConstructionSubmitRequest);
-create_handler!(mempool);
+create_handler!(mempool, NetworkRequest);
 create_handler!(mempool_transaction, MempoolTransactionRequest);
 create_handler!(network_list);
-create_handler!(network_options);
-create_handler!(network_status);
+create_handler!(network_options, NetworkRequest);
+create_handler!(network_status, NetworkRequest);
 create_handler!(search_transactions, SearchTransactionsRequest);
 
 #[debug_handler]
@@ -83,5 +86,6 @@ async fn handle_implemented_methods() -> impl IntoResponse {
     "network_list",
     "network_options",
     "network_status",
+    "search_transactions",
   ])
 }
