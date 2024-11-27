@@ -22,7 +22,7 @@ pub fn account_balance<'a>() -> CompareGroup<'a> {
       currencies: None,
       network_identifier: Box::new(NetworkIdentifier {
         blockchain: "mina".into(),
-        network: "testnet".into(),
+        network: "devnet".into(),
         sub_network_identifier: None,
       }),
     }),
