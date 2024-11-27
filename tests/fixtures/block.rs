@@ -2,6 +2,7 @@ use mina_mesh::models::{BlockRequest, NetworkIdentifier, PartialBlockIdentifier}
 
 use super::CompareGroup;
 
+#[allow(dead_code)]
 pub fn block<'a>() -> CompareGroup<'a> {
   ("/block", vec![
     Box::new(BlockRequest {

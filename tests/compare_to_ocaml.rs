@@ -19,7 +19,7 @@ async fn compare_responses<T: Serialize>(subpath: &str, reqs: &[T]) -> Result<()
 }
 
 #[tokio::test]
-async fn block_comparison() -> Result<()> {
-  let (subpath, reqs) = fixtures::block();
+async fn search_transactions() -> Result<()> {
+  let (subpath, reqs) = fixtures::search_transactions();
   compare_responses(subpath, &reqs).await
 }
