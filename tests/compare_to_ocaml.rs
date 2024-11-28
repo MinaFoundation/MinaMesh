@@ -14,6 +14,7 @@ async fn compare_responses<T: Serialize>(subpath: &str, reqs: &[T]) -> Result<()
     .iter()
     .map(|r| serde_json::to_vec(r).map(|body| comparison_ctx.assert_responses_eq(subpath, Some(body))).unwrap())
     .collect();
+
   join_all(assertion_futures).await;
   Ok(())
 }
@@ -21,5 +22,11 @@ async fn compare_responses<T: Serialize>(subpath: &str, reqs: &[T]) -> Result<()
 #[tokio::test]
 async fn search_transactions() -> Result<()> {
   let (subpath, reqs) = fixtures::search_transactions();
+  compare_responses(subpath, &reqs).await
+}
+
+#[tokio::test]
+async fn network_list() -> Result<()> {
+  let (subpath, reqs) = fixtures::network_list();
   compare_responses(subpath, &reqs).await
 }
