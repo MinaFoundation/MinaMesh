@@ -513,9 +513,10 @@ impl From<UserCommand> for BlockTransaction {
 
     // Operation 2: Account Creation Fee (if applicable)
     if let Some(creation_fee) = &user_command.creation_fee {
+      let negated_creation_fee = format!("-{}", creation_fee);
       operations.push(operation(
         operation_index,
-        Some(&format!("-{}", creation_fee)),
+        if user_command.status == TransactionStatus::Applied { Some(&negated_creation_fee) } else { None },
         receiver_account_id,
         OperationType::AccountCreationFeeViaPayment,
         Some(&user_command.status),
@@ -531,9 +532,10 @@ impl From<UserCommand> for BlockTransaction {
     match user_command.command_type {
       // Operation 3: Payment Source Decrement
       UserCommandType::Payment => {
+        let negated_amt = format!("-{}", amt);
         operations.push(operation(
           operation_index,
-          Some(&format!("-{}", amt)),
+          if user_command.status == TransactionStatus::Applied { Some(&negated_amt) } else { None },
           source_account_id,
           OperationType::PaymentSourceDec,
           Some(&user_command.status),
@@ -547,7 +549,7 @@ impl From<UserCommand> for BlockTransaction {
         // Operation 4: Payment Receiver Increment
         operations.push(operation(
           operation_index,
-          Some(&amt),
+          if user_command.status == TransactionStatus::Applied { Some(&amt) } else { None },
           receiver_account_id,
           OperationType::PaymentReceiverInc,
           Some(&user_command.status),

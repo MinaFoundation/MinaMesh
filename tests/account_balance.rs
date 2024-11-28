@@ -27,7 +27,7 @@ async fn responses() -> Result<()> {
       currencies: None,
       network_identifier: Box::new(NetworkIdentifier {
         blockchain: "mina".into(),
-        network: "testnet".into(),
+        network: "devnet".into(),
         sub_network_identifier: None,
       }),
     })
@@ -53,7 +53,7 @@ async fn account_not_found_error() -> Result<()> {
       currencies: None,
       network_identifier: Box::new(NetworkIdentifier {
         blockchain: "mina".into(),
-        network: "testnet".into(),
+        network: "devnet".into(),
         sub_network_identifier: None,
       }),
     })

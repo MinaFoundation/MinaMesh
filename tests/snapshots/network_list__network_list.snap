@@ -5,7 +5,7 @@ expression: "&response.network_identifiers"
 [
     NetworkIdentifier {
         blockchain: "mina",
-        network: "testnet",
+        network: "devnet",
         sub_network_identifier: None,
     },
 ]

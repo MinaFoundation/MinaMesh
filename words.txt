@@ -31,12 +31,14 @@ minafoundation
 MINAMESH
 navroot
 nocapture
+oneshot
 openai
 openapi
 piotr
 preprocess
 qnighy
 querygen
+reqs
 reqwest
 retriable
 RUSTFLAGS
