@@ -75,17 +75,7 @@ Ok(
                                     ),
                                 },
                             ),
-                            amount: Some(
-                                Amount {
-                                    value: "-1500000",
-                                    currency: Currency {
-                                        symbol: "MINA",
-                                        decimals: 9,
-                                        metadata: None,
-                                    },
-                                    metadata: None,
-                                },
-                            ),
+                            amount: None,
                             coin_change: None,
                             metadata: Some(
                                 Object {
@@ -121,17 +111,7 @@ Ok(
                                     ),
                                 },
                             ),
-                            amount: Some(
-                                Amount {
-                                    value: "1500000",
-                                    currency: Currency {
-                                        symbol: "MINA",
-                                        decimals: 9,
-                                        metadata: None,
-                                    },
-                                    metadata: None,
-                                },
-                            ),
+                            amount: None,
                             coin_change: None,
                             metadata: Some(
                                 Object {
@@ -219,17 +199,7 @@ Ok(
                                     ),
                                 },
                             ),
-                            amount: Some(
-                                Amount {
-                                    value: "-1500000",
-                                    currency: Currency {
-                                        symbol: "MINA",
-                                        decimals: 9,
-                                        metadata: None,
-                                    },
-                                    metadata: None,
-                                },
-                            ),
+                            amount: None,
                             coin_change: None,
                             metadata: Some(
                                 Object {
@@ -265,17 +235,7 @@ Ok(
                                     ),
                                 },
                             ),
-                            amount: Some(
-                                Amount {
-                                    value: "1500000",
-                                    currency: Currency {
-                                        symbol: "MINA",
-                                        decimals: 9,
-                                        metadata: None,
-                                    },
-                                    metadata: None,
-                                },
-                            ),
+                            amount: None,
                             coin_change: None,
                             metadata: Some(
                                 Object {
@@ -363,17 +323,7 @@ Ok(
                                     ),
                                 },
                             ),
-                            amount: Some(
-                                Amount {
-                                    value: "-1500000",
-                                    currency: Currency {
-                                        symbol: "MINA",
-                                        decimals: 9,
-                                        metadata: None,
-                                    },
-                                    metadata: None,
-                                },
-                            ),
+                            amount: None,
                             coin_change: None,
                             metadata: Some(
                                 Object {
@@ -409,17 +359,7 @@ Ok(
                                     ),
                                 },
                             ),
-                            amount: Some(
-                                Amount {
-                                    value: "1500000",
-                                    currency: Currency {
-                                        symbol: "MINA",
-                                        decimals: 9,
-                                        metadata: None,
-                                    },
-                                    metadata: None,
-                                },
-                            ),
+                            amount: None,
                             coin_change: None,
                             metadata: Some(
                                 Object {
@@ -507,17 +447,7 @@ Ok(
                                     ),
                                 },
                             ),
-                            amount: Some(
-                                Amount {
-                                    value: "-1500000",
-                                    currency: Currency {
-                                        symbol: "MINA",
-                                        decimals: 9,
-                                        metadata: None,
-                                    },
-                                    metadata: None,
-                                },
-                            ),
+                            amount: None,
                             coin_change: None,
                             metadata: Some(
                                 Object {
@@ -553,17 +483,7 @@ Ok(
                                     ),
                                 },
                             ),
-                            amount: Some(
-                                Amount {
-                                    value: "1500000",
-                                    currency: Currency {
-                                        symbol: "MINA",
-                                        decimals: 9,
-                                        metadata: None,
-                                    },
-                                    metadata: None,
-                                },
-                            ),
+                            amount: None,
                             coin_change: None,
                             metadata: Some(
                                 Object {
@@ -651,17 +571,7 @@ Ok(
                                     ),
                                 },
                             ),
-                            amount: Some(
-                                Amount {
-                                    value: "-1500000",
-                                    currency: Currency {
-                                        symbol: "MINA",
-                                        decimals: 9,
-                                        metadata: None,
-                                    },
-                                    metadata: None,
-                                },
-                            ),
+                            amount: None,
                             coin_change: None,
                             metadata: Some(
                                 Object {
@@ -697,17 +607,7 @@ Ok(
                                     ),
                                 },
                             ),
-                            amount: Some(
-                                Amount {
-                                    value: "1500000",
-                                    currency: Currency {
-                                        symbol: "MINA",
-                                        decimals: 9,
-                                        metadata: None,
-                                    },
-                                    metadata: None,
-                                },
-                            ),
+                            amount: None,
                             coin_change: None,
                             metadata: Some(
                                 Object {
