@@ -35,6 +35,31 @@ impl ResponseComparisonContext {
     Ok(())
   }
 
+  pub async fn assert_responses_contain(
+    &self,
+    subpath: &str,
+    maybe_body_bytes: Option<Vec<u8>>,
+    expected_fragment: &str,
+  ) -> Result<()> {
+    let body_bytes = maybe_body_bytes.clone().unwrap_or_default();
+    let (a, b) =
+      tokio::try_join!(self.mina_mesh_req(subpath, body_bytes.clone()), self.legacy_req(subpath, body_bytes))?;
+
+    // Check if the expected fragment is present in both responses
+    let a_contains = a.contains(expected_fragment);
+    let b_contains = b.contains(expected_fragment);
+
+    assert!(
+      a_contains && b_contains,
+      "Mismatch for {subpath}; expected fragment `{}` not found in one or both responses; mina_mesh: {}, rosetta: {}",
+      expected_fragment,
+      a,
+      b
+    );
+
+    Ok(())
+  }
+
   async fn mina_mesh_req(&self, subpath: &str, body_bytes: Vec<u8>) -> Result<String> {
     let oneshot_req = Request::builder()
       .method("POST")

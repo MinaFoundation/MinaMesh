@@ -35,7 +35,7 @@ pub enum MinaMeshError {
   #[error("Internal invariant violation (you found a bug)")]
   InvariantViolation,
 
-  #[error("Transaction not found")]
+  #[error("Transaction not found: {0}")]
   TransactionNotFound(String),
 
   #[error("Block not found")]
@@ -208,6 +208,15 @@ impl MinaMeshError {
       }),
       MinaMeshError::NetworkDne(expected, actual) => json!({
         "error": format!("You are requesting the status for the network {}, but you are connected to the network {}", expected, actual),
+      }),
+      MinaMeshError::TransactionNotFound(tx) => json!({
+        "error": format!(
+          "You attempted to lookup transaction {}, but it is missing from the mempool. {} {}",
+          tx,
+          "This may be due to its inclusion in a block -- try looking for this transaction in a recent block.",
+          "It also could be due to the transaction being evicted from the mempool."
+          ),
+        "transaction": tx,
       }),
       _ => json!(""),
     }

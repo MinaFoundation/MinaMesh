@@ -19,6 +19,18 @@ pub fn network_list<'a>() -> CompareGroup<'a> {
   ("/network/list", vec![Box::new(EmptyPayload)])
 }
 
+pub fn network_options<'a>() -> CompareGroup<'a> {
+  ("/network/options", vec![Box::new(network_request())])
+}
+
+pub fn network_status<'a>() -> CompareGroup<'a> {
+  ("/network/status", vec![Box::new(network_request())])
+}
+
+fn network_request() -> NetworkRequest {
+  NetworkRequest::new(NetworkIdentifier::new("mina".to_string(), "devnet".to_string()))
+}
+
 #[cfg(test)]
 mod tests {
   use serde_json;
