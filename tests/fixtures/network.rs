@@ -33,7 +33,6 @@ fn network_request() -> NetworkRequest {
 
 #[cfg(test)]
 mod tests {
-  use serde_json;
 
   use super::*;
 
