@@ -7,13 +7,28 @@ use serde::Serialize;
 
 const LEGACY_ENDPOINT: &str = "https://rosetta-devnet.minaprotocol.network";
 
-async fn compare_responses<T: Serialize>(subpath: &str, reqs: &[T]) -> Result<()> {
+async fn assert_responses_eq<T: Serialize>(subpath: &str, reqs: &[T]) -> Result<()> {
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
   let comparison_ctx = ResponseComparisonContext::new(mina_mesh, LEGACY_ENDPOINT.to_string());
   let assertion_futures: Vec<_> = reqs
     .iter()
     .map(|r| serde_json::to_vec(r).map(|body| comparison_ctx.assert_responses_eq(subpath, Some(body))).unwrap())
     .collect();
+
+  join_all(assertion_futures).await;
+  Ok(())
+}
+
+async fn assert_responses_contain<T: Serialize>(subpath: &str, reqs: &[T], fragment: &str) -> Result<()> {
+  let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
+  let comparison_ctx = ResponseComparisonContext::new(mina_mesh, LEGACY_ENDPOINT.to_string());
+  let assertion_futures: Vec<_> = reqs
+    .iter()
+    .map(|r| {
+      serde_json::to_vec(r).map(|body| comparison_ctx.assert_responses_contain(subpath, Some(body), fragment)).unwrap()
+    })
+    .collect();
+
   join_all(assertion_futures).await;
   Ok(())
 }
@@ -21,5 +36,35 @@ async fn compare_responses<T: Serialize>(subpath: &str, reqs: &[T]) -> Result<()
 #[tokio::test]
 async fn search_transactions() -> Result<()> {
   let (subpath, reqs) = fixtures::search_transactions();
-  compare_responses(subpath, &reqs).await
+  assert_responses_eq(subpath, &reqs).await
+}
+
+#[tokio::test]
+async fn network_list() -> Result<()> {
+  let (subpath, reqs) = fixtures::network_list();
+  assert_responses_eq(subpath, &reqs).await
+}
+
+#[tokio::test]
+async fn network_options() -> Result<()> {
+  let (subpath, reqs) = fixtures::network_options();
+  assert_responses_contain(subpath, &reqs, "node_version").await
+}
+
+#[tokio::test]
+async fn network_status() -> Result<()> {
+  let (subpath, reqs) = fixtures::network_status();
+  assert_responses_contain(subpath, &reqs, "\"stage\": \"Synced\"").await
+}
+
+#[tokio::test]
+async fn mempool() -> Result<()> {
+  let (subpath, reqs) = fixtures::mempool();
+  assert_responses_eq(subpath, &reqs).await
+}
+
+#[tokio::test]
+async fn mempool_transaction() -> Result<()> {
+  let (subpath, reqs) = fixtures::mempool_transaction();
+  assert_responses_contain(subpath, &reqs, "\"message\": \"Transaction not found").await
 }

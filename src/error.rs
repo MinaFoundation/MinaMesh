@@ -35,7 +35,7 @@ pub enum MinaMeshError {
   #[error("Internal invariant violation (you found a bug)")]
   InvariantViolation,
 
-  #[error("Transaction not found")]
+  #[error("Transaction not found: {0}")]
   TransactionNotFound(String),
 
   #[error("Block not found")]
@@ -209,6 +209,15 @@ impl MinaMeshError {
       MinaMeshError::NetworkDne(expected, actual) => json!({
         "error": format!("You are requesting the status for the network {}, but you are connected to the network {}", expected, actual),
       }),
+      MinaMeshError::TransactionNotFound(tx) => json!({
+        "error": format!(
+          "You attempted to lookup transaction {}, but it is missing from the mempool. {} {}",
+          tx,
+          "This may be due to its inclusion in a block -- try looking for this transaction in a recent block.",
+          "It also could be due to the transaction being evicted from the mempool."
+          ),
+        "transaction": tx,
+      }),
       _ => json!(""),
     }
   }
@@ -227,7 +236,7 @@ impl MinaMeshError {
   /// Returns a human-readable description of the error.
   pub fn description(&self) -> String {
     match self {
-      MinaMeshError::Sql(_) => "An SQL error occurred.".to_string(),
+      MinaMeshError::Sql(_) => "We encountered a SQL failure.".to_string(),
       MinaMeshError::JsonParse(_) => "We encountered an error while parsing JSON.".to_string(),
       MinaMeshError::GraphqlMinaQuery(_) => "The GraphQL query failed.".to_string(),
       MinaMeshError::NetworkDne(_, _) => "The specified network does not exist.".to_string(),
@@ -237,24 +246,35 @@ impl MinaMeshError {
       MinaMeshError::TransactionNotFound(_) => "The specified transaction could not be found.".to_string(),
       MinaMeshError::BlockMissing(_) => "The specified block could not be found.".to_string(),
       MinaMeshError::MalformedPublicKey => "The provided public key is malformed.".to_string(),
-      MinaMeshError::OperationsNotValid(_) => "The provided operations are not valid.".to_string(),
+      MinaMeshError::OperationsNotValid(_) => {
+        "We could not convert those operations to a valid transaction.".to_string()
+      }
       MinaMeshError::UnsupportedOperationForConstruction => {
         "The operation is not supported for transaction construction.".to_string()
       }
-      MinaMeshError::SignatureMissing => "A signature is missing.".to_string(),
-      MinaMeshError::PublicKeyFormatNotValid => "The public key format is not valid.".to_string(),
-      MinaMeshError::NoOptionsProvided => "No options were provided.".to_string(),
+      MinaMeshError::SignatureMissing => "Your request is missing a signature.".to_string(),
+      MinaMeshError::PublicKeyFormatNotValid => "The public key you provided had an invalid format.".to_string(),
+      MinaMeshError::NoOptionsProvided => "Your request is missing options.".to_string(),
       MinaMeshError::Exception(_) => "An internal exception occurred.".to_string(),
-      MinaMeshError::SignatureInvalid => "The signature is invalid.".to_string(),
-      MinaMeshError::MemoInvalid => "The memo is invalid.".to_string(),
+      MinaMeshError::SignatureInvalid => "Your request has an invalid signature.".to_string(),
+      MinaMeshError::MemoInvalid => "Your request has an invalid memo.".to_string(),
       MinaMeshError::GraphqlUriNotSet => "No GraphQL URI has been set.".to_string(),
-      MinaMeshError::TransactionSubmitNoSender => "No sender was found in the ledger.".to_string(),
+      MinaMeshError::TransactionSubmitNoSender => {
+        "This could occur because the node isn't fully synced or the account doesn't actually exist in the ledger yet."
+          .to_string()
+      }
       MinaMeshError::TransactionSubmitDuplicate => "A duplicate transaction was detected.".to_string(),
       MinaMeshError::TransactionSubmitBadNonce => "The nonce is invalid.".to_string(),
       MinaMeshError::TransactionSubmitFeeSmall => "The transaction fee is too small.".to_string(),
-      MinaMeshError::TransactionSubmitInvalidSignature => "The transaction signature is invalid.".to_string(),
-      MinaMeshError::TransactionSubmitInsufficientBalance => "The account has insufficient balance.".to_string(),
-      MinaMeshError::TransactionSubmitExpired => "The transaction has expired.".to_string(),
+      MinaMeshError::TransactionSubmitInvalidSignature => {
+        "An invalid signature is attached to this transaction.".to_string()
+      }
+      MinaMeshError::TransactionSubmitInsufficientBalance => {
+        "This account do not have sufficient balance perform the requested transaction.".to_string()
+      }
+      MinaMeshError::TransactionSubmitExpired => {
+        "This transaction is expired. Please try again with a larger valid_until.".to_string()
+      }
     }
   }
 }

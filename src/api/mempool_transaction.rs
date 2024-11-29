@@ -22,7 +22,14 @@ impl MinaMesh {
           hashes: Some(vec![request.transaction_identifier.hash.as_str()]),
         }))
         .await?;
+
+    // Check if the transaction is absent
+    if pooled_user_commands.is_empty() {
+      return Err(MinaMeshError::TransactionNotFound(request.transaction_identifier.hash));
+    }
+
     let operations = pooled_user_commands.into_iter().map(Into::into).collect();
+
     Ok(MempoolTransactionResponse {
       metadata: None,
       transaction: Box::new(Transaction {
