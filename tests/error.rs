@@ -32,7 +32,7 @@ async fn test_error_properties() {
   use MinaMeshError::*;
 
   let cases = vec![
-    (Sql("SQL syntax error".to_string()), 1, "An SQL error occurred.", false, StatusCode::INTERNAL_SERVER_ERROR),
+    (Sql("SQL syntax error".to_string()), 1, "We encountered a SQL failure.", false, StatusCode::INTERNAL_SERVER_ERROR),
     (
       JsonParse(Some("Missing field".to_string())),
       2,
@@ -66,7 +66,13 @@ async fn test_error_properties() {
     ),
     (BlockMissing("Block ID".to_string()), 9, "The specified block could not be found.", true, StatusCode::NOT_FOUND),
     (MalformedPublicKey, 10, "The provided public key is malformed.", false, StatusCode::BAD_REQUEST),
-    (OperationsNotValid(vec![]), 11, "The provided operations are not valid.", false, StatusCode::BAD_REQUEST),
+    (
+      OperationsNotValid(vec![]),
+      11,
+      "We could not convert those operations to a valid transaction.",
+      false,
+      StatusCode::BAD_REQUEST,
+    ),
     (
       UnsupportedOperationForConstruction,
       12,
@@ -74,9 +80,9 @@ async fn test_error_properties() {
       false,
       StatusCode::BAD_REQUEST,
     ),
-    (SignatureMissing, 13, "A signature is missing.", false, StatusCode::BAD_REQUEST),
-    (PublicKeyFormatNotValid, 14, "The public key format is not valid.", false, StatusCode::BAD_REQUEST),
-    (NoOptionsProvided, 15, "No options were provided.", false, StatusCode::BAD_REQUEST),
+    (SignatureMissing, 13, "Your request is missing a signature.", false, StatusCode::BAD_REQUEST),
+    (PublicKeyFormatNotValid, 14, "The public key you provided had an invalid format.", false, StatusCode::BAD_REQUEST),
+    (NoOptionsProvided, 15, "Your request is missing options.", false, StatusCode::BAD_REQUEST),
     (
       Exception("Unexpected error".to_string()),
       16,
@@ -84,16 +90,40 @@ async fn test_error_properties() {
       false,
       StatusCode::INTERNAL_SERVER_ERROR,
     ),
-    (SignatureInvalid, 17, "The signature is invalid.", false, StatusCode::BAD_REQUEST),
-    (MemoInvalid, 18, "The memo is invalid.", false, StatusCode::BAD_REQUEST),
+    (SignatureInvalid, 17, "Your request has an invalid signature.", false, StatusCode::BAD_REQUEST),
+    (MemoInvalid, 18, "Your request has an invalid memo.", false, StatusCode::BAD_REQUEST),
     (GraphqlUriNotSet, 19, "No GraphQL URI has been set.", false, StatusCode::INTERNAL_SERVER_ERROR),
-    (TransactionSubmitNoSender, 20, "No sender was found in the ledger.", true, StatusCode::BAD_REQUEST),
+    (
+      TransactionSubmitNoSender,
+      20,
+      "This could occur because the node isn't fully synced or the account doesn't actually exist in the ledger yet.",
+      true,
+      StatusCode::BAD_REQUEST,
+    ),
     (TransactionSubmitDuplicate, 21, "A duplicate transaction was detected.", false, StatusCode::CONFLICT),
     (TransactionSubmitBadNonce, 22, "The nonce is invalid.", false, StatusCode::BAD_REQUEST),
     (TransactionSubmitFeeSmall, 23, "The transaction fee is too small.", false, StatusCode::BAD_REQUEST),
-    (TransactionSubmitInvalidSignature, 24, "The transaction signature is invalid.", false, StatusCode::BAD_REQUEST),
-    (TransactionSubmitInsufficientBalance, 25, "The account has insufficient balance.", false, StatusCode::BAD_REQUEST),
-    (TransactionSubmitExpired, 26, "The transaction has expired.", false, StatusCode::BAD_REQUEST),
+    (
+      TransactionSubmitInvalidSignature,
+      24,
+      "An invalid signature is attached to this transaction.",
+      false,
+      StatusCode::BAD_REQUEST,
+    ),
+    (
+      TransactionSubmitInsufficientBalance,
+      25,
+      "This account do not have sufficient balance perform the requested transaction.",
+      false,
+      StatusCode::BAD_REQUEST,
+    ),
+    (
+      TransactionSubmitExpired,
+      26,
+      "This transaction is expired. Please try again with a larger valid_until.",
+      false,
+      StatusCode::BAD_REQUEST,
+    ),
   ];
 
   for (error, code, description, retriable, status) in cases {

@@ -18,14 +18,11 @@ Allow {
         "fee_receiver_inc",
         "coinbase_inc",
         "account_creation_fee_via_payment",
-        "account_creation_fee_via_fee_payer",
         "account_creation_fee_via_fee_receiver",
         "payment_source_dec",
         "payment_receiver_inc",
         "fee_payment",
         "delegate_change",
-        "create_token",
-        "mint_tokens",
         "zkapp_fee_payer_dec",
         "zkapp_balance_update",
     ],
@@ -34,7 +31,7 @@ Allow {
             code: 1,
             message: "SQL failure: SQL syntax error",
             description: Some(
-                "An SQL error occurred.",
+                "We encountered a SQL failure.",
             ),
             retriable: false,
             details: Some(
@@ -123,13 +120,16 @@ Allow {
         },
         Error {
             code: 8,
-            message: "Transaction not found",
+            message: "Transaction not found: Transaction ID",
             description: Some(
                 "The specified transaction could not be found.",
             ),
             retriable: true,
             details: Some(
-                String(""),
+                Object {
+                    "error": String("You attempted to lookup transaction Transaction ID, but it is missing from the mempool. This may be due to its inclusion in a block -- try looking for this transaction in a recent block. It also could be due to the transaction being evicted from the mempool."),
+                    "transaction": String("Transaction ID"),
+                },
             ),
         },
         Error {
@@ -158,7 +158,7 @@ Allow {
             code: 11,
             message: "Cannot convert operations to valid transaction",
             description: Some(
-                "The provided operations are not valid.",
+                "We could not convert those operations to a valid transaction.",
             ),
             retriable: false,
             details: Some(
@@ -180,7 +180,7 @@ Allow {
             code: 13,
             message: "Signature missing",
             description: Some(
-                "A signature is missing.",
+                "Your request is missing a signature.",
             ),
             retriable: false,
             details: Some(
@@ -191,7 +191,7 @@ Allow {
             code: 14,
             message: "Invalid public key format",
             description: Some(
-                "The public key format is not valid.",
+                "The public key you provided had an invalid format.",
             ),
             retriable: false,
             details: Some(
@@ -202,7 +202,7 @@ Allow {
             code: 15,
             message: "No options provided",
             description: Some(
-                "No options were provided.",
+                "Your request is missing options.",
             ),
             retriable: false,
             details: Some(
@@ -226,7 +226,7 @@ Allow {
             code: 17,
             message: "Invalid signature",
             description: Some(
-                "The signature is invalid.",
+                "Your request has an invalid signature.",
             ),
             retriable: false,
             details: Some(
@@ -237,7 +237,7 @@ Allow {
             code: 18,
             message: "Invalid memo",
             description: Some(
-                "The memo is invalid.",
+                "Your request has an invalid memo.",
             ),
             retriable: false,
             details: Some(
@@ -259,7 +259,7 @@ Allow {
             code: 20,
             message: "Can't send transaction: No sender found in ledger",
             description: Some(
-                "No sender was found in the ledger.",
+                "This could occur because the node isn't fully synced or the account doesn't actually exist in the ledger yet.",
             ),
             retriable: true,
             details: Some(
@@ -303,7 +303,7 @@ Allow {
             code: 24,
             message: "Can't send transaction: Invalid signature",
             description: Some(
-                "The transaction signature is invalid.",
+                "An invalid signature is attached to this transaction.",
             ),
             retriable: false,
             details: Some(
@@ -314,7 +314,7 @@ Allow {
             code: 25,
             message: "Can't send transaction: Insufficient balance",
             description: Some(
-                "The account has insufficient balance.",
+                "This account do not have sufficient balance perform the requested transaction.",
             ),
             retriable: false,
             details: Some(
@@ -325,7 +325,7 @@ Allow {
             code: 26,
             message: "Can't send transaction: Expired",
             description: Some(
-                "The transaction has expired.",
+                "This transaction is expired. Please try again with a larger valid_until.",
             ),
             retriable: false,
             details: Some(
