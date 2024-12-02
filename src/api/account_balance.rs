@@ -51,9 +51,9 @@ impl MinaMesh {
           }),
           value: "0".to_string(),
           metadata: Some(serde_json::json!({
-            "locked_balance": "0".to_string(),
-            "liquid_balance": "0".to_string(),
-            "total_balance": "0".to_string()
+            "locked_balance": 0,
+            "liquid_balance": 0,
+            "total_balance": 0
           })),
         }]))
       }
@@ -87,9 +87,9 @@ impl MinaMesh {
           }),
           value: liquid_balance.to_string(),
           metadata: Some(serde_json::json!({
-            "locked_balance": locked_balance.to_string(),
-            "liquid_balance": liquid_balance.to_string(),
-            "total_balance": total_balance.to_string()
+            "locked_balance": locked_balance,
+            "liquid_balance": liquid_balance,
+            "total_balance": total_balance
           })),
         }]))
       }
@@ -126,9 +126,9 @@ impl MinaMesh {
         }),
         value: total_raw,
         metadata: Some(serde_json::json!({
-          "locked_balance": (total - liquid).to_string(),
-          "liquid_balance": liquid.to_string(),
-          "total_balance": total.to_string()
+          "locked_balance": (total - liquid),
+          "liquid_balance": liquid,
+          "total_balance": total
         })),
       }]))
     } else {
