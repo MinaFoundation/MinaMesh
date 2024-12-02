@@ -1,6 +1,6 @@
-use mina_mesh::models::{AccountBalanceRequest, AccountIdentifier, NetworkIdentifier, PartialBlockIdentifier};
+use mina_mesh::models::{AccountBalanceRequest, AccountIdentifier, PartialBlockIdentifier};
 
-use super::CompareGroup;
+use super::{network_id, CompareGroup};
 
 pub fn account_balance<'a>() -> CompareGroup<'a> {
   ("/account/balance", vec![
@@ -9,7 +9,7 @@ pub fn account_balance<'a>() -> CompareGroup<'a> {
         "B62qmo4nfFemr9hFtvz8F5h4JFSCxikVNsUJmZcfXQ9SGJ4abEC1RtH".to_string(),
       )),
       block_identifier: Some(Box::new(PartialBlockIdentifier { index: Some(100), hash: None })),
-      network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "devnet".to_string())),
+      network_identifier: Box::new(network_id()),
       currencies: None,
     }),
     Box::new(AccountBalanceRequest {
@@ -20,11 +20,7 @@ pub fn account_balance<'a>() -> CompareGroup<'a> {
       }),
       block_identifier: Some(Box::new(PartialBlockIdentifier { index: Some(6265), hash: None })),
       currencies: None,
-      network_identifier: Box::new(NetworkIdentifier {
-        blockchain: "mina".into(),
-        network: "devnet".into(),
-        sub_network_identifier: None,
-      }),
+      network_identifier: Box::new(network_id()),
     }),
   ])
 }
