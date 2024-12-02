@@ -68,3 +68,9 @@ async fn mempool_transaction() -> Result<()> {
   let (subpath, reqs) = fixtures::mempool_transaction();
   assert_responses_contain(subpath, &reqs, "\"message\": \"Transaction not found").await
 }
+
+#[tokio::test]
+async fn account_balance() -> Result<()> {
+  let (subpath, reqs) = fixtures::account_balance();
+  assert_responses_eq(subpath, &reqs).await
+}

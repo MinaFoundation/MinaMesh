@@ -43,19 +43,26 @@ impl MinaMesh {
     .await?;
     match maybe_account_balance_info {
       None => {
-        Ok(AccountBalanceResponse::new(BlockIdentifier { hash: block.state_hash, index: block.height }, vec![Amount {
-          currency: Box::new(Currency {
-            symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
-            decimals: 9,
-            metadata: None,
-          }),
-          value: "0".to_string(),
+        Ok(AccountBalanceResponse {
+          block_identifier: Box::new(BlockIdentifier { hash: block.state_hash, index: block.height }),
+          balances: vec![Amount {
+            currency: Box::new(Currency {
+              symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
+              decimals: 9,
+              metadata: None,
+            }),
+            value: "0".to_string(),
+            metadata: Some(serde_json::json!({
+              "locked_balance": 0,
+              "liquid_balance": 0,
+              "total_balance": 0
+            })),
+          }],
           metadata: Some(serde_json::json!({
-            "locked_balance": 0,
-            "liquid_balance": 0,
-            "total_balance": 0
+            "created_via_historical_lookup": true,
+            "nonce": "0"
           })),
-        }]))
+        })
       }
       Some(account_balance_info) => {
         let last_relevant_command_balance = account_balance_info.balance.parse::<u64>()?;
@@ -79,19 +86,26 @@ impl MinaMesh {
         };
         let total_balance = last_relevant_command_balance;
         let locked_balance = total_balance - liquid_balance;
-        Ok(AccountBalanceResponse::new(BlockIdentifier { hash: block.state_hash, index: block.height }, vec![Amount {
-          currency: Box::new(Currency {
-            symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
-            decimals: 9,
-            metadata: None,
-          }),
-          value: liquid_balance.to_string(),
+        Ok(AccountBalanceResponse {
+          block_identifier: Box::new(BlockIdentifier { hash: block.state_hash, index: block.height }),
+          balances: vec![Amount {
+            currency: Box::new(Currency {
+              symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
+              decimals: 9,
+              metadata: None,
+            }),
+            value: liquid_balance.to_string(),
+            metadata: Some(serde_json::json!({
+              "locked_balance": locked_balance,
+              "liquid_balance": liquid_balance,
+              "total_balance": total_balance
+            })),
+          }],
           metadata: Some(serde_json::json!({
-            "locked_balance": locked_balance,
-            "liquid_balance": liquid_balance,
-            "total_balance": total_balance
+            "created_via_historical_lookup": true,
+            "nonce": "0"
           })),
-        }]))
+        })
       }
     }
   }
@@ -118,19 +132,26 @@ impl MinaMesh {
       let total = total_raw.parse::<u64>()?;
       let liquid = liquid_raw.parse::<u64>()?;
       let index = index_raw.parse::<i64>()?;
-      Ok(AccountBalanceResponse::new(BlockIdentifier { hash, index }, vec![Amount {
-        currency: Box::new(Currency {
-          symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
-          decimals: 9,
-          metadata: None,
-        }),
-        value: total_raw,
+      Ok(AccountBalanceResponse {
+        block_identifier: Box::new(BlockIdentifier { hash, index }),
+        balances: vec![Amount {
+          currency: Box::new(Currency {
+            symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
+            decimals: 9,
+            metadata: None,
+          }),
+          value: total_raw,
+          metadata: Some(serde_json::json!({
+            "locked_balance": (total - liquid),
+            "liquid_balance": liquid,
+            "total_balance": total
+          })),
+        }],
         metadata: Some(serde_json::json!({
-          "locked_balance": (total - liquid),
-          "liquid_balance": liquid,
-          "total_balance": total
+          "created_via_historical_lookup": false,
+          "nonce": "0"
         })),
-      }]))
+      })
     } else {
       Err(MinaMeshError::AccountNotFound(public_key))
     }

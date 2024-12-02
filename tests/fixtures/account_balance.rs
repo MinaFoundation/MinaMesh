@@ -2,7 +2,6 @@ use mina_mesh::models::{AccountBalanceRequest, AccountIdentifier, NetworkIdentif
 
 use super::CompareGroup;
 
-#[allow(dead_code)]
 pub fn account_balance<'a>() -> CompareGroup<'a> {
   ("/account/balance", vec![
     Box::new(AccountBalanceRequest {
