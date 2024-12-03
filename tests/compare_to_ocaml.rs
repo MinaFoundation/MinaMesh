@@ -74,3 +74,9 @@ async fn account_balance() -> Result<()> {
   let (subpath, reqs) = fixtures::account_balance();
   assert_responses_eq(subpath, &reqs).await
 }
+
+#[tokio::test]
+async fn account_balance_not_exists() -> Result<()> {
+  let (subpath, reqs) = fixtures::account_balance_not_exists();
+  assert_responses_contain(subpath, &reqs, "\"message\": \"Account not found").await
+}

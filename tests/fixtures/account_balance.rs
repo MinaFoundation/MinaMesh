@@ -4,6 +4,7 @@ use super::{network_id, CompareGroup};
 
 pub fn account_balance<'a>() -> CompareGroup<'a> {
   ("/account/balance", vec![
+    // historical lookups
     Box::new(AccountBalanceRequest {
       account_identifier: Box::new(AccountIdentifier::new(
         "B62qmo4nfFemr9hFtvz8F5h4JFSCxikVNsUJmZcfXQ9SGJ4abEC1RtH".to_string(),
@@ -22,5 +23,17 @@ pub fn account_balance<'a>() -> CompareGroup<'a> {
       currencies: None,
       network_identifier: Box::new(network_id()),
     }),
+    // current lookups
+    Box::new(AccountBalanceRequest::new(
+      network_id(),
+      AccountIdentifier::new("B62qkYHGYmws5CYa3phYEKoZvrENTegEhUJYMhzHUQe5UZwCdWob8zv".to_string()),
+    )),
   ])
+}
+
+pub fn account_balance_not_exists<'a>() -> CompareGroup<'a> {
+  ("/account/balance", vec![Box::new(AccountBalanceRequest::new(
+    network_id(),
+    AccountIdentifier::new("B62qiW9Qwv9UnKfNKdBm6hRLNDobv46rVhX1trGdB35YCNT33CSCVt5".to_string()),
+  ))])
 }
