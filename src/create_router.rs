@@ -13,6 +13,7 @@ use crate::{playground::handle_playground, util::Wrapper, MinaMesh, MinaMeshErro
 
 pub fn create_router(mina_mesh: MinaMesh, playground: bool) -> Router {
   let mut router = Router::new()
+    .route("/available_endpoints", get(handle_available_endpoints))
     .route("/account/balance", post(handle_account_balance))
     .route("/block", post(handle_block))
     .route("/call", post(handle_call))
@@ -24,7 +25,6 @@ pub fn create_router(mina_mesh: MinaMesh, playground: bool) -> Router {
     .route("/construction/payloads", post(handle_construction_payloads))
     .route("/construction/preprocess", post(handle_construction_preprocess))
     .route("/construction/submit", post(handle_construction_submit))
-    .route("/implemented_methods", get(handle_implemented_methods))
     .route("/mempool", post(handle_mempool))
     .route("/mempool/transaction", post(handle_mempool_transaction))
     .route("/network/list", post(handle_network_list))
@@ -77,15 +77,15 @@ create_handler!(network_status, NetworkRequest);
 create_handler!(search_transactions, SearchTransactionsRequest);
 
 #[debug_handler]
-async fn handle_implemented_methods() -> impl IntoResponse {
+async fn handle_available_endpoints() -> impl IntoResponse {
   Json([
-    "account_balance",
-    "block",
-    "mempool",
-    "mempool_transaction",
-    "network_list",
-    "network_options",
-    "network_status",
-    "search_transactions",
+    "/account/balance",
+    "/block",
+    "/mempool",
+    "/mempool/transaction",
+    "/network/list",
+    "/network/options",
+    "/network/status",
+    "/search/transactions",
   ])
 }
