@@ -1,10 +1,10 @@
 use coinbase_mesh::models::{
-  AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, Amount, BlockIdentifier, Currency,
-  PartialBlockIdentifier,
+  AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, Amount, BlockIdentifier, PartialBlockIdentifier,
 };
 use cynic::QueryBuilder;
 
 use crate::{
+  create_currency,
   graphql::{Account, AccountNonce, AnnotatedBalance, Balance, Length, QueryBalance, QueryBalanceVariables, StateHash},
   util::Wrapper,
   MinaMesh, MinaMeshError,
@@ -42,28 +42,22 @@ impl MinaMesh {
     .fetch_optional(&self.pg_pool)
     .await?;
     match maybe_account_balance_info {
-      None => {
-        Ok(AccountBalanceResponse {
-          block_identifier: Box::new(BlockIdentifier { hash: block.state_hash, index: block.height }),
-          balances: vec![Amount {
-            currency: Box::new(Currency {
-              symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
-              decimals: 9,
-              metadata: None,
-            }),
-            value: "0".to_string(),
-            metadata: Some(serde_json::json!({
-              "locked_balance": 0,
-              "liquid_balance": 0,
-              "total_balance": 0
-            })),
-          }],
+      None => Ok(AccountBalanceResponse {
+        block_identifier: Box::new(BlockIdentifier { hash: block.state_hash, index: block.height }),
+        balances: vec![Amount {
+          currency: Box::new(create_currency(None)),
+          value: "0".to_string(),
           metadata: Some(serde_json::json!({
-            "created_via_historical_lookup": true,
-            "nonce": "0"
+            "locked_balance": 0,
+            "liquid_balance": 0,
+            "total_balance": 0
           })),
-        })
-      }
+        }],
+        metadata: Some(serde_json::json!({
+          "created_via_historical_lookup": true,
+          "nonce": "0"
+        })),
+      }),
       Some(account_balance_info) => {
         let nonce = account_balance_info.nonce;
         let last_relevant_command_balance = account_balance_info.balance.parse::<u64>()?;
@@ -90,11 +84,7 @@ impl MinaMesh {
         Ok(AccountBalanceResponse {
           block_identifier: Box::new(BlockIdentifier { hash: block.state_hash, index: block.height }),
           balances: vec![Amount {
-            currency: Box::new(Currency {
-              symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
-              decimals: 9,
-              metadata: None,
-            }),
+            currency: Box::new(create_currency(None)),
             value: liquid_balance.to_string(),
             metadata: Some(serde_json::json!({
               "locked_balance": locked_balance,
@@ -136,11 +126,7 @@ impl MinaMesh {
       Ok(AccountBalanceResponse {
         block_identifier: Box::new(BlockIdentifier { hash, index }),
         balances: vec![Amount {
-          currency: Box::new(Currency {
-            symbol: "MINA".into(), // TODO: Use actual currency symbol / custom tokens
-            decimals: 9,
-            metadata: None,
-          }),
+          currency: Box::new(create_currency(None)),
           value: total_raw,
           metadata: Some(serde_json::json!({
             "locked_balance": (total - liquid),
