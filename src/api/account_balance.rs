@@ -5,7 +5,9 @@ use cynic::QueryBuilder;
 
 use crate::{
   create_currency,
-  graphql::{Account, AccountNonce, AnnotatedBalance, Balance, Length, QueryBalance, QueryBalanceVariables, StateHash},
+  graphql::{
+    Account, AccountNonce, AnnotatedBalance, Balance, Length, QueryBalance, QueryBalanceVariables, StateHash, TokenId,
+  },
   util::Wrapper,
   MinaMesh, MinaMeshError,
 };
@@ -59,6 +61,7 @@ impl MinaMesh {
         })),
       }),
       Some(account_balance_info) => {
+        let token_id = account_balance_info.token_id;
         let nonce = account_balance_info.nonce;
         let last_relevant_command_balance = account_balance_info.balance.parse::<u64>()?;
         let timing_info = sqlx::query_file!("sql/queries/timing_info.sql", account_balance_info.timing_id)
@@ -84,7 +87,7 @@ impl MinaMesh {
         Ok(AccountBalanceResponse {
           block_identifier: Box::new(BlockIdentifier { hash: block.state_hash, index: block.height }),
           balances: vec![Amount {
-            currency: Box::new(create_currency(None)),
+            currency: Box::new(create_currency(Some(&token_id))),
             value: liquid_balance.to_string(),
             metadata: Some(serde_json::json!({
               "locked_balance": locked_balance,
@@ -117,6 +120,7 @@ impl MinaMesh {
               total: Balance(total_raw),
             },
           nonce: Some(AccountNonce(nonce)),
+          token_id: TokenId(token_id),
         }),
     } = result
     {
@@ -126,7 +130,7 @@ impl MinaMesh {
       Ok(AccountBalanceResponse {
         block_identifier: Box::new(BlockIdentifier { hash, index }),
         balances: vec![Amount {
-          currency: Box::new(create_currency(None)),
+          currency: Box::new(create_currency(Some(&token_id))),
           value: total_raw,
           metadata: Some(serde_json::json!({
             "locked_balance": (total - liquid),

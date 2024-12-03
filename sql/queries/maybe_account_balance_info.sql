@@ -3,7 +3,8 @@ SELECT
   b.global_slot_since_genesis AS block_global_slot_since_genesis,
   balance,
   nonce,
-  timing_id
+  timing_id,
+  t.value AS token_id
 FROM
   blocks b
   INNER JOIN accounts_accessed ac ON ac.block_id=b.id
