@@ -5,7 +5,7 @@ use coinbase_mesh::models::{
 use cynic::QueryBuilder;
 
 use crate::{
-  graphql::{Account, AnnotatedBalance, Balance, Length, QueryBalance, QueryBalanceVariables, StateHash},
+  graphql::{Account, AccountNonce, AnnotatedBalance, Balance, Length, QueryBalance, QueryBalanceVariables, StateHash},
   util::Wrapper,
   MinaMesh, MinaMeshError,
 };
@@ -65,6 +65,7 @@ impl MinaMesh {
         })
       }
       Some(account_balance_info) => {
+        let nonce = account_balance_info.nonce;
         let last_relevant_command_balance = account_balance_info.balance.parse::<u64>()?;
         let timing_info = sqlx::query_file!("sql/queries/timing_info.sql", account_balance_info.timing_id)
           .fetch_optional(&self.pg_pool)
@@ -103,7 +104,7 @@ impl MinaMesh {
           }],
           metadata: Some(serde_json::json!({
             "created_via_historical_lookup": true,
-            "nonce": "0"
+            "nonce": format!("{}", nonce)
           })),
         })
       }
@@ -125,7 +126,7 @@ impl MinaMesh {
               liquid: Some(Balance(liquid_raw)),
               total: Balance(total_raw),
             },
-          ..
+          nonce: Some(AccountNonce(nonce)),
         }),
     } = result
     {
@@ -149,7 +150,7 @@ impl MinaMesh {
         }],
         metadata: Some(serde_json::json!({
           "created_via_historical_lookup": false,
-          "nonce": "0"
+          "nonce": format!("{}", nonce)
         })),
       })
     } else {
