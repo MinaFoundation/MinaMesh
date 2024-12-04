@@ -4,6 +4,18 @@ use serde_json::json;
 
 use crate::{util::DEFAULT_TOKEN_ID, OperationStatus, OperationType, TransactionStatus};
 
+/// Creates a `Currency` based on the token provided.
+/// If the token is `DEFAULT_TOKEN_ID`, it creates a MINA currency.
+/// Otherwise, it creates a MINA+ currency with the token ID in metadata.
+pub fn create_currency(token: Option<&String>) -> Currency {
+  match token {
+    Some(token_id) if token_id != DEFAULT_TOKEN_ID => {
+      Currency { symbol: "MINA+".to_owned(), decimals: 9, metadata: Some(json!({ "token_id": token_id })) }
+    }
+    _ => Currency::new("MINA".to_owned(), 9),
+  }
+}
+
 #[allow(clippy::too_many_arguments)]
 pub fn operation(
   ident: i64,
@@ -15,18 +27,7 @@ pub fn operation(
   metadata: Option<&serde_json::Value>,
   token: Option<&String>,
 ) -> Operation {
-  // if token is provided and different from DEFAULT_TOKEN_ID, then create a new
-  // currency with the token else create a new currency with "MINA"
-  let currency = token
-    .map(|token_id| {
-      if token_id != DEFAULT_TOKEN_ID {
-        Currency { symbol: "MINA+".to_owned(), decimals: 9, metadata: Some(json!({ "token_id": token_id })) }
-      } else {
-        Currency::new("MINA".to_owned(), 9)
-      }
-    })
-    .unwrap_or(Currency::new("MINA".to_owned(), 9));
-
+  let currency = create_currency(token);
   Operation {
     operation_identifier: Box::new(OperationIdentifier::new(ident)),
     amount: amount.map(|value| Box::new(Amount::new(value.to_owned(), currency))),

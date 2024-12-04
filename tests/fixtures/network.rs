@@ -1,7 +1,6 @@
-use mina_mesh::models::{NetworkIdentifier, NetworkRequest};
 use serde::{ser::SerializeStruct, Serialize, Serializer};
 
-use super::CompareGroup;
+use super::{network_request, CompareGroup};
 
 struct EmptyPayload;
 
@@ -25,10 +24,6 @@ pub fn network_options<'a>() -> CompareGroup<'a> {
 
 pub fn network_status<'a>() -> CompareGroup<'a> {
   ("/network/status", vec![Box::new(network_request())])
-}
-
-fn network_request() -> NetworkRequest {
-  NetworkRequest::new(NetworkIdentifier::new("mina".to_string(), "devnet".to_string()))
 }
 
 #[cfg(test)]

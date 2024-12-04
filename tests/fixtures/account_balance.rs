@@ -1,16 +1,16 @@
-use mina_mesh::models::{AccountBalanceRequest, AccountIdentifier, NetworkIdentifier, PartialBlockIdentifier};
+use mina_mesh::models::{AccountBalanceRequest, AccountIdentifier, PartialBlockIdentifier};
 
-use super::CompareGroup;
+use super::{network_id, CompareGroup};
 
-#[allow(dead_code)]
 pub fn account_balance<'a>() -> CompareGroup<'a> {
   ("/account/balance", vec![
+    // historical lookups
     Box::new(AccountBalanceRequest {
       account_identifier: Box::new(AccountIdentifier::new(
         "B62qmo4nfFemr9hFtvz8F5h4JFSCxikVNsUJmZcfXQ9SGJ4abEC1RtH".to_string(),
       )),
       block_identifier: Some(Box::new(PartialBlockIdentifier { index: Some(100), hash: None })),
-      network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "devnet".to_string())),
+      network_identifier: Box::new(network_id()),
       currencies: None,
     }),
     Box::new(AccountBalanceRequest {
@@ -21,11 +21,19 @@ pub fn account_balance<'a>() -> CompareGroup<'a> {
       }),
       block_identifier: Some(Box::new(PartialBlockIdentifier { index: Some(6265), hash: None })),
       currencies: None,
-      network_identifier: Box::new(NetworkIdentifier {
-        blockchain: "mina".into(),
-        network: "devnet".into(),
-        sub_network_identifier: None,
-      }),
+      network_identifier: Box::new(network_id()),
     }),
+    // current lookups
+    Box::new(AccountBalanceRequest::new(
+      network_id(),
+      AccountIdentifier::new("B62qkYHGYmws5CYa3phYEKoZvrENTegEhUJYMhzHUQe5UZwCdWob8zv".to_string()),
+    )),
   ])
+}
+
+pub fn account_balance_not_exists<'a>() -> CompareGroup<'a> {
+  ("/account/balance", vec![Box::new(AccountBalanceRequest::new(
+    network_id(),
+    AccountIdentifier::new("B62qiW9Qwv9UnKfNKdBm6hRLNDobv46rVhX1trGdB35YCNT33CSCVt5".to_string()),
+  ))])
 }

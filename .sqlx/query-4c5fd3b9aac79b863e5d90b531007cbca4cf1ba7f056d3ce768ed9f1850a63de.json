@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT\n  b.height,\n  b.global_slot_since_genesis AS block_global_slot_since_genesis,\n  balance,\n  nonce,\n  timing_id\nFROM\n  blocks b\n  INNER JOIN accounts_accessed ac ON ac.block_id=b.id\n  INNER JOIN account_identifiers ai ON ai.id=ac.account_identifier_id\n  INNER JOIN public_keys pks ON ai.public_key_id=pks.id\n  INNER JOIN tokens t ON ai.token_id=t.id\nWHERE\n  pks.value=$1\n  AND b.height<=$2\n  AND b.chain_status='canonical'\n  AND t.value=$3\nORDER BY\n  (b.height) DESC\nLIMIT\n  1\n",
+  "query": "SELECT\n  b.height,\n  b.global_slot_since_genesis AS block_global_slot_since_genesis,\n  balance,\n  nonce,\n  timing_id,\n  t.value AS token_id\nFROM\n  blocks b\n  INNER JOIN accounts_accessed ac ON ac.block_id=b.id\n  INNER JOIN account_identifiers ai ON ai.id=ac.account_identifier_id\n  INNER JOIN public_keys pks ON ai.public_key_id=pks.id\n  INNER JOIN tokens t ON ai.token_id=t.id\nWHERE\n  pks.value=$1\n  AND b.height<=$2\n  AND b.chain_status='canonical'\n  AND t.value=$3\nORDER BY\n  (b.height) DESC\nLIMIT\n  1\n",
   "describe": {
     "columns": [
       {
@@ -27,6 +27,11 @@
         "ordinal": 4,
         "name": "timing_id",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "token_id",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -41,8 +46,9 @@
       false,
       false,
       false,
-      true
+      true,
+      false
     ]
   },
-  "hash": "c649a3d2ca4db1b366f89e0e8962f7364c3c7326007a2c8b6120e163a482618f"
+  "hash": "4c5fd3b9aac79b863e5d90b531007cbca4cf1ba7f056d3ce768ed9f1850a63de"
 }

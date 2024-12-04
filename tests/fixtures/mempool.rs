@@ -1,6 +1,6 @@
-use mina_mesh::models::{MempoolTransactionRequest, NetworkIdentifier, NetworkRequest, TransactionIdentifier};
+use mina_mesh::models::{MempoolTransactionRequest, NetworkRequest, TransactionIdentifier};
 
-use super::CompareGroup;
+use super::{network_id, CompareGroup};
 
 pub fn mempool<'a>() -> CompareGroup<'a> {
   ("/mempool", vec![Box::new(NetworkRequest::new(network_id()))])
@@ -11,8 +11,4 @@ pub fn mempool_transaction<'a>() -> CompareGroup<'a> {
     network_id(),
     TransactionIdentifier::new("hash_not_exists".to_string()),
   ))])
-}
-
-fn network_id() -> NetworkIdentifier {
-  NetworkIdentifier::new("mina".to_string(), "devnet".to_string())
 }

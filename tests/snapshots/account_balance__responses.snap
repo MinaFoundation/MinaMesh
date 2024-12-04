@@ -18,14 +18,19 @@ expression: results
                 },
                 metadata: Some(
                     Object {
-                        "liquid_balance": String("7000000000"),
-                        "locked_balance": String("0"),
-                        "total_balance": String("7000000000"),
+                        "liquid_balance": Number(7000000000),
+                        "locked_balance": Number(0),
+                        "total_balance": Number(7000000000),
                     },
                 ),
             },
         ],
-        metadata: None,
+        metadata: Some(
+            Object {
+                "created_via_historical_lookup": Bool(true),
+                "nonce": String("0"),
+            },
+        ),
     },
     AccountBalanceResponse {
         block_identifier: BlockIdentifier {
@@ -42,13 +47,18 @@ expression: results
                 },
                 metadata: Some(
                     Object {
-                        "liquid_balance": String("17899903513284"),
-                        "locked_balance": String("0"),
-                        "total_balance": String("17899903513284"),
+                        "liquid_balance": Number(17899903513284),
+                        "locked_balance": Number(0),
+                        "total_balance": Number(17899903513284),
                     },
                 ),
             },
         ],
-        metadata: None,
+        metadata: Some(
+            Object {
+                "created_via_historical_lookup": Bool(true),
+                "nonce": String("27903"),
+            },
+        ),
     },
 ]
