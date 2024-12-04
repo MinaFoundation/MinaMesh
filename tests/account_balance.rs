@@ -2,9 +2,8 @@ use anyhow::Result;
 use futures::future::try_join_all;
 use insta::assert_debug_snapshot;
 use mina_mesh::{
-  models::{
-    AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, NetworkIdentifier, PartialBlockIdentifier,
-  },
+  models::{AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, PartialBlockIdentifier},
+  test::network_id,
   MinaMeshConfig, MinaMeshError,
 };
 
@@ -25,11 +24,7 @@ async fn responses() -> Result<()> {
       account_identifier: Box::new(AccountIdentifier { address: address.into(), sub_account: None, metadata: None }),
       block_identifier: Some(Box::new(PartialBlockIdentifier { index: Some(6265), hash: None })),
       currencies: None,
-      network_identifier: Box::new(NetworkIdentifier {
-        blockchain: "mina".into(),
-        network: "devnet".into(),
-        sub_network_identifier: None,
-      }),
+      network_identifier: Box::new(network_id()),
     })
   })
   .collect();
@@ -51,11 +46,7 @@ async fn account_not_found_error() -> Result<()> {
       }),
       block_identifier: None,
       currencies: None,
-      network_identifier: Box::new(NetworkIdentifier {
-        blockchain: "mina".into(),
-        network: "devnet".into(),
-        sub_network_identifier: None,
-      }),
+      network_identifier: Box::new(network_id()),
     })
     .await;
   assert!(matches!(response, Err(MinaMeshError::AccountNotFound(_))));

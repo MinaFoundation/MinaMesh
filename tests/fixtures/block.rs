@@ -1,6 +1,9 @@
-use mina_mesh::models::{BlockRequest, PartialBlockIdentifier};
+use mina_mesh::{
+  models::{BlockRequest, PartialBlockIdentifier},
+  test::network_id,
+};
 
-use super::{network_id, CompareGroup};
+use super::CompareGroup;
 
 #[allow(dead_code)]
 pub fn block<'a>() -> CompareGroup<'a> {

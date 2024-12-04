@@ -1,6 +1,7 @@
+use mina_mesh::test::network_request;
 use serde::{ser::SerializeStruct, Serialize, Serializer};
 
-use super::{network_request, CompareGroup};
+use super::CompareGroup;
 
 struct EmptyPayload;
 
