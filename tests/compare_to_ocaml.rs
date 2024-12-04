@@ -34,7 +34,7 @@ async fn assert_responses_contain<T: Serialize>(subpath: &str, reqs: &[T], fragm
 }
 
 #[tokio::test]
-async fn search_transactions() -> Result<()> {
+async fn search_transactions_test() -> Result<()> {
   let (subpath, reqs) = fixtures::search_transactions();
   assert_responses_eq(subpath, &reqs).await
 }

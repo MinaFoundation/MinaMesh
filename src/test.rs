@@ -7,6 +7,7 @@ use axum::{
   response::IntoResponse,
   Router,
 };
+use coinbase_mesh::models::{NetworkIdentifier, NetworkRequest};
 use pretty_assertions::assert_eq;
 use reqwest::Client;
 use serde_json::{Map, Value};
@@ -159,4 +160,15 @@ fn remove_empty_related_transactions(value: &mut Value) {
     }
     _ => {}
   }
+}
+
+pub const DEVNET_BLOCKCHAIN_ID: &str = "mina";
+pub const DEVNET_NETWORK_ID: &str = "testnet";
+
+pub fn network_id() -> NetworkIdentifier {
+  NetworkIdentifier::new(DEVNET_BLOCKCHAIN_ID.to_string(), DEVNET_NETWORK_ID.to_string())
+}
+
+pub fn network_request() -> NetworkRequest {
+  NetworkRequest::new(network_id())
 }

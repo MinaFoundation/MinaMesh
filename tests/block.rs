@@ -4,7 +4,8 @@ use anyhow::Result;
 use futures::{stream::FuturesUnordered, StreamExt};
 use insta::assert_debug_snapshot;
 use mina_mesh::{
-  models::{BlockRequest, BlockResponse, NetworkIdentifier, PartialBlockIdentifier},
+  models::{BlockRequest, BlockResponse, PartialBlockIdentifier},
+  test::network_id,
   MinaMeshConfig, MinaMeshError,
 };
 use pretty_assertions::assert_eq;
@@ -14,7 +15,7 @@ async fn specified() -> Result<()> {
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
   let mut futures = specified_identifiers()
     .iter()
-    .map(|item| mina_mesh.block(BlockRequest::new(network_identifier().to_owned(), item.to_owned())))
+    .map(|item| mina_mesh.block(BlockRequest::new(network_id(), item.to_owned())))
     .collect::<FuturesUnordered<_>>();
   let mut maybe_prev: Option<Result<BlockResponse, MinaMeshError>> = None;
   while let Some(resolved) = futures.next().await {
@@ -44,17 +45,12 @@ fn specified_identifiers() -> &'static [PartialBlockIdentifier; 3] {
   })
 }
 
-fn network_identifier() -> &'static NetworkIdentifier {
-  static NETWORK_IDENTIFIER: OnceLock<NetworkIdentifier> = OnceLock::new();
-  NETWORK_IDENTIFIER.get_or_init(|| NetworkIdentifier::new("mina".to_string(), "devnet".to_string()))
-}
-
 #[tokio::test]
 async fn unspecified() -> Result<()> {
   let response = MinaMeshConfig::from_env()
     .to_mina_mesh()
     .await?
-    .block(BlockRequest::new(network_identifier().to_owned(), PartialBlockIdentifier::new()))
+    .block(BlockRequest::new(network_id(), PartialBlockIdentifier::new()))
     .await;
   assert!(response.is_ok());
   Ok(())

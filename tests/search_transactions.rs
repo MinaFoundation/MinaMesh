@@ -1,7 +1,8 @@
 use anyhow::Result;
 use insta::assert_debug_snapshot;
 use mina_mesh::{
-  models::{AccountIdentifier, NetworkIdentifier, SearchTransactionsRequest, TransactionIdentifier},
+  models::{AccountIdentifier, SearchTransactionsRequest, TransactionIdentifier},
+  test::network_id,
   MinaMeshConfig,
 };
 
@@ -12,7 +13,7 @@ async fn search_transactions_specified() -> Result<()> {
   let address = "B62qkd6yYALkQMq2SFd5B57bJbGBMA2QuGtLPMzRhhnvexRtVRycZWP";
 
   let request_addr = SearchTransactionsRequest {
-    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "devnet".to_string())),
+    network_identifier: Box::new(network_id()),
     address: Some(address.to_string()),
     limit: Some(5),
     offset: Some(0),
@@ -22,7 +23,7 @@ async fn search_transactions_specified() -> Result<()> {
   let response_addr = mina_mesh.search_transactions(request_addr).await;
 
   let request_acct_id = SearchTransactionsRequest {
-    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "devnet".to_string())),
+    network_identifier: Box::new(network_id()),
     account_identifier: Some(Box::new(AccountIdentifier::new(address.to_string()))),
     limit: Some(5),
     offset: Some(0),
@@ -42,7 +43,7 @@ async fn search_transactions_failed() -> Result<()> {
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
 
   let request = SearchTransactionsRequest {
-    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "devnet".to_string())),
+    network_identifier: Box::new(network_id()),
     max_block: Some(44),
     status: Some("failed".to_string()),
     limit: Some(5),
@@ -61,7 +62,7 @@ async fn search_transactions_internal_command() -> Result<()> {
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
 
   let request = SearchTransactionsRequest {
-    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "devnet".to_string())),
+    network_identifier: Box::new(network_id()),
     max_block: Some(44),
     transaction_identifier: Some(Box::new(TransactionIdentifier::new(
       // cspell:disable-next-line
@@ -83,7 +84,7 @@ async fn search_transactions_zkapp_success() -> Result<()> {
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
 
   let request = SearchTransactionsRequest {
-    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "devnet".to_string())),
+    network_identifier: Box::new(network_id()),
     transaction_identifier: Some(Box::new(TransactionIdentifier::new(
       // cspell:disable-next-line
       "5JvFoEyvuPu9zmi4bDGbhqsakre2SPQU1KKbeh2Lk5uC9eYrc2h2".to_string(),
@@ -104,7 +105,7 @@ async fn search_transactions_zkapp_failed() -> Result<()> {
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
 
   let request = SearchTransactionsRequest {
-    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "devnet".to_string())),
+    network_identifier: Box::new(network_id()),
     transaction_identifier: Some(Box::new(TransactionIdentifier::new(
       // cspell:disable-next-line
       "5JujBt8rnKheA7CHBnTwUDXrHtQxqPB9LL5Q8y4KwLjPBsBSJuSE".to_string(),
@@ -132,7 +133,7 @@ async fn search_transactions_zkapp_tokens_account_identifier() -> Result<()> {
   let metadata = serde_json::json!({ "token_id": token_id });
 
   let request_address1_token = SearchTransactionsRequest {
-    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "devnet".to_string())),
+    network_identifier: Box::new(network_id()),
     max_block: Some(max_block),
     account_identifier: Some(Box::new(AccountIdentifier {
       address: address1.to_string(),
@@ -145,7 +146,7 @@ async fn search_transactions_zkapp_tokens_account_identifier() -> Result<()> {
   let response_address1_token = mina_mesh.search_transactions(request_address1_token).await;
 
   let request_address2_token = SearchTransactionsRequest {
-    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "devnet".to_string())),
+    network_identifier: Box::new(network_id()),
     max_block: Some(max_block),
     account_identifier: Some(Box::new(AccountIdentifier {
       address: address2.to_string(),
@@ -168,7 +169,7 @@ async fn search_transactions_zkapp_tokens_tx_hash() -> Result<()> {
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
 
   let request_tx_hash = SearchTransactionsRequest {
-    network_identifier: Box::new(NetworkIdentifier::new("mina".to_string(), "devnet".to_string())),
+    network_identifier: Box::new(network_id()),
     transaction_identifier: Some(Box::new(TransactionIdentifier::new(
       // cspell:disable-next-line
       "5JuotEHhjuYbu2oucyTiVhJX3Abx5DPL4NXnM7CP9hfJZLE5G8n9".to_string(),

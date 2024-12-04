@@ -1,6 +1,9 @@
-use mina_mesh::models::{AccountBalanceRequest, AccountIdentifier, PartialBlockIdentifier};
+use mina_mesh::{
+  models::{AccountBalanceRequest, AccountIdentifier, PartialBlockIdentifier},
+  test::network_id,
+};
 
-use super::{network_id, CompareGroup};
+use super::CompareGroup;
 
 pub fn account_balance<'a>() -> CompareGroup<'a> {
   ("/account/balance", vec![

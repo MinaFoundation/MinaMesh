@@ -1,6 +1,9 @@
-use mina_mesh::models::{MempoolTransactionRequest, NetworkRequest, TransactionIdentifier};
+use mina_mesh::{
+  models::{MempoolTransactionRequest, NetworkRequest, TransactionIdentifier},
+  test::network_id,
+};
 
-use super::{network_id, CompareGroup};
+use super::CompareGroup;
 
 pub fn mempool<'a>() -> CompareGroup<'a> {
   ("/mempool", vec![Box::new(NetworkRequest::new(network_id()))])
