@@ -3,7 +3,8 @@ use convert_case::{Case, Casing};
 use serde_json::{json, Map, Value};
 
 use crate::{
-  util::DEFAULT_TOKEN_ID, OperationStatus, OperationType, TransactionStatus, UserCommandOperationsData, UserCommandType,
+  util::DEFAULT_TOKEN_ID, InternalCommandOperationsData, InternalCommandType, OperationStatus, OperationType,
+  TransactionStatus, UserCommandOperationsData, UserCommandType,
 };
 
 /// Creates a `Currency` based on the token provided.
@@ -141,6 +142,91 @@ pub fn generate_operations_user_command<T: UserCommandOperationsData>(data: &T) 
         Some(&json!({ "delegate_change_target": data.receiver() })),
         None,
       ));
+    }
+  }
+
+  operations
+}
+
+pub fn generate_operations_internal_command<T: InternalCommandOperationsData>(data: &T) -> Vec<Operation> {
+  let mut operations = Vec::new();
+  let mut operation_index = 0;
+
+  // Receiver Account Identifier
+  let receiver_account_id = &AccountIdentifier {
+    address: data.receiver().to_string(),
+    metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
+    sub_account: None,
+  };
+
+  // Handle Account Creation Fee if applicable
+  if let Some(creation_fee) = data.creation_fee() {
+    operations.push(operation(
+      operation_index,
+      Some(creation_fee),
+      receiver_account_id,
+      OperationType::AccountCreationFeeViaFeeReceiver,
+      Some(data.status()),
+      None,
+      None,
+      None,
+    ));
+    operation_index += 1;
+  }
+
+  // Process operations based on command type
+  match data.command_type() {
+    InternalCommandType::Coinbase => {
+      operations.push(operation(
+        operation_index,
+        Some(&data.fee()),
+        receiver_account_id,
+        OperationType::CoinbaseInc,
+        Some(data.status()),
+        None,
+        None,
+        None,
+      ));
+    }
+
+    InternalCommandType::FeeTransfer => {
+      operations.push(operation(
+        operation_index,
+        Some(&data.fee()),
+        receiver_account_id,
+        OperationType::FeeReceiverInc,
+        Some(data.status()),
+        None,
+        None,
+        None,
+      ));
+    }
+
+    InternalCommandType::FeeTransferViaCoinbase => {
+      if let Some(coinbase_receiver) = data.coinbase_receiver() {
+        operations.push(operation(
+          operation_index,
+          Some(&data.fee()),
+          receiver_account_id,
+          OperationType::FeeReceiverInc,
+          Some(data.status()),
+          None,
+          None,
+          None,
+        ));
+        operation_index += 1;
+
+        operations.push(operation(
+          operation_index,
+          Some(&data.fee()),
+          &AccountIdentifier::new(coinbase_receiver.to_string()),
+          OperationType::FeePayerDec,
+          Some(data.status()),
+          Some(vec![operation_index - 1]),
+          None,
+          None,
+        ));
+      }
     }
   }
 

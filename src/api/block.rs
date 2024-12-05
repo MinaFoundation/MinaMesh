@@ -1,16 +1,16 @@
 use anyhow::Result;
 use coinbase_mesh::models::{
-  AccountIdentifier, Block, BlockIdentifier, BlockRequest, BlockResponse, Operation, PartialBlockIdentifier,
-  Transaction, TransactionIdentifier,
+  Block, BlockIdentifier, BlockRequest, BlockResponse, PartialBlockIdentifier, Transaction, TransactionIdentifier,
 };
+use convert_case::{Case, Casing};
 use serde::Serialize;
 use serde_json::json;
 use sqlx::FromRow;
 
 use crate::{
-  generate_operations_user_command, operation, sql_to_mesh::zkapp_commands_to_transactions, util::DEFAULT_TOKEN_ID,
-  ChainStatus, InternalCommandMetadata, InternalCommandType, MinaMesh, MinaMeshError, OperationType, TransactionStatus,
-  UserCommandMetadata, UserCommandType, ZkAppCommand,
+  generate_operations_internal_command, generate_operations_user_command, sql_to_mesh::zkapp_commands_to_transactions,
+  util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandMetadata, InternalCommandType, MinaMesh, MinaMeshError,
+  TransactionStatus, UserCommandMetadata, UserCommandType, ZkAppCommand,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
@@ -72,13 +72,23 @@ impl MinaMesh {
       sqlx::query_file_as!(InternalCommandMetadata, "sql/queries/internal_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
         .fetch_all(&self.pg_pool)
         .await?;
+
     let transactions = metadata
       .into_iter()
       .map(|item| {
-        internal_command_metadata_to_operation(&item)
-          .map(|operation| Transaction::new(TransactionIdentifier::new(item.hash.clone()), operation))
+        let transaction_identifier = format!(
+          "{}:{}:{}:{}",
+          item.command_type.to_string().to_case(Case::Snake),
+          item.sequence_no,
+          item.secondary_sequence_no,
+          item.hash
+        );
+        Transaction::new(
+          TransactionIdentifier::new(transaction_identifier),
+          generate_operations_internal_command(&item),
+        )
       })
-      .collect::<Result<Vec<Transaction>, MinaMeshError>>()?;
+      .collect();
     Ok(transactions)
   }
 
@@ -179,74 +189,4 @@ pub struct ZkappAccountUpdateMetadata {
   verification_key_hash_id: Option<i32>,
   account: String,
   token: String,
-}
-
-fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) -> Result<Vec<Operation>, MinaMeshError> {
-  let receiver_account_id = &AccountIdentifier::new(metadata.receiver.clone());
-  let mut operations = Vec::new();
-  if let Some(creation_fee) = &metadata.creation_fee {
-    operations.push(operation(
-      0,
-      Some(creation_fee),
-      receiver_account_id,
-      OperationType::AccountCreationFeeViaFeeReceiver,
-      None,
-      None,
-      None,
-      None,
-    ));
-  }
-  match metadata.command_type {
-    InternalCommandType::Coinbase => {
-      operations.push(operation(
-        2,
-        Some(&metadata.fee),
-        receiver_account_id,
-        OperationType::CoinbaseInc,
-        None,
-        None,
-        None,
-        None,
-      ));
-    }
-    InternalCommandType::FeeTransfer => {
-      operations.push(operation(
-        2,
-        Some(&metadata.fee),
-        receiver_account_id,
-        OperationType::FeeReceiverInc,
-        None,
-        None,
-        None,
-        None,
-      ));
-    }
-    InternalCommandType::FeeTransferViaCoinbase => {
-      if let Some(coinbase_receiver) = &metadata.coinbase_receiver {
-        operations.push(operation(
-          2,
-          Some(&metadata.fee),
-          receiver_account_id,
-          OperationType::FeeReceiverInc,
-          None,
-          None,
-          None,
-          None,
-        ));
-        operations.push(operation(
-          3,
-          Some(&metadata.fee),
-          &AccountIdentifier::new(coinbase_receiver.to_string()),
-          OperationType::FeePayerDec,
-          None,
-          None,
-          None,
-          None,
-        ));
-      } else {
-        return Err(MinaMeshError::InvariantViolation);
-      }
-    }
-  }
-  Ok(operations)
 }

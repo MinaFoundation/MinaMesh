@@ -291,8 +291,8 @@ pub struct InternalCommandMetadata {
 pub trait InternalCommandOperationsData {
   fn command_type(&self) -> &InternalCommandType;
   fn receiver(&self) -> &str;
-  fn fee(&self) -> &str;
-  fn creation_fee(&self) -> Option<&str>;
+  fn fee(&self) -> String;
+  fn creation_fee(&self) -> Option<&String>;
   fn coinbase_receiver(&self) -> Option<&str>;
   fn status(&self) -> &TransactionStatus;
 }
@@ -306,12 +306,12 @@ impl InternalCommandOperationsData for InternalCommand {
     &self.receiver
   }
 
-  fn fee(&self) -> &str {
-    self.fee.as_deref().unwrap_or("0")
+  fn fee(&self) -> String {
+    self.fee.clone().unwrap_or("0".to_string())
   }
 
-  fn creation_fee(&self) -> Option<&str> {
-    self.creation_fee.as_deref()
+  fn creation_fee(&self) -> Option<&String> {
+    self.creation_fee.as_ref()
   }
 
   fn coinbase_receiver(&self) -> Option<&str> {
@@ -332,12 +332,12 @@ impl InternalCommandOperationsData for InternalCommandMetadata {
     &self.receiver
   }
 
-  fn fee(&self) -> &str {
-    &self.fee
+  fn fee(&self) -> String {
+    self.fee.clone()
   }
 
-  fn creation_fee(&self) -> Option<&str> {
-    self.creation_fee.as_deref()
+  fn creation_fee(&self) -> Option<&String> {
+    self.creation_fee.as_ref()
   }
 
   fn coinbase_receiver(&self) -> Option<&str> {
@@ -345,7 +345,8 @@ impl InternalCommandOperationsData for InternalCommandMetadata {
   }
 
   fn status(&self) -> &TransactionStatus {
-    &self.status
+    // Assuming metadata always represents applied status
+    &TransactionStatus::Applied
   }
 }
 

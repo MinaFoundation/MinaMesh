@@ -8,9 +8,9 @@ use convert_case::{Case, Casing};
 use serde_json::{json, Map, Value};
 
 use crate::{
-  generate_operations_user_command, operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommand,
-  InternalCommandType, MinaMesh, MinaMeshError, OperationType, TransactionStatus, UserCommand, UserCommandType,
-  ZkAppCommand,
+  generate_operations_internal_command, generate_operations_user_command, operation, util::DEFAULT_TOKEN_ID,
+  ChainStatus, InternalCommand, InternalCommandType, MinaMesh, MinaMeshError, OperationType, TransactionStatus,
+  UserCommand, UserCommandType, ZkAppCommand,
 };
 
 impl MinaMesh {
@@ -300,88 +300,8 @@ impl From<InternalCommand> for BlockTransaction {
       internal_command.secondary_sequence_no,
       internal_command.hash
     );
-    let fee = internal_command.fee.unwrap_or("0".to_string());
-    let status = &internal_command.status;
 
-    let mut operations = Vec::new();
-    let mut operation_index = 0;
-
-    // Receiver Account Identifier
-    let receiver_account_id = &AccountIdentifier {
-      address: internal_command.receiver.clone(),
-      metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-      sub_account: None,
-    };
-
-    // Handle Account Creation Fee if applicable
-    if let Some(creation_fee) = &internal_command.creation_fee {
-      operations.push(operation(
-        operation_index,
-        Some(creation_fee),
-        receiver_account_id,
-        OperationType::AccountCreationFeeViaFeeReceiver,
-        Some(status),
-        None,
-        None,
-        None,
-      ));
-      operation_index += 1;
-    }
-
-    match internal_command.command_type {
-      InternalCommandType::Coinbase => {
-        operations.push(operation(
-          operation_index,
-          Some(&fee),
-          receiver_account_id,
-          OperationType::CoinbaseInc,
-          Some(status),
-          None,
-          None,
-          None,
-        ));
-      }
-
-      InternalCommandType::FeeTransfer => {
-        operations.push(operation(
-          operation_index,
-          Some(&fee),
-          receiver_account_id,
-          OperationType::FeeReceiverInc,
-          Some(status),
-          None,
-          None,
-          None,
-        ));
-      }
-
-      InternalCommandType::FeeTransferViaCoinbase => {
-        if let Some(coinbase_receiver) = &internal_command.coinbase_receiver {
-          operations.push(operation(
-            operation_index,
-            Some(&fee),
-            receiver_account_id,
-            OperationType::FeeReceiverInc,
-            Some(status),
-            None,
-            None,
-            None,
-          ));
-          operation_index += 1;
-
-          operations.push(operation(
-            operation_index,
-            Some(&fee),
-            &AccountIdentifier::new(coinbase_receiver.to_string()),
-            OperationType::FeePayerDec,
-            Some(status),
-            Some(vec![operation_index - 1]),
-            None,
-            None,
-          ));
-        }
-      }
-    }
+    let operations = generate_operations_internal_command(&internal_command);
 
     let block_identifier = BlockIdentifier::new(
       internal_command.height.unwrap_or_default(),
