@@ -148,6 +148,15 @@ pub fn generate_operations_user_command<T: UserCommandOperationsData>(data: &T) 
   operations
 }
 
+pub fn generate_internal_command_transaction_identifier(
+  command_type: &InternalCommandType,
+  sequence_no: i32,
+  secondary_sequence_no: i32,
+  hash: &str,
+) -> String {
+  format!("{}:{}:{}:{}", command_type.to_string().to_case(Case::Snake), sequence_no, secondary_sequence_no, hash)
+}
+
 pub fn generate_operations_internal_command<T: InternalCommandOperationsData>(data: &T) -> Vec<Operation> {
   let mut operations = Vec::new();
   let mut operation_index = 0;

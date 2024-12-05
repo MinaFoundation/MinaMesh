@@ -4,13 +4,13 @@ use coinbase_mesh::models::{
   AccountIdentifier, BlockIdentifier, BlockTransaction, Operation, SearchTransactionsRequest,
   SearchTransactionsResponse, Transaction, TransactionIdentifier,
 };
-use convert_case::{Case, Casing};
 use serde_json::{json, Map, Value};
 
 use crate::{
-  generate_operations_internal_command, generate_operations_user_command, operation, util::DEFAULT_TOKEN_ID,
-  ChainStatus, InternalCommand, InternalCommandType, MinaMesh, MinaMeshError, OperationType, TransactionStatus,
-  UserCommand, UserCommandType, ZkAppCommand,
+  generate_internal_command_transaction_identifier, generate_operations_internal_command,
+  generate_operations_user_command, operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommand,
+  InternalCommandType, MinaMesh, MinaMeshError, OperationType, TransactionStatus, UserCommand, UserCommandType,
+  ZkAppCommand,
 };
 
 impl MinaMesh {
@@ -293,12 +293,11 @@ impl From<InternalCommand> for BlockTransaction {
   fn from(internal_command: InternalCommand) -> Self {
     // Derive transaction_identifier by combining command_type, sequence numbers,
     // and the hash
-    let transaction_identifier = format!(
-      "{}:{}:{}:{}",
-      internal_command.command_type.to_string().to_case(Case::Snake),
+    let transaction_identifier = generate_internal_command_transaction_identifier(
+      &internal_command.command_type,
       internal_command.sequence_no,
       internal_command.secondary_sequence_no,
-      internal_command.hash
+      &internal_command.hash,
     );
 
     let operations = generate_operations_internal_command(&internal_command);

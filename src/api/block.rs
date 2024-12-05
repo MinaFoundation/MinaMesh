@@ -2,15 +2,15 @@ use anyhow::Result;
 use coinbase_mesh::models::{
   Block, BlockIdentifier, BlockRequest, BlockResponse, PartialBlockIdentifier, Transaction, TransactionIdentifier,
 };
-use convert_case::{Case, Casing};
 use serde::Serialize;
 use serde_json::json;
 use sqlx::FromRow;
 
 use crate::{
-  generate_operations_internal_command, generate_operations_user_command, sql_to_mesh::zkapp_commands_to_transactions,
-  util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandMetadata, InternalCommandType, MinaMesh, MinaMeshError,
-  TransactionStatus, UserCommandMetadata, UserCommandType, ZkAppCommand,
+  generate_internal_command_transaction_identifier, generate_operations_internal_command,
+  generate_operations_user_command, sql_to_mesh::zkapp_commands_to_transactions, util::DEFAULT_TOKEN_ID, ChainStatus,
+  InternalCommandMetadata, InternalCommandType, MinaMesh, MinaMeshError, TransactionStatus, UserCommandMetadata,
+  UserCommandType, ZkAppCommand,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
@@ -76,12 +76,11 @@ impl MinaMesh {
     let transactions = metadata
       .into_iter()
       .map(|item| {
-        let transaction_identifier = format!(
-          "{}:{}:{}:{}",
-          item.command_type.to_string().to_case(Case::Snake),
+        let transaction_identifier = generate_internal_command_transaction_identifier(
+          &item.command_type,
           item.sequence_no,
           item.secondary_sequence_no,
-          item.hash
+          &item.hash,
         );
         Transaction::new(
           TransactionIdentifier::new(transaction_identifier),
