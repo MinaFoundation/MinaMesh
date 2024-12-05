@@ -4,6 +4,7 @@ use coinbase_mesh::models::{
   Transaction, TransactionIdentifier,
 };
 use serde::Serialize;
+use serde_json::json;
 use sqlx::FromRow;
 
 use crate::{
@@ -39,12 +40,13 @@ impl MinaMesh {
     user_commands.extend(internal_commands.into_iter());
     user_commands.extend(zkapp_commands.into_iter());
     Ok(BlockResponse {
-      block: Some(Box::new(Block::new(
-        block_identifier,
-        parent_block_identifier,
-        metadata.timestamp.parse()?,
-        user_commands,
-      ))),
+      block: Some(Box::new(Block {
+        block_identifier: Box::new(block_identifier),
+        parent_block_identifier: Box::new(parent_block_identifier),
+        timestamp: metadata.timestamp.parse()?,
+        transactions: user_commands,
+        metadata: Some(json!({ "creator": metadata.creator })),
+      })),
       other_transactions: None,
     })
   }
