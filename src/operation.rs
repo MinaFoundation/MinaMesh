@@ -1,8 +1,10 @@
 use coinbase_mesh::models::{AccountIdentifier, Amount, Currency, Operation, OperationIdentifier};
 use convert_case::{Case, Casing};
-use serde_json::json;
+use serde_json::{json, Map, Value};
 
-use crate::{util::DEFAULT_TOKEN_ID, OperationStatus, OperationType, TransactionStatus};
+use crate::{
+  util::DEFAULT_TOKEN_ID, OperationStatus, OperationType, TransactionStatus, UserCommandOperationsData, UserCommandType,
+};
 
 /// Creates a `Currency` based on the token provided.
 /// If the token is `DEFAULT_TOKEN_ID`, it creates a MINA currency.
@@ -41,4 +43,106 @@ pub fn operation(
     r#type: operation_type.to_string().to_case(Case::Snake),
     metadata: metadata.cloned(),
   }
+}
+
+pub fn generate_operations_user_command<T: UserCommandOperationsData>(data: &T) -> Vec<Operation> {
+  let amt = data.amount().unwrap_or("0").to_string();
+  let receiver_account_id = &AccountIdentifier {
+    address: data.receiver().to_string(),
+    metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
+    sub_account: None,
+  };
+  let source_account_id = &AccountIdentifier {
+    address: data.source().to_string(),
+    metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
+    sub_account: None,
+  };
+  let fee_payer_account_id = &AccountIdentifier {
+    address: data.fee_payer().to_string(),
+    metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
+    sub_account: None,
+  };
+
+  // Construct operations_metadata
+  let mut operations_metadata = Map::new();
+  if let Some(failure_reason) = data.failure_reason() {
+    operations_metadata.insert("reason".to_string(), json!(failure_reason));
+  }
+  let operations_metadata_value =
+    if operations_metadata.is_empty() { None } else { Some(Value::Object(operations_metadata)) };
+
+  let mut operations = Vec::new();
+  let mut operation_index = 0;
+
+  // Operation 1: Fee Payment
+  operations.push(operation(
+    operation_index,
+    Some(&format!("-{}", data.fee())),
+    fee_payer_account_id,
+    OperationType::FeePayment,
+    Some(&TransactionStatus::Applied),
+    None,
+    operations_metadata_value.as_ref(),
+    None,
+  ));
+  operation_index += 1;
+
+  // Operation 2: Account Creation Fee (if applicable)
+  if let Some(creation_fee) = data.creation_fee() {
+    let negated_creation_fee = format!("-{}", creation_fee);
+    operations.push(operation(
+      operation_index,
+      if data.status() == &TransactionStatus::Applied { Some(&negated_creation_fee) } else { None },
+      receiver_account_id,
+      OperationType::AccountCreationFeeViaPayment,
+      Some(data.status()),
+      None,
+      operations_metadata_value.as_ref(),
+      None,
+    ));
+    operation_index += 1;
+  }
+
+  // Decide on the type of operation based on command type
+  match data.command_type() {
+    UserCommandType::Payment => {
+      let negated_amt = format!("-{}", amt);
+      operations.push(operation(
+        operation_index,
+        if data.status() == &TransactionStatus::Applied { Some(&negated_amt) } else { None },
+        source_account_id,
+        OperationType::PaymentSourceDec,
+        Some(data.status()),
+        None,
+        operations_metadata_value.as_ref(),
+        None,
+      ));
+      operation_index += 1;
+
+      operations.push(operation(
+        operation_index,
+        if data.status() == &TransactionStatus::Applied { Some(&amt) } else { None },
+        receiver_account_id,
+        OperationType::PaymentReceiverInc,
+        Some(data.status()),
+        Some(vec![operation_index - 1]),
+        operations_metadata_value.as_ref(),
+        None,
+      ));
+    }
+    UserCommandType::Delegation => {
+      operations.push(operation(
+        operation_index,
+        None,
+        source_account_id,
+        OperationType::DelegateChange,
+        Some(data.status()),
+        None,
+        Some(&json!({ "delegate_change_target": data.receiver() })),
+        None,
+      ));
+    }
+  }
+
+  operations
 }

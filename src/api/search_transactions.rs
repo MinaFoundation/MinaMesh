@@ -9,8 +9,8 @@ use serde_json::{json, Map, Value};
 use sqlx::FromRow;
 
 use crate::{
-  operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationType,
-  TransactionStatus, UserCommandType, ZkAppCommand,
+  generate_operations_user_command, operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh,
+  MinaMeshError, OperationType, TransactionStatus, UserCommand, UserCommandType, ZkAppCommand,
 };
 
 impl MinaMesh {
@@ -417,33 +417,6 @@ impl From<InternalCommand> for BlockTransaction {
   }
 }
 
-#[derive(Debug, FromRow)]
-pub struct UserCommand {
-  pub id: Option<i32>,
-  pub command_type: UserCommandType,
-  pub fee_payer_id: Option<i32>,
-  pub source_id: Option<i32>,
-  pub receiver_id: Option<i32>,
-  pub nonce: i64,
-  pub amount: Option<String>,
-  pub fee: Option<String>,
-  pub valid_until: Option<i64>,
-  pub memo: Option<String>,
-  pub hash: String,
-  pub block_id: Option<i32>,
-  pub sequence_no: Option<i32>,
-  pub status: TransactionStatus,
-  pub failure_reason: Option<String>,
-  pub state_hash: Option<String>,
-  pub chain_status: Option<ChainStatus>,
-  pub height: Option<i64>,
-  pub total_count: Option<i64>,
-  pub fee_payer: String,
-  pub source: String,
-  pub receiver: String,
-  pub creation_fee: Option<String>,
-}
-
 impl UserCommand {
   pub fn decoded_memo(&self) -> Option<String> {
     let memo = self.memo.clone().unwrap_or_default();
@@ -460,30 +433,6 @@ impl UserCommand {
 impl From<UserCommand> for BlockTransaction {
   fn from(user_command: UserCommand) -> Self {
     let decoded_memo = user_command.decoded_memo().unwrap_or_default();
-    let amt = user_command.amount.clone().unwrap_or_else(|| "0".to_string());
-    let receiver_account_id = &AccountIdentifier {
-      address: user_command.receiver.clone(),
-      metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-      sub_account: None,
-    };
-    let source_account_id = &AccountIdentifier {
-      address: user_command.source,
-      metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-      sub_account: None,
-    };
-    let fee_payer_account_id = &AccountIdentifier {
-      address: user_command.fee_payer,
-      metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-      sub_account: None,
-    };
-
-    // Construct operations_metadata
-    let mut operations_metadata = Map::new();
-    if let Some(failure_reason) = user_command.failure_reason.clone() {
-      operations_metadata.insert("reason".to_string(), json!(failure_reason));
-    }
-    let operations_metadata_value =
-      if operations_metadata.is_empty() { None } else { Some(Value::Object(operations_metadata)) };
 
     // Construct transaction metadata
     let mut transaction_metadata = Map::new();
@@ -494,85 +443,7 @@ impl From<UserCommand> for BlockTransaction {
     let transaction_metadata_value =
       if transaction_metadata.is_empty() { None } else { Some(Value::Object(transaction_metadata)) };
 
-    let mut operations = Vec::new();
-    let mut operation_index = 0;
-
-    // Operation 1: Fee Payment
-    operations.push(operation(
-      operation_index,
-      Some(&format!("-{}", user_command.fee.unwrap_or("0".to_string()))),
-      fee_payer_account_id,
-      OperationType::FeePayment,
-      Some(&TransactionStatus::Applied),
-      None,
-      operations_metadata_value.as_ref(),
-      None,
-    ));
-
-    operation_index += 1;
-
-    // Operation 2: Account Creation Fee (if applicable)
-    if let Some(creation_fee) = &user_command.creation_fee {
-      let negated_creation_fee = format!("-{}", creation_fee);
-      operations.push(operation(
-        operation_index,
-        if user_command.status == TransactionStatus::Applied { Some(&negated_creation_fee) } else { None },
-        receiver_account_id,
-        OperationType::AccountCreationFeeViaPayment,
-        Some(&user_command.status),
-        None,
-        operations_metadata_value.as_ref(),
-        None,
-      ));
-
-      operation_index += 1;
-    }
-
-    // Decide on the type of operation based on command type
-    match user_command.command_type {
-      // Operation 3: Payment Source Decrement
-      UserCommandType::Payment => {
-        let negated_amt = format!("-{}", amt);
-        operations.push(operation(
-          operation_index,
-          if user_command.status == TransactionStatus::Applied { Some(&negated_amt) } else { None },
-          source_account_id,
-          OperationType::PaymentSourceDec,
-          Some(&user_command.status),
-          None,
-          operations_metadata_value.as_ref(),
-          None,
-        ));
-
-        operation_index += 1;
-
-        // Operation 4: Payment Receiver Increment
-        operations.push(operation(
-          operation_index,
-          if user_command.status == TransactionStatus::Applied { Some(&amt) } else { None },
-          receiver_account_id,
-          OperationType::PaymentReceiverInc,
-          Some(&user_command.status),
-          Some(vec![operation_index - 1]),
-          operations_metadata_value.as_ref(),
-          None,
-        ));
-      }
-
-      // Operation 3: Delegate Change
-      UserCommandType::Delegation => {
-        operations.push(operation(
-          operation_index,
-          None,
-          source_account_id,
-          OperationType::DelegateChange,
-          Some(&user_command.status),
-          None,
-          Some(&json!({ "delegate_change_target": user_command.receiver })),
-          None,
-        ));
-      }
-    }
+    let operations = generate_operations_user_command(&user_command);
 
     let block_identifier =
       BlockIdentifier::new(user_command.height.unwrap_or_default(), user_command.state_hash.unwrap_or_default());

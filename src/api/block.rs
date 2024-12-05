@@ -8,8 +8,9 @@ use serde_json::json;
 use sqlx::FromRow;
 
 use crate::{
-  operation, sql_to_mesh::zkapp_commands_to_transactions, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType,
-  MinaMesh, MinaMeshError, OperationType, TransactionStatus, UserCommandType, ZkAppCommand,
+  generate_operations_user_command, operation, sql_to_mesh::zkapp_commands_to_transactions, util::DEFAULT_TOKEN_ID,
+  ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationType, TransactionStatus, UserCommandMetadata,
+  UserCommandType, ZkAppCommand,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
@@ -60,7 +61,7 @@ impl MinaMesh {
     let transactions = metadata
       .into_iter()
       .map(|item| {
-        Transaction::new(TransactionIdentifier::new(item.hash.clone()), user_command_metadata_to_operations(&item))
+        Transaction::new(TransactionIdentifier::new(item.hash.clone()), generate_operations_user_command(&item))
       })
       .collect();
     Ok(transactions)
@@ -142,23 +143,6 @@ pub struct BlockMetadata {
 }
 
 #[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
-pub struct UserCommandMetadata {
-  command_type: UserCommandType,
-  nonce: i64,
-  amount: Option<String>,
-  fee: String,
-  valid_until: Option<i64>,
-  memo: String,
-  hash: String,
-  fee_payer: String,
-  source: String,
-  receiver: String,
-  status: TransactionStatus,
-  failure_reason: Option<String>,
-  creation_fee: Option<String>,
-}
-
-#[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
 pub struct InternalCommandMetadata {
   command_type: InternalCommandType,
   receiver: String,
@@ -207,79 +191,6 @@ pub struct ZkappAccountUpdateMetadata {
   verification_key_hash_id: Option<i32>,
   account: String,
   token: String,
-}
-
-fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Operation> {
-  let fee_payer_account_id = &AccountIdentifier::new(metadata.fee_payer.clone());
-  let receiver_account_id = &AccountIdentifier::new(metadata.receiver.clone());
-  let source_account_id = &AccountIdentifier::new(metadata.source.clone());
-
-  let mut operations = Vec::new();
-  if metadata.fee != "0" {
-    operations.push(operation(
-      0,
-      Some(&metadata.fee),
-      fee_payer_account_id,
-      OperationType::FeePayment,
-      None,
-      None,
-      None,
-      None,
-    ));
-  }
-  if metadata.failure_reason.is_none() {
-    if let Some(creation_fee) = &metadata.creation_fee {
-      operations.push(operation(
-        1,
-        Some(creation_fee),
-        receiver_account_id,
-        OperationType::AccountCreationFeeViaPayment,
-        Some(&metadata.status),
-        None,
-        None,
-        None,
-      ));
-    }
-    match metadata.command_type {
-      UserCommandType::Delegation => {
-        operations.push(operation(
-          2,
-          None,
-          source_account_id,
-          OperationType::DelegateChange,
-          Some(&metadata.status),
-          None,
-          None,
-          None,
-        ));
-      }
-      UserCommandType::Payment => {
-        operations.extend_from_slice(&[
-          operation(
-            2,
-            metadata.amount.as_ref(),
-            source_account_id,
-            OperationType::PaymentSourceDec,
-            Some(&metadata.status),
-            None,
-            None,
-            None,
-          ),
-          operation(
-            3,
-            metadata.amount.as_ref(),
-            receiver_account_id,
-            OperationType::PaymentReceiverInc,
-            Some(&metadata.status),
-            None,
-            None,
-            None,
-          ),
-        ]);
-      }
-    };
-  }
-  operations
 }
 
 fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) -> Result<Vec<Operation>, MinaMeshError> {
