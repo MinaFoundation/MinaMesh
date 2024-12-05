@@ -136,7 +136,11 @@ Some(
                                 },
                             ],
                             related_transactions: None,
-                            metadata: None,
+                            metadata: Some(
+                                Object {
+                                    "nonce": Number(258932),
+                                },
+                            ),
                         },
                         Transaction {
                             transaction_identifier: TransactionIdentifier {
@@ -257,7 +261,11 @@ Some(
                                 },
                             ],
                             related_transactions: None,
-                            metadata: None,
+                            metadata: Some(
+                                Object {
+                                    "nonce": Number(258934),
+                                },
+                            ),
                         },
                         Transaction {
                             transaction_identifier: TransactionIdentifier {
@@ -378,7 +386,11 @@ Some(
                                 },
                             ],
                             related_transactions: None,
-                            metadata: None,
+                            metadata: Some(
+                                Object {
+                                    "nonce": Number(258936),
+                                },
+                            ),
                         },
                         Transaction {
                             transaction_identifier: TransactionIdentifier {

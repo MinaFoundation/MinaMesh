@@ -4,13 +4,13 @@ use coinbase_mesh::models::{
   AccountIdentifier, BlockIdentifier, BlockTransaction, Operation, SearchTransactionsRequest,
   SearchTransactionsResponse, Transaction, TransactionIdentifier,
 };
-use serde_json::{json, Map, Value};
+use serde_json::json;
 
 use crate::{
   generate_internal_command_transaction_identifier, generate_operations_internal_command,
-  generate_operations_user_command, operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommand,
-  InternalCommandType, MinaMesh, MinaMeshError, OperationType, TransactionStatus, UserCommand, UserCommandType,
-  ZkAppCommand,
+  generate_operations_user_command, generate_transaction_metadata, operation, util::DEFAULT_TOKEN_ID, ChainStatus,
+  InternalCommand, InternalCommandType, MinaMesh, MinaMeshError, OperationType, TransactionStatus, UserCommand,
+  UserCommandType, ZkAppCommand,
 };
 
 impl MinaMesh {
@@ -317,32 +317,9 @@ impl From<InternalCommand> for BlockTransaction {
   }
 }
 
-impl UserCommand {
-  pub fn decoded_memo(&self) -> Option<String> {
-    let memo = self.memo.clone().unwrap_or_default();
-    match bs58::decode(memo).into_vec() {
-      Ok(decoded_bytes) => {
-        let cleaned = &decoded_bytes[3 .. decoded_bytes[2] as usize + 3];
-        Some(String::from_utf8_lossy(cleaned).to_string())
-      }
-      Err(_) => None,
-    }
-  }
-}
-
 impl From<UserCommand> for BlockTransaction {
   fn from(user_command: UserCommand) -> Self {
-    let decoded_memo = user_command.decoded_memo().unwrap_or_default();
-
-    // Construct transaction metadata
-    let mut transaction_metadata = Map::new();
-    transaction_metadata.insert("nonce".to_string(), json!(user_command.nonce));
-    if !decoded_memo.is_empty() {
-      transaction_metadata.insert("memo".to_string(), json!(decoded_memo));
-    }
-    let transaction_metadata_value =
-      if transaction_metadata.is_empty() { None } else { Some(Value::Object(transaction_metadata)) };
-
+    let metadata = generate_transaction_metadata(&user_command);
     let operations = generate_operations_user_command(&user_command);
 
     let block_identifier =
@@ -350,8 +327,8 @@ impl From<UserCommand> for BlockTransaction {
     let transaction = Transaction {
       transaction_identifier: Box::new(TransactionIdentifier::new(user_command.hash)),
       operations,
+      metadata,
       related_transactions: None,
-      metadata: transaction_metadata_value,
     };
     BlockTransaction::new(block_identifier, transaction)
   }

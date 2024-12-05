@@ -8,9 +8,9 @@ use sqlx::FromRow;
 
 use crate::{
   generate_internal_command_transaction_identifier, generate_operations_internal_command,
-  generate_operations_user_command, sql_to_mesh::zkapp_commands_to_transactions, util::DEFAULT_TOKEN_ID, ChainStatus,
-  InternalCommandMetadata, InternalCommandType, MinaMesh, MinaMeshError, TransactionStatus, UserCommandMetadata,
-  UserCommandType, ZkAppCommand,
+  generate_operations_user_command, generate_transaction_metadata, sql_to_mesh::zkapp_commands_to_transactions,
+  util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandMetadata, InternalCommandType, MinaMesh, MinaMeshError,
+  TransactionStatus, UserCommandMetadata, UserCommandType, ZkAppCommand,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
@@ -61,7 +61,15 @@ impl MinaMesh {
     let transactions = metadata
       .into_iter()
       .map(|item| {
-        Transaction::new(TransactionIdentifier::new(item.hash.clone()), generate_operations_user_command(&item))
+        let metadata = generate_transaction_metadata(&item);
+        let operations = generate_operations_user_command(&item);
+
+        Transaction {
+          transaction_identifier: Box::new(TransactionIdentifier::new(item.hash.clone())),
+          operations,
+          metadata,
+          related_transactions: None,
+        }
       })
       .collect();
     Ok(transactions)

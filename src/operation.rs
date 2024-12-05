@@ -46,6 +46,37 @@ pub fn operation(
   }
 }
 
+// Decode a transaction memo
+pub fn decode_memo(memo: &Option<String>) -> Option<String> {
+  let memo = memo.clone();
+  if let Some(memo) = memo {
+    match bs58::decode(memo).into_vec() {
+      Ok(decoded_bytes) => {
+        let cleaned = &decoded_bytes[3 .. decoded_bytes[2] as usize + 3];
+        Some(String::from_utf8_lossy(cleaned).to_string())
+      }
+      Err(_) => None,
+    }
+  } else {
+    None
+  }
+}
+
+// Construct transaction metadata
+pub fn generate_transaction_metadata<T: UserCommandOperationsData>(data: &T) -> Option<Value> {
+  let decoded_memo = decode_memo(&data.memo()).unwrap_or_default();
+  let mut transaction_metadata = Map::new();
+  transaction_metadata.insert("nonce".to_string(), json!(data.nonce()));
+  if !decoded_memo.is_empty() {
+    transaction_metadata.insert("memo".to_string(), json!(decoded_memo));
+  }
+  if transaction_metadata.is_empty() {
+    None
+  } else {
+    Some(Value::Object(transaction_metadata))
+  }
+}
+
 pub fn generate_operations_user_command<T: UserCommandOperationsData>(data: &T) -> Vec<Operation> {
   let amt = data.amount().unwrap_or("0").to_string();
   let receiver_account_id = &AccountIdentifier {

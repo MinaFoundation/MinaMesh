@@ -146,7 +146,7 @@ pub struct UserCommandMetadata {
   pub amount: Option<String>,
   pub fee: String,
   pub valid_until: Option<i64>,
-  pub memo: String,
+  pub memo: Option<String>,
   pub hash: String,
   pub fee_payer: String,
   pub source: String,
@@ -163,6 +163,7 @@ pub trait UserCommandOperationsData {
   fn source(&self) -> &str;
   fn receiver(&self) -> &str;
   fn nonce(&self) -> i64;
+  fn memo(&self) -> Option<String>;
   fn amount(&self) -> Option<&str>;
   fn fee(&self) -> &str;
   fn status(&self) -> &TransactionStatus;
@@ -189,6 +190,10 @@ impl UserCommandOperationsData for UserCommand {
 
   fn nonce(&self) -> i64 {
     self.nonce
+  }
+
+  fn memo(&self) -> Option<String> {
+    self.memo.clone()
   }
 
   fn amount(&self) -> Option<&str> {
@@ -231,6 +236,10 @@ impl UserCommandOperationsData for UserCommandMetadata {
 
   fn nonce(&self) -> i64 {
     self.nonce
+  }
+
+  fn memo(&self) -> Option<String> {
+    self.memo.clone()
   }
 
   fn amount(&self) -> Option<&str> {
