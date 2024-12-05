@@ -6,11 +6,11 @@ use coinbase_mesh::models::{
 };
 use convert_case::{Case, Casing};
 use serde_json::{json, Map, Value};
-use sqlx::FromRow;
 
 use crate::{
-  generate_operations_user_command, operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh,
-  MinaMeshError, OperationType, TransactionStatus, UserCommand, UserCommandType, ZkAppCommand,
+  generate_operations_user_command, operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommand,
+  InternalCommandType, MinaMesh, MinaMeshError, OperationType, TransactionStatus, UserCommand, UserCommandType,
+  ZkAppCommand,
 };
 
 impl MinaMesh {
@@ -287,25 +287,6 @@ pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<
   }
 
   result
-}
-
-#[derive(Debug, FromRow)]
-pub struct InternalCommand {
-  pub id: Option<i32>,
-  pub command_type: InternalCommandType,
-  pub receiver_id: Option<i32>,
-  pub fee: Option<String>,
-  pub hash: String,
-  pub receiver: String,
-  pub coinbase_receiver: Option<String>,
-  pub sequence_no: i32,
-  pub secondary_sequence_no: i32,
-  pub block_id: i32,
-  pub status: TransactionStatus,
-  pub state_hash: Option<String>,
-  pub height: Option<i64>,
-  pub total_count: Option<i64>,
-  pub creation_fee: Option<String>,
 }
 
 impl From<InternalCommand> for BlockTransaction {

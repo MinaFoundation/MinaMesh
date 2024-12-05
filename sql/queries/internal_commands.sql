@@ -10,7 +10,8 @@ WITH
       ac.creation_fee,
       pk.value AS receiver,
       bic.sequence_no,
-      bic.secondary_sequence_no
+      bic.secondary_sequence_no,
+      bic.status
     FROM
       internal_commands AS i
       INNER JOIN blocks_internal_commands AS bic ON i.id=bic.internal_command_id
@@ -58,6 +59,7 @@ SELECT
   ic.sequence_no,
   ic.secondary_sequence_no,
   ic.fee,
+  ic.status AS "status: TransactionStatus",
   coinbase_receiver_pk.value AS coinbase_receiver
 FROM
   internal_commands_cte AS ic

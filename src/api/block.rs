@@ -9,8 +9,8 @@ use sqlx::FromRow;
 
 use crate::{
   generate_operations_user_command, operation, sql_to_mesh::zkapp_commands_to_transactions, util::DEFAULT_TOKEN_ID,
-  ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationType, TransactionStatus, UserCommandMetadata,
-  UserCommandType, ZkAppCommand,
+  ChainStatus, InternalCommandMetadata, InternalCommandType, MinaMesh, MinaMeshError, OperationType, TransactionStatus,
+  UserCommandMetadata, UserCommandType, ZkAppCommand,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
@@ -140,18 +140,6 @@ pub struct BlockMetadata {
   staking_epoch_data_id: i32,
   creator: String,
   winner: String,
-}
-
-#[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
-pub struct InternalCommandMetadata {
-  command_type: InternalCommandType,
-  receiver: String,
-  fee: String,
-  hash: String,
-  creation_fee: Option<String>,
-  sequence_no: i32,
-  secondary_sequence_no: i32,
-  coinbase_receiver: Option<String>,
 }
 
 #[derive(Debug, PartialEq, Eq, FromRow, Serialize)]

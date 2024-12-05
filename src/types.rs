@@ -254,6 +254,101 @@ impl UserCommandOperationsData for UserCommandMetadata {
   }
 }
 
+// Used in search transactions
+#[derive(Debug, FromRow)]
+pub struct InternalCommand {
+  pub id: Option<i32>,
+  pub command_type: InternalCommandType,
+  pub receiver_id: Option<i32>,
+  pub fee: Option<String>,
+  pub hash: String,
+  pub receiver: String,
+  pub coinbase_receiver: Option<String>,
+  pub sequence_no: i32,
+  pub secondary_sequence_no: i32,
+  pub block_id: i32,
+  pub status: TransactionStatus,
+  pub state_hash: Option<String>,
+  pub height: Option<i64>,
+  pub total_count: Option<i64>,
+  pub creation_fee: Option<String>,
+}
+
+// Used in block
+#[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
+pub struct InternalCommandMetadata {
+  pub command_type: InternalCommandType,
+  pub receiver: String,
+  pub fee: String,
+  pub hash: String,
+  pub creation_fee: Option<String>,
+  pub sequence_no: i32,
+  pub secondary_sequence_no: i32,
+  pub status: TransactionStatus,
+  pub coinbase_receiver: Option<String>,
+}
+
+pub trait InternalCommandOperationsData {
+  fn command_type(&self) -> &InternalCommandType;
+  fn receiver(&self) -> &str;
+  fn fee(&self) -> &str;
+  fn creation_fee(&self) -> Option<&str>;
+  fn coinbase_receiver(&self) -> Option<&str>;
+  fn status(&self) -> &TransactionStatus;
+}
+
+impl InternalCommandOperationsData for InternalCommand {
+  fn command_type(&self) -> &InternalCommandType {
+    &self.command_type
+  }
+
+  fn receiver(&self) -> &str {
+    &self.receiver
+  }
+
+  fn fee(&self) -> &str {
+    self.fee.as_deref().unwrap_or("0")
+  }
+
+  fn creation_fee(&self) -> Option<&str> {
+    self.creation_fee.as_deref()
+  }
+
+  fn coinbase_receiver(&self) -> Option<&str> {
+    self.coinbase_receiver.as_deref()
+  }
+
+  fn status(&self) -> &TransactionStatus {
+    &self.status
+  }
+}
+
+impl InternalCommandOperationsData for InternalCommandMetadata {
+  fn command_type(&self) -> &InternalCommandType {
+    &self.command_type
+  }
+
+  fn receiver(&self) -> &str {
+    &self.receiver
+  }
+
+  fn fee(&self) -> &str {
+    &self.fee
+  }
+
+  fn creation_fee(&self) -> Option<&str> {
+    self.creation_fee.as_deref()
+  }
+
+  fn coinbase_receiver(&self) -> Option<&str> {
+    self.coinbase_receiver.as_deref()
+  }
+
+  fn status(&self) -> &TransactionStatus {
+    &self.status
+  }
+}
+
 #[derive(Debug, Display, Hash, PartialEq, Eq)]
 pub enum CacheKey {
   NetworkId,
