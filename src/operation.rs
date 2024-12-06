@@ -258,8 +258,12 @@ pub fn generate_operations_internal_command<T: InternalCommandOperationsData>(da
 
         operations.push(operation(
           operation_index,
-          Some(&data.fee()),
-          &AccountIdentifier::new(coinbase_receiver.to_string()),
+          Some(&format!("-{}", data.fee())),
+          &AccountIdentifier {
+            address: coinbase_receiver.to_string(),
+            metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
+            sub_account: None,
+          },
           OperationType::FeePayerDec,
           Some(data.status()),
           Some(vec![operation_index - 1]),

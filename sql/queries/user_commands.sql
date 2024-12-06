@@ -1,5 +1,9 @@
-SELECT
-  u.command_type AS "command_type: UserCommandType",
+SELECT DISTINCT
+  ON (
+    buc.block_id,
+    buc.user_command_id,
+    buc.sequence_no
+  ) u.command_type AS "command_type: UserCommandType",
   u.nonce,
   u.amount,
   u.fee,

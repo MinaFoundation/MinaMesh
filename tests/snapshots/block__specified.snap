@@ -78,12 +78,16 @@ Some(
                                         AccountIdentifier {
                                             address: "B62qkUHaJUHERZuCHQhXCQ8xsGBqyYSgjQsKnKN5HhSJecakuJ4pYyk",
                                             sub_account: None,
-                                            metadata: None,
+                                            metadata: Some(
+                                                Object {
+                                                    "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                                },
+                                            ),
                                         },
                                     ),
                                     amount: Some(
                                         Amount {
-                                            value: "10000000",
+                                            value: "-10000000",
                                             currency: Currency {
                                                 symbol: "MINA",
                                                 decimals: 9,
