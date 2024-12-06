@@ -33,19 +33,21 @@ impl MinaMesh {
       Some(block_metadata) => BlockIdentifier::new(block_metadata.height, block_metadata.state_hash),
       None => block_identifier.clone(),
     };
-    let (mut user_commands, internal_commands, zkapp_commands) = tokio::try_join!(
+    let (user_commands, internal_commands, zkapp_commands) = tokio::try_join!(
       self.user_commands(&metadata),
       self.internal_commands(&metadata),
       self.zkapp_commands(&metadata)
     )?;
-    user_commands.extend(internal_commands.into_iter());
-    user_commands.extend(zkapp_commands.into_iter());
+
+    let all_commands: Vec<_> =
+      internal_commands.into_iter().chain(user_commands.into_iter()).chain(zkapp_commands.into_iter()).collect();
+
     Ok(BlockResponse {
       block: Some(Box::new(Block {
         block_identifier: Box::new(block_identifier),
         parent_block_identifier: Box::new(parent_block_identifier),
         timestamp: metadata.timestamp.parse()?,
-        transactions: user_commands,
+        transactions: all_commands,
         metadata: Some(json!({ "creator": metadata.creator })),
       })),
       other_transactions: None,
@@ -54,10 +56,9 @@ impl MinaMesh {
 
   // TODO: use default token value, check how to best handle this
   pub async fn user_commands(&self, metadata: &BlockMetadata) -> Result<Vec<Transaction>, MinaMeshError> {
-    let metadata =
-      sqlx::query_file_as!(UserCommandMetadata, "sql/queries/user_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
-        .fetch_all(&self.pg_pool)
-        .await?;
+    let metadata = sqlx::query_file_as!(UserCommandMetadata, "sql/queries/user_commands.sql", metadata.id)
+      .fetch_all(&self.pg_pool)
+      .await?;
     let transactions = metadata
       .into_iter()
       .map(|item| {

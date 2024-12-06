@@ -54,4 +54,3 @@ FROM
   LEFT JOIN tokens AS t ON ai_receiver.token_id=t.id
 WHERE
   buc.block_id=$1
-  AND t.value=$2
