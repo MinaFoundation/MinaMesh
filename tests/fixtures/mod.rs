@@ -7,7 +7,6 @@ mod network;
 mod search_transactions;
 
 pub use account_balance::*;
-#[allow(unused_imports)]
 pub use block::*;
 pub use mempool::*;
 pub use network::*;
