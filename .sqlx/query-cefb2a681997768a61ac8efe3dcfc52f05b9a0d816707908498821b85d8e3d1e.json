@@ -1,0 +1,114 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT DISTINCT\n  ON (\n    buc.block_id,\n    buc.user_command_id,\n    buc.sequence_no\n  ) u.command_type AS \"command_type: UserCommandType\",\n  u.nonce,\n  u.amount,\n  u.fee,\n  u.valid_until,\n  u.memo,\n  u.hash,\n  pk_payer.value AS fee_payer,\n  pk_source.value AS source,\n  pk_receiver.value AS receiver,\n  buc.status AS \"status: TransactionStatus\",\n  buc.failure_reason AS \"failure_reason?\",\n  ac.creation_fee AS \"creation_fee?\"\nFROM\n  user_commands AS u\n  INNER JOIN blocks_user_commands AS buc ON u.id=buc.user_command_id\n  INNER JOIN public_keys AS pk_payer ON u.fee_payer_id=pk_payer.id\n  INNER JOIN public_keys AS pk_source ON u.source_id=pk_source.id\n  INNER JOIN public_keys AS pk_receiver ON u.receiver_id=pk_receiver.id\n  LEFT JOIN account_identifiers AS ai_receiver ON pk_receiver.id=ai_receiver.public_key_id\n  /* Account creation fees are attributed to the first successful command in the\n  block that mentions the account with the following LEFT JOIN */\n  LEFT JOIN accounts_created AS ac ON buc.block_id=ac.block_id\n  AND ai_receiver.id=ac.account_identifier_id\n  AND buc.status='applied'\n  AND buc.sequence_no=(\n    SELECT\n      least(\n        (\n          SELECT\n            min(bic2.sequence_no)\n          FROM\n            blocks_internal_commands AS bic2\n            INNER JOIN internal_commands AS ic2 ON bic2.internal_command_id=ic2.id\n          WHERE\n            u.receiver_id=ic2.receiver_id\n            AND bic2.block_id=buc.block_id\n            AND bic2.status='applied'\n        ),\n        (\n          SELECT\n            min(buc2.sequence_no)\n          FROM\n            blocks_user_commands AS buc2\n            INNER JOIN user_commands AS uc2 ON buc2.user_command_id=uc2.id\n          WHERE\n            u.receiver_id=uc2.receiver_id\n            AND buc2.block_id=buc.block_id\n            AND buc2.status='applied'\n        )\n      )\n  )\n  LEFT JOIN tokens AS t ON ai_receiver.token_id=t.id\nWHERE\n  buc.block_id=$1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "command_type: UserCommandType",
+        "type_info": {
+          "Custom": {
+            "name": "user_command_type",
+            "kind": {
+              "Enum": [
+                "payment",
+                "delegation"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "nonce",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "amount",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "fee",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "valid_until",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "memo",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "fee_payer",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "source",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "receiver",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "status: TransactionStatus",
+        "type_info": {
+          "Custom": {
+            "name": "transaction_status",
+            "kind": {
+              "Enum": [
+                "applied",
+                "failed"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "failure_reason?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "creation_fee?",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "cefb2a681997768a61ac8efe3dcfc52f05b9a0d816707908498821b85d8e3d1e"
+}

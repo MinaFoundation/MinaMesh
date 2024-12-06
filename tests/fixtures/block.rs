@@ -5,12 +5,11 @@ use mina_mesh::{
 
 use super::CompareGroup;
 
-#[allow(dead_code)]
 pub fn block<'a>() -> CompareGroup<'a> {
   ("/block", vec![
     Box::new(BlockRequest {
       network_identifier: Box::new(network_id()),
-      block_identifier: Box::new(PartialBlockIdentifier::new()),
+      block_identifier: Box::new(PartialBlockIdentifier { index: Some(373797), hash: None }),
     }),
     Box::new(BlockRequest {
       network_identifier: Box::new(network_id()),

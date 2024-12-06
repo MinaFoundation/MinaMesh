@@ -1,14 +1,16 @@
 use anyhow::Result;
 use coinbase_mesh::models::{
-  AccountIdentifier, Block, BlockIdentifier, BlockRequest, BlockResponse, Operation, PartialBlockIdentifier,
-  Transaction, TransactionIdentifier,
+  Block, BlockIdentifier, BlockRequest, BlockResponse, PartialBlockIdentifier, Transaction, TransactionIdentifier,
 };
 use serde::Serialize;
+use serde_json::json;
 use sqlx::FromRow;
 
 use crate::{
-  operation, sql_to_mesh::zkapp_commands_to_transactions, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType,
-  MinaMesh, MinaMeshError, OperationType, TransactionStatus, UserCommandType, ZkAppCommand,
+  generate_internal_command_transaction_identifier, generate_operations_internal_command,
+  generate_operations_user_command, generate_transaction_metadata, sql_to_mesh::zkapp_commands_to_transactions,
+  util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandMetadata, InternalCommandType, MinaMesh, MinaMeshError,
+  TransactionStatus, UserCommandMetadata, UserCommandType, ZkAppCommand,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/block.ml#L7
@@ -31,34 +33,44 @@ impl MinaMesh {
       Some(block_metadata) => BlockIdentifier::new(block_metadata.height, block_metadata.state_hash),
       None => block_identifier.clone(),
     };
-    let (mut user_commands, internal_commands, zkapp_commands) = tokio::try_join!(
+    let (user_commands, internal_commands, zkapp_commands) = tokio::try_join!(
       self.user_commands(&metadata),
       self.internal_commands(&metadata),
       self.zkapp_commands(&metadata)
     )?;
-    user_commands.extend(internal_commands.into_iter());
-    user_commands.extend(zkapp_commands.into_iter());
+
+    let all_commands: Vec<_> =
+      internal_commands.into_iter().chain(user_commands.into_iter()).chain(zkapp_commands.into_iter()).collect();
+
     Ok(BlockResponse {
-      block: Some(Box::new(Block::new(
-        block_identifier,
-        parent_block_identifier,
-        metadata.timestamp.parse()?,
-        user_commands,
-      ))),
+      block: Some(Box::new(Block {
+        block_identifier: Box::new(block_identifier),
+        parent_block_identifier: Box::new(parent_block_identifier),
+        timestamp: metadata.timestamp.parse()?,
+        transactions: all_commands,
+        metadata: Some(json!({ "creator": metadata.creator })),
+      })),
       other_transactions: None,
     })
   }
 
   // TODO: use default token value, check how to best handle this
   pub async fn user_commands(&self, metadata: &BlockMetadata) -> Result<Vec<Transaction>, MinaMeshError> {
-    let metadata =
-      sqlx::query_file_as!(UserCommandMetadata, "sql/queries/user_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
-        .fetch_all(&self.pg_pool)
-        .await?;
+    let metadata = sqlx::query_file_as!(UserCommandMetadata, "sql/queries/user_commands.sql", metadata.id)
+      .fetch_all(&self.pg_pool)
+      .await?;
     let transactions = metadata
       .into_iter()
       .map(|item| {
-        Transaction::new(TransactionIdentifier::new(item.hash.clone()), user_command_metadata_to_operations(&item))
+        let metadata = generate_transaction_metadata(&item);
+        let operations = generate_operations_user_command(&item);
+
+        Transaction {
+          transaction_identifier: Box::new(TransactionIdentifier::new(item.hash.clone())),
+          operations,
+          metadata,
+          related_transactions: None,
+        }
       })
       .collect();
     Ok(transactions)
@@ -69,13 +81,22 @@ impl MinaMesh {
       sqlx::query_file_as!(InternalCommandMetadata, "sql/queries/internal_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
         .fetch_all(&self.pg_pool)
         .await?;
+
     let transactions = metadata
       .into_iter()
       .map(|item| {
-        internal_command_metadata_to_operation(&item)
-          .map(|operation| Transaction::new(TransactionIdentifier::new(item.hash.clone()), operation))
+        let transaction_identifier = generate_internal_command_transaction_identifier(
+          &item.command_type,
+          item.sequence_no,
+          item.secondary_sequence_no,
+          &item.hash,
+        );
+        Transaction::new(
+          TransactionIdentifier::new(transaction_identifier),
+          generate_operations_internal_command(&item),
+        )
       })
-      .collect::<Result<Vec<Transaction>, MinaMeshError>>()?;
+      .collect();
     Ok(transactions)
   }
 
@@ -140,35 +161,6 @@ pub struct BlockMetadata {
 }
 
 #[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
-pub struct UserCommandMetadata {
-  command_type: UserCommandType,
-  nonce: i64,
-  amount: Option<String>,
-  fee: String,
-  valid_until: Option<i64>,
-  memo: String,
-  hash: String,
-  fee_payer: String,
-  source: String,
-  receiver: String,
-  status: TransactionStatus,
-  failure_reason: Option<String>,
-  creation_fee: Option<String>,
-}
-
-#[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
-pub struct InternalCommandMetadata {
-  command_type: InternalCommandType,
-  receiver: String,
-  fee: String,
-  hash: String,
-  creation_fee: Option<String>,
-  sequence_no: i32,
-  secondary_sequence_no: i32,
-  coinbase_receiver: Option<String>,
-}
-
-#[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
 pub struct ZkappCommandMetadata {
   id: i64,
   memo: Option<String>,
@@ -205,147 +197,4 @@ pub struct ZkappAccountUpdateMetadata {
   verification_key_hash_id: Option<i32>,
   account: String,
   token: String,
-}
-
-fn user_command_metadata_to_operations(metadata: &UserCommandMetadata) -> Vec<Operation> {
-  let fee_payer_account_id = &AccountIdentifier::new(metadata.fee_payer.clone());
-  let receiver_account_id = &AccountIdentifier::new(metadata.receiver.clone());
-  let source_account_id = &AccountIdentifier::new(metadata.source.clone());
-
-  let mut operations = Vec::new();
-  if metadata.fee != "0" {
-    operations.push(operation(
-      0,
-      Some(&metadata.fee),
-      fee_payer_account_id,
-      OperationType::FeePayment,
-      None,
-      None,
-      None,
-      None,
-    ));
-  }
-  if metadata.failure_reason.is_none() {
-    if let Some(creation_fee) = &metadata.creation_fee {
-      operations.push(operation(
-        1,
-        Some(creation_fee),
-        receiver_account_id,
-        OperationType::AccountCreationFeeViaPayment,
-        Some(&metadata.status),
-        None,
-        None,
-        None,
-      ));
-    }
-    match metadata.command_type {
-      UserCommandType::Delegation => {
-        operations.push(operation(
-          2,
-          None,
-          source_account_id,
-          OperationType::DelegateChange,
-          Some(&metadata.status),
-          None,
-          None,
-          None,
-        ));
-      }
-      UserCommandType::Payment => {
-        operations.extend_from_slice(&[
-          operation(
-            2,
-            metadata.amount.as_ref(),
-            source_account_id,
-            OperationType::PaymentSourceDec,
-            Some(&metadata.status),
-            None,
-            None,
-            None,
-          ),
-          operation(
-            3,
-            metadata.amount.as_ref(),
-            receiver_account_id,
-            OperationType::PaymentReceiverInc,
-            Some(&metadata.status),
-            None,
-            None,
-            None,
-          ),
-        ]);
-      }
-    };
-  }
-  operations
-}
-
-fn internal_command_metadata_to_operation(metadata: &InternalCommandMetadata) -> Result<Vec<Operation>, MinaMeshError> {
-  let receiver_account_id = &AccountIdentifier::new(metadata.receiver.clone());
-  let mut operations = Vec::new();
-  if let Some(creation_fee) = &metadata.creation_fee {
-    operations.push(operation(
-      0,
-      Some(creation_fee),
-      receiver_account_id,
-      OperationType::AccountCreationFeeViaFeeReceiver,
-      None,
-      None,
-      None,
-      None,
-    ));
-  }
-  match metadata.command_type {
-    InternalCommandType::Coinbase => {
-      operations.push(operation(
-        2,
-        Some(&metadata.fee),
-        receiver_account_id,
-        OperationType::CoinbaseInc,
-        None,
-        None,
-        None,
-        None,
-      ));
-    }
-    InternalCommandType::FeeTransfer => {
-      operations.push(operation(
-        2,
-        Some(&metadata.fee),
-        receiver_account_id,
-        OperationType::FeeReceiverInc,
-        None,
-        None,
-        None,
-        None,
-      ));
-    }
-    InternalCommandType::FeeTransferViaCoinbase => {
-      if let Some(coinbase_receiver) = &metadata.coinbase_receiver {
-        operations.push(operation(
-          2,
-          Some(&metadata.fee),
-          receiver_account_id,
-          OperationType::FeeReceiverInc,
-          None,
-          None,
-          None,
-          None,
-        ));
-        operations.push(operation(
-          3,
-          Some(&metadata.fee),
-          &AccountIdentifier::new(coinbase_receiver.to_string()),
-          OperationType::FeePayerDec,
-          None,
-          None,
-          None,
-          None,
-        ));
-      } else {
-        return Err(MinaMeshError::InvariantViolation);
-      }
-    }
-  }
-  Ok(operations)
 }

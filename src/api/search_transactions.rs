@@ -4,13 +4,13 @@ use coinbase_mesh::models::{
   AccountIdentifier, BlockIdentifier, BlockTransaction, Operation, SearchTransactionsRequest,
   SearchTransactionsResponse, Transaction, TransactionIdentifier,
 };
-use convert_case::{Case, Casing};
-use serde_json::{json, Map, Value};
-use sqlx::FromRow;
+use serde_json::json;
 
 use crate::{
-  operation, util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandType, MinaMesh, MinaMeshError, OperationType,
-  TransactionStatus, UserCommandType, ZkAppCommand,
+  generate_internal_command_transaction_identifier, generate_operations_internal_command,
+  generate_operations_user_command, generate_transaction_metadata, operation, util::DEFAULT_TOKEN_ID, ChainStatus,
+  InternalCommand, InternalCommandType, MinaMesh, MinaMeshError, OperationType, TransactionStatus, UserCommand,
+  UserCommandType, ZkAppCommand,
 };
 
 impl MinaMesh {
@@ -289,118 +289,18 @@ pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<
   result
 }
 
-#[derive(Debug, FromRow)]
-pub struct InternalCommand {
-  pub id: Option<i32>,
-  pub command_type: InternalCommandType,
-  pub receiver_id: Option<i32>,
-  pub fee: Option<String>,
-  pub hash: String,
-  pub receiver: String,
-  pub coinbase_receiver: Option<String>,
-  pub sequence_no: i32,
-  pub secondary_sequence_no: i32,
-  pub block_id: i32,
-  pub status: TransactionStatus,
-  pub state_hash: Option<String>,
-  pub height: Option<i64>,
-  pub total_count: Option<i64>,
-  pub creation_fee: Option<String>,
-}
-
 impl From<InternalCommand> for BlockTransaction {
   fn from(internal_command: InternalCommand) -> Self {
     // Derive transaction_identifier by combining command_type, sequence numbers,
     // and the hash
-    let transaction_identifier = format!(
-      "{}:{}:{}:{}",
-      internal_command.command_type.to_string().to_case(Case::Snake),
+    let transaction_identifier = generate_internal_command_transaction_identifier(
+      &internal_command.command_type,
       internal_command.sequence_no,
       internal_command.secondary_sequence_no,
-      internal_command.hash
+      &internal_command.hash,
     );
-    let fee = internal_command.fee.unwrap_or("0".to_string());
-    let status = &internal_command.status;
 
-    let mut operations = Vec::new();
-    let mut operation_index = 0;
-
-    // Receiver Account Identifier
-    let receiver_account_id = &AccountIdentifier {
-      address: internal_command.receiver.clone(),
-      metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-      sub_account: None,
-    };
-
-    // Handle Account Creation Fee if applicable
-    if let Some(creation_fee) = &internal_command.creation_fee {
-      operations.push(operation(
-        operation_index,
-        Some(creation_fee),
-        receiver_account_id,
-        OperationType::AccountCreationFeeViaFeeReceiver,
-        Some(status),
-        None,
-        None,
-        None,
-      ));
-      operation_index += 1;
-    }
-
-    match internal_command.command_type {
-      InternalCommandType::Coinbase => {
-        operations.push(operation(
-          operation_index,
-          Some(&fee),
-          receiver_account_id,
-          OperationType::CoinbaseInc,
-          Some(status),
-          None,
-          None,
-          None,
-        ));
-      }
-
-      InternalCommandType::FeeTransfer => {
-        operations.push(operation(
-          operation_index,
-          Some(&fee),
-          receiver_account_id,
-          OperationType::FeeReceiverInc,
-          Some(status),
-          None,
-          None,
-          None,
-        ));
-      }
-
-      InternalCommandType::FeeTransferViaCoinbase => {
-        if let Some(coinbase_receiver) = &internal_command.coinbase_receiver {
-          operations.push(operation(
-            operation_index,
-            Some(&fee),
-            receiver_account_id,
-            OperationType::FeeReceiverInc,
-            Some(status),
-            None,
-            None,
-            None,
-          ));
-          operation_index += 1;
-
-          operations.push(operation(
-            operation_index,
-            Some(&fee),
-            &AccountIdentifier::new(coinbase_receiver.to_string()),
-            OperationType::FeePayerDec,
-            Some(status),
-            Some(vec![operation_index - 1]),
-            None,
-            None,
-          ));
-        }
-      }
-    }
+    let operations = generate_operations_internal_command(&internal_command);
 
     let block_identifier = BlockIdentifier::new(
       internal_command.height.unwrap_or_default(),
@@ -417,170 +317,18 @@ impl From<InternalCommand> for BlockTransaction {
   }
 }
 
-#[derive(Debug, FromRow)]
-pub struct UserCommand {
-  pub id: Option<i32>,
-  pub command_type: UserCommandType,
-  pub fee_payer_id: Option<i32>,
-  pub source_id: Option<i32>,
-  pub receiver_id: Option<i32>,
-  pub nonce: i64,
-  pub amount: Option<String>,
-  pub fee: Option<String>,
-  pub valid_until: Option<i64>,
-  pub memo: Option<String>,
-  pub hash: String,
-  pub block_id: Option<i32>,
-  pub sequence_no: Option<i32>,
-  pub status: TransactionStatus,
-  pub failure_reason: Option<String>,
-  pub state_hash: Option<String>,
-  pub chain_status: Option<ChainStatus>,
-  pub height: Option<i64>,
-  pub total_count: Option<i64>,
-  pub fee_payer: String,
-  pub source: String,
-  pub receiver: String,
-  pub creation_fee: Option<String>,
-}
-
-impl UserCommand {
-  pub fn decoded_memo(&self) -> Option<String> {
-    let memo = self.memo.clone().unwrap_or_default();
-    match bs58::decode(memo).into_vec() {
-      Ok(decoded_bytes) => {
-        let cleaned = &decoded_bytes[3 .. decoded_bytes[2] as usize + 3];
-        Some(String::from_utf8_lossy(cleaned).to_string())
-      }
-      Err(_) => None,
-    }
-  }
-}
-
 impl From<UserCommand> for BlockTransaction {
   fn from(user_command: UserCommand) -> Self {
-    let decoded_memo = user_command.decoded_memo().unwrap_or_default();
-    let amt = user_command.amount.clone().unwrap_or_else(|| "0".to_string());
-    let receiver_account_id = &AccountIdentifier {
-      address: user_command.receiver.clone(),
-      metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-      sub_account: None,
-    };
-    let source_account_id = &AccountIdentifier {
-      address: user_command.source,
-      metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-      sub_account: None,
-    };
-    let fee_payer_account_id = &AccountIdentifier {
-      address: user_command.fee_payer,
-      metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-      sub_account: None,
-    };
-
-    // Construct operations_metadata
-    let mut operations_metadata = Map::new();
-    if let Some(failure_reason) = user_command.failure_reason.clone() {
-      operations_metadata.insert("reason".to_string(), json!(failure_reason));
-    }
-    let operations_metadata_value =
-      if operations_metadata.is_empty() { None } else { Some(Value::Object(operations_metadata)) };
-
-    // Construct transaction metadata
-    let mut transaction_metadata = Map::new();
-    transaction_metadata.insert("nonce".to_string(), json!(user_command.nonce));
-    if !decoded_memo.is_empty() {
-      transaction_metadata.insert("memo".to_string(), json!(decoded_memo));
-    }
-    let transaction_metadata_value =
-      if transaction_metadata.is_empty() { None } else { Some(Value::Object(transaction_metadata)) };
-
-    let mut operations = Vec::new();
-    let mut operation_index = 0;
-
-    // Operation 1: Fee Payment
-    operations.push(operation(
-      operation_index,
-      Some(&format!("-{}", user_command.fee.unwrap_or("0".to_string()))),
-      fee_payer_account_id,
-      OperationType::FeePayment,
-      Some(&TransactionStatus::Applied),
-      None,
-      operations_metadata_value.as_ref(),
-      None,
-    ));
-
-    operation_index += 1;
-
-    // Operation 2: Account Creation Fee (if applicable)
-    if let Some(creation_fee) = &user_command.creation_fee {
-      let negated_creation_fee = format!("-{}", creation_fee);
-      operations.push(operation(
-        operation_index,
-        if user_command.status == TransactionStatus::Applied { Some(&negated_creation_fee) } else { None },
-        receiver_account_id,
-        OperationType::AccountCreationFeeViaPayment,
-        Some(&user_command.status),
-        None,
-        operations_metadata_value.as_ref(),
-        None,
-      ));
-
-      operation_index += 1;
-    }
-
-    // Decide on the type of operation based on command type
-    match user_command.command_type {
-      // Operation 3: Payment Source Decrement
-      UserCommandType::Payment => {
-        let negated_amt = format!("-{}", amt);
-        operations.push(operation(
-          operation_index,
-          if user_command.status == TransactionStatus::Applied { Some(&negated_amt) } else { None },
-          source_account_id,
-          OperationType::PaymentSourceDec,
-          Some(&user_command.status),
-          None,
-          operations_metadata_value.as_ref(),
-          None,
-        ));
-
-        operation_index += 1;
-
-        // Operation 4: Payment Receiver Increment
-        operations.push(operation(
-          operation_index,
-          if user_command.status == TransactionStatus::Applied { Some(&amt) } else { None },
-          receiver_account_id,
-          OperationType::PaymentReceiverInc,
-          Some(&user_command.status),
-          Some(vec![operation_index - 1]),
-          operations_metadata_value.as_ref(),
-          None,
-        ));
-      }
-
-      // Operation 3: Delegate Change
-      UserCommandType::Delegation => {
-        operations.push(operation(
-          operation_index,
-          None,
-          source_account_id,
-          OperationType::DelegateChange,
-          Some(&user_command.status),
-          None,
-          Some(&json!({ "delegate_change_target": user_command.receiver })),
-          None,
-        ));
-      }
-    }
+    let metadata = generate_transaction_metadata(&user_command);
+    let operations = generate_operations_user_command(&user_command);
 
     let block_identifier =
       BlockIdentifier::new(user_command.height.unwrap_or_default(), user_command.state_hash.unwrap_or_default());
     let transaction = Transaction {
       transaction_identifier: Box::new(TransactionIdentifier::new(user_command.hash)),
       operations,
+      metadata,
       related_transactions: None,
-      metadata: transaction_metadata_value,
     };
     BlockTransaction::new(block_identifier, transaction)
   }

@@ -1,5 +1,9 @@
-SELECT
-  u.command_type AS "command_type: UserCommandType",
+SELECT DISTINCT
+  ON (
+    buc.block_id,
+    buc.user_command_id,
+    buc.sequence_no
+  ) u.command_type AS "command_type: UserCommandType",
   u.nonce,
   u.amount,
   u.fee,
@@ -54,4 +58,3 @@ FROM
   LEFT JOIN tokens AS t ON ai_receiver.token_id=t.id
 WHERE
   buc.block_id=$1
-  AND t.value=$2

@@ -105,7 +105,7 @@ impl Display for ErrorContainer {
 fn normalize_body(raw: &str) -> Result<String> {
   let mut json_unsorted: Value = serde_json::from_str(raw)?;
   sort_json_value(&mut json_unsorted);
-  remove_empty_related_transactions(&mut json_unsorted);
+  remove_empty_tx_fields(&mut json_unsorted);
   Ok(serde_json::to_string_pretty(&json_unsorted)?)
 }
 
@@ -132,30 +132,28 @@ fn sort_json_value(value: &mut Value) {
   }
 }
 
-// Remove empty "related_transactions" arrays from the JSON
-// This is necessary because Rosetta OCaml includes empty arrays in the response
-// but mina-mesh does not
+// Remove empty "related_transactions" | "other_transactions" arrays from the
+// JSON This is necessary because Rosetta OCaml includes empty arrays in the
+// response but mina-mesh does not
 // Workaround for https://github.com/MinaFoundation/MinaMesh/issues/48
-fn remove_empty_related_transactions(value: &mut Value) {
+fn remove_empty_tx_fields(value: &mut Value) {
   match value {
     Value::Object(map) => {
-      map.retain(
-        |key, v| {
-          if key == "related_transactions" {
-            !matches!(v, Value::Array(arr) if arr.is_empty())
-          } else {
-            true
-          }
-        },
-      );
+      map.retain(|key, v| {
+        if key == "related_transactions" || key == "other_transactions" {
+          !matches!(v, Value::Array(arr) if arr.is_empty())
+        } else {
+          true
+        }
+      });
 
       for v in map.values_mut() {
-        remove_empty_related_transactions(v);
+        remove_empty_tx_fields(v);
       }
     }
     Value::Array(vec) => {
       for v in vec.iter_mut() {
-        remove_empty_related_transactions(v);
+        remove_empty_tx_fields(v);
       }
     }
     _ => {}
