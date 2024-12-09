@@ -1,16 +1,13 @@
-use std::collections::BTreeMap;
-
 use coinbase_mesh::models::{
-  AccountIdentifier, BlockIdentifier, BlockTransaction, Operation, SearchTransactionsRequest,
-  SearchTransactionsResponse, Transaction, TransactionIdentifier,
+  BlockIdentifier, BlockTransaction, SearchTransactionsRequest, SearchTransactionsResponse, Transaction,
+  TransactionIdentifier,
 };
-use serde_json::json;
 
 use crate::{
   generate_internal_command_transaction_identifier, generate_operations_internal_command,
-  generate_operations_user_command, generate_transaction_metadata, operation, util::DEFAULT_TOKEN_ID, ChainStatus,
-  InternalCommand, InternalCommandType, MinaMesh, MinaMeshError, OperationType, TransactionStatus, UserCommand,
-  UserCommandType, ZkAppCommand,
+  generate_operations_user_command, generate_operations_zkapp_command, generate_transaction_metadata, ChainStatus,
+  InternalCommand, InternalCommandType, MinaMesh, MinaMeshError, TransactionStatus, UserCommand, UserCommandType,
+  ZkAppCommand,
 };
 
 impl MinaMesh {
@@ -220,63 +217,17 @@ impl MinaMesh {
 }
 
 pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<BlockTransaction> {
-  let mut block_map: BTreeMap<(i64, String), BTreeMap<String, Vec<Operation>>> = BTreeMap::new();
-
-  for command in commands {
-    // Group by block identifier (block index and block hash)
-    let block_key = (command.height.unwrap_or(0), command.state_hash.clone().unwrap_or_default());
-    let tx_hash = command.hash;
-
-    // Initialize or update the operation list for this transaction
-    let operations = block_map.entry(block_key).or_default().entry(tx_hash.clone()).or_default();
-
-    // Add fee operation (zkapp_fee_payer_dec)
-    if operations.is_empty() {
-      operations.push(operation(
-        0,
-        Some(&format!("-{}", command.fee)),
-        &AccountIdentifier {
-          address: command.fee_payer.clone(),
-          metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-          sub_account: None,
-        },
-        OperationType::ZkappFeePayerDec,
-        Some(&TransactionStatus::Applied),
-        None,
-        None,
-        None,
-      ));
-    }
-
-    // Add zkapp balance update operation
-    operations.push(operation(
-      0,
-      Some(&command.balance_change),
-      &AccountIdentifier {
-        address: command.pk_update_body.clone(),
-        metadata: Some(json!({ "token_id": command.token })),
-        sub_account: None,
-      },
-      OperationType::ZkappBalanceUpdate,
-      Some(&command.status),
-      None,
-      None,
-      command.token.as_ref(),
-    ));
-  }
+  let block_map = generate_operations_zkapp_command(commands);
 
   let mut result = Vec::new();
   for ((block_index, block_hash), tx_map) in block_map {
-    for (tx_hash, mut operations) in tx_map {
-      // Ensure the operations are correctly indexed
-      for (i, operation) in operations.iter_mut().enumerate() {
-        operation.operation_identifier.index = i as i64;
-      }
-
+    let block_index = block_index.unwrap_or(0);
+    let block_hash = block_hash.unwrap_or_default();
+    for (tx_hash, operations) in tx_map {
       let transaction = BlockTransaction {
         block_identifier: Box::new(BlockIdentifier { index: block_index, hash: block_hash.clone() }),
         transaction: Box::new(Transaction {
-          transaction_identifier: Box::new(TransactionIdentifier { hash: tx_hash.clone() }),
+          transaction_identifier: Box::new(TransactionIdentifier { hash: tx_hash }),
           operations,
           metadata: None,
           related_transactions: None,

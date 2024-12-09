@@ -1,10 +1,12 @@
+use std::collections::BTreeMap;
+
 use coinbase_mesh::models::{AccountIdentifier, Amount, Currency, Operation, OperationIdentifier};
 use convert_case::{Case, Casing};
 use serde_json::{json, Map, Value};
 
 use crate::{
   util::DEFAULT_TOKEN_ID, InternalCommandOperationsData, InternalCommandType, OperationStatus, OperationType,
-  TransactionStatus, UserCommandOperationsData, UserCommandType,
+  TransactionStatus, UserCommandOperationsData, UserCommandType, ZkAppCommand,
 };
 
 /// Creates a `Currency` based on the token provided.
@@ -275,4 +277,86 @@ pub fn generate_operations_internal_command<T: InternalCommandOperationsData>(da
   }
 
   operations
+}
+
+/// Groups zkApp commands into operations mapped by block and transaction.
+///
+/// This function processes a vector of `ZkAppCommand` objects, generating
+/// operations for each command and organizing them into a nested `BTreeMap`
+/// structure:
+/// - Outer key: `(Option<i64>, Option<String>)` representing block height and
+///   state hash.
+/// - Inner key: `String` representing the transaction hash.
+/// - Value: `Vec<Operation>` containing operations for each transaction.
+///
+/// ### Operations Generated
+/// - `ZkappFeePayerDec`: Deducts the fee from the fee payer account.
+/// - `ZkappBalanceUpdate`: Updates the balance for the zkApp account.
+///
+/// Operations are indexed sequentially (starting at 0) within each transaction.
+///
+/// ### Parameters
+/// - `commands`: A vector of `ZkAppCommand` objects.
+///
+/// ### Returns
+/// - A `BTreeMap` mapping blocks and transactions to their operations.
+///
+/// This function supports constructing higher-level transaction structures like
+/// `BlockTransaction`, `Transaction`.
+pub fn generate_operations_zkapp_command(
+  commands: Vec<ZkAppCommand>,
+) -> BTreeMap<(Option<i64>, Option<String>), BTreeMap<String, Vec<Operation>>> {
+  let mut block_map: BTreeMap<(Option<i64>, Option<String>), BTreeMap<String, Vec<Operation>>> = BTreeMap::new();
+
+  for command in commands {
+    let block_key = (command.height, command.state_hash.clone());
+    let tx_hash = command.hash.clone();
+
+    let operations = block_map.entry(block_key).or_default().entry(tx_hash.clone()).or_default();
+
+    // Add fee operation (zkapp_fee_payer_dec)
+    if operations.is_empty() {
+      operations.push(operation(
+        0,
+        Some(&format!("-{}", command.fee)),
+        &AccountIdentifier {
+          address: command.fee_payer.clone(),
+          metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
+          sub_account: None,
+        },
+        OperationType::ZkappFeePayerDec,
+        Some(&TransactionStatus::Applied),
+        None,
+        None,
+        None,
+      ));
+    }
+
+    // Add zkapp balance update operation
+    operations.push(operation(
+      0,
+      Some(&command.balance_change),
+      &AccountIdentifier {
+        address: command.pk_update_body.clone(),
+        metadata: Some(json!({ "token_id": command.token })),
+        sub_account: None,
+      },
+      OperationType::ZkappBalanceUpdate,
+      Some(&command.status),
+      None,
+      None,
+      command.token.as_ref(),
+    ));
+  }
+
+  // Reindex operations within each transaction
+  for (_, tx_map) in block_map.iter_mut() {
+    for (_, operations) in tx_map.iter_mut() {
+      for (i, operation) in operations.iter_mut().enumerate() {
+        operation.operation_identifier.index = i as i64;
+      }
+    }
+  }
+
+  block_map
 }
