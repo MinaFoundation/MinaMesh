@@ -8,7 +8,7 @@ use sqlx::FromRow;
 
 use crate::{
   generate_internal_command_transaction_identifier, generate_operations_internal_command,
-  generate_operations_user_command, generate_transaction_metadata, sql_to_mesh::zkapp_commands_to_transactions,
+  generate_operations_user_command, generate_operations_zkapp_command, generate_transaction_metadata,
   util::DEFAULT_TOKEN_ID, ChainStatus, InternalCommandMetadata, InternalCommandType, MinaMesh, MinaMeshError,
   TransactionStatus, UserCommandMetadata, UserCommandType, ZkAppCommand,
 };
@@ -160,41 +160,21 @@ pub struct BlockMetadata {
   winner: String,
 }
 
-#[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
-pub struct ZkappCommandMetadata {
-  id: i64,
-  memo: Option<String>,
-  hash: String,
-  fee_payer: String,
-  fee: String,
-  valid_until: Option<i64>,
-  nonce: i64,
-  sequence_no: i64,
-  status: TransactionStatus,
-  failure_reasons: Option<Vec<String>>,
-  balance_change: String,
-  account: String,
-  token: String,
-}
+pub fn zkapp_commands_to_transactions(commands: Vec<ZkAppCommand>) -> Vec<Transaction> {
+  let block_map = generate_operations_zkapp_command(commands);
 
-#[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
-pub struct ZkappAccountUpdateMetadata {
-  account_identifier_id: i32,
-  update_id: i32,
-  balance_change: String,
-  increment_nonce: bool,
-  events_id: i32,
-  actions_id: i32,
-  call_data_id: i32,
-  call_depth: i32,
-  zkapp_network_precondition_id: i32,
-  zkapp_account_precondition_id: i32,
-  zkapp_valid_while_precondition_id: Option<i32>,
-  use_full_commitment: bool,
-  implicit_account_creation_fee: bool,
-  may_use_token: String,
-  authorization_kind: String,
-  verification_key_hash_id: Option<i32>,
-  account: String,
-  token: String,
+  let mut result = Vec::new();
+  for (_, tx_map) in block_map {
+    for (tx_hash, operations) in tx_map {
+      let transaction = Transaction {
+        transaction_identifier: Box::new(TransactionIdentifier { hash: tx_hash }),
+        operations,
+        metadata: None,
+        related_transactions: None,
+      };
+      result.push(transaction);
+    }
+  }
+
+  result
 }

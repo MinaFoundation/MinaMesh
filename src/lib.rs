@@ -5,7 +5,6 @@ mod create_router;
 mod error;
 mod graphql;
 mod playground;
-mod sql_to_mesh;
 pub mod test;
 mod transaction_operations;
 mod types;
