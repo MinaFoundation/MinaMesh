@@ -20,7 +20,7 @@ impl MinaMesh {
     let partial_block_identifier = *request.block_identifier;
     let metadata = match self.block_metadata(&partial_block_identifier).await? {
       Some(metadata) => metadata,
-      None => return Err(MinaMeshError::BlockMissing(serde_json::to_string(&partial_block_identifier)?)),
+      None => return Err(MinaMeshError::BlockMissing(partial_block_identifier.index, partial_block_identifier.hash)),
     };
     let parent_block_metadata = match &metadata.parent_id {
       Some(parent_id) => {

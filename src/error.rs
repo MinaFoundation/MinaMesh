@@ -39,7 +39,7 @@ pub enum MinaMeshError {
   TransactionNotFound(String),
 
   #[error("Block not found")]
-  BlockMissing(String),
+  BlockMissing(Option<i64>, Option<String>),
 
   #[error("Malformed public key")]
   MalformedPublicKey,
@@ -118,7 +118,7 @@ impl MinaMeshError {
       MinaMeshError::AccountNotFound("Account ID".to_string()),
       MinaMeshError::InvariantViolation,
       MinaMeshError::TransactionNotFound("Transaction ID".to_string()),
-      MinaMeshError::BlockMissing("Block ID".to_string()),
+      MinaMeshError::BlockMissing(Some(-1), Some("test_hash".to_string())),
       MinaMeshError::MalformedPublicKey,
       MinaMeshError::OperationsNotValid(vec![]),
       MinaMeshError::UnsupportedOperationForConstruction,
@@ -150,7 +150,7 @@ impl MinaMeshError {
       MinaMeshError::AccountNotFound(_) => 6,
       MinaMeshError::InvariantViolation => 7,
       MinaMeshError::TransactionNotFound(_) => 8,
-      MinaMeshError::BlockMissing(_) => 9,
+      MinaMeshError::BlockMissing(_, _) => 9,
       MinaMeshError::MalformedPublicKey => 10,
       MinaMeshError::OperationsNotValid(_) => 11,
       MinaMeshError::UnsupportedOperationForConstruction => 12,
@@ -179,7 +179,7 @@ impl MinaMeshError {
         | MinaMeshError::TransactionSubmitNoSender
         | MinaMeshError::AccountNotFound(_)
         | MinaMeshError::TransactionNotFound(_)
-        | MinaMeshError::BlockMissing(_)
+        | MinaMeshError::BlockMissing(_, _)
         | MinaMeshError::ChainInfoMissing
     )
   }
@@ -218,6 +218,25 @@ impl MinaMeshError {
           ),
         "transaction": tx,
       }),
+      MinaMeshError::BlockMissing(index, hash) => {
+        let block_identifier = match (index, hash) {
+          (Some(idx), Some(hsh)) => format!("index={}, hash={}", idx, hsh),
+          (Some(idx), None) => format!("index={}", idx),
+          (None, Some(hsh)) => format!("hash={}", hsh),
+          (None, None) => "no identifying information (index or hash)".to_string(),
+        };
+
+        let error_message =
+          format!("We couldn't find the block in the archive node, specified by {}.", block_identifier);
+        json!({
+            "error": error_message,
+            "block": {
+                "index": index,
+                "hash": hash,
+            },
+        })
+      }
+
       _ => json!(""),
     }
   }
@@ -244,7 +263,7 @@ impl MinaMeshError {
       MinaMeshError::AccountNotFound(_) => "The specified account could not be found.".to_string(),
       MinaMeshError::InvariantViolation => "An internal invariant was violated.".to_string(),
       MinaMeshError::TransactionNotFound(_) => "The specified transaction could not be found.".to_string(),
-      MinaMeshError::BlockMissing(_) => "The specified block could not be found.".to_string(),
+      MinaMeshError::BlockMissing(_, _) => "The specified block could not be found.".to_string(),
       MinaMeshError::MalformedPublicKey => "The provided public key is malformed.".to_string(),
       MinaMeshError::OperationsNotValid(_) => {
         "We could not convert those operations to a valid transaction.".to_string()
@@ -290,7 +309,7 @@ impl IntoResponse for MinaMeshError {
       MinaMeshError::AccountNotFound(_) => StatusCode::NOT_FOUND,
       MinaMeshError::InvariantViolation => StatusCode::INTERNAL_SERVER_ERROR,
       MinaMeshError::TransactionNotFound(_) => StatusCode::NOT_FOUND,
-      MinaMeshError::BlockMissing(_) => StatusCode::NOT_FOUND,
+      MinaMeshError::BlockMissing(_, _) => StatusCode::NOT_FOUND,
       MinaMeshError::MalformedPublicKey => StatusCode::BAD_REQUEST,
       MinaMeshError::OperationsNotValid(_) => StatusCode::BAD_REQUEST,
       MinaMeshError::UnsupportedOperationForConstruction => StatusCode::BAD_REQUEST,

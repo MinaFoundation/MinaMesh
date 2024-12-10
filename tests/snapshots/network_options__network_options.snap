@@ -140,7 +140,13 @@ Allow {
             ),
             retriable: true,
             details: Some(
-                String(""),
+                Object {
+                    "block": Object {
+                        "hash": String("test_hash"),
+                        "index": Number(-1),
+                    },
+                    "error": String("We couldn't find the block in the archive node, specified by index=-1, hash=test_hash."),
+                },
             ),
         },
         Error {

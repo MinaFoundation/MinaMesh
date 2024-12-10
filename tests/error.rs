@@ -64,7 +64,13 @@ async fn test_error_properties() {
       true,
       StatusCode::NOT_FOUND,
     ),
-    (BlockMissing("Block ID".to_string()), 9, "The specified block could not be found.", true, StatusCode::NOT_FOUND),
+    (
+      BlockMissing(Some(1), Some("test_hash".to_string())),
+      9,
+      "The specified block could not be found.",
+      true,
+      StatusCode::NOT_FOUND,
+    ),
     (MalformedPublicKey, 10, "The provided public key is malformed.", false, StatusCode::BAD_REQUEST),
     (
       OperationsNotValid(vec![]),

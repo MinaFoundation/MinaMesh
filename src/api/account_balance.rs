@@ -33,7 +33,7 @@ impl MinaMesh {
     let block = sqlx::query_file!("sql/queries/maybe_block.sql", index)
       .fetch_optional(&self.pg_pool)
       .await?
-      .ok_or(MinaMeshError::BlockMissing(index.unwrap().to_string()))?;
+      .ok_or(MinaMeshError::BlockMissing(index, None))?;
     // has canonical height / do we really need to do a different query?
     let maybe_account_balance_info = sqlx::query_file!(
       "sql/queries/maybe_account_balance_info.sql",
