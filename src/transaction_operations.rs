@@ -332,21 +332,23 @@ pub fn generate_operations_zkapp_command(
       ));
     }
 
-    // Add zkapp balance update operation
-    operations.push(operation(
-      0,
-      Some(&command.balance_change),
-      &AccountIdentifier {
-        address: command.pk_update_body.clone(),
-        metadata: Some(json!({ "token_id": command.token })),
-        sub_account: None,
-      },
-      OperationType::ZkappBalanceUpdate,
-      Some(&command.status),
-      None,
-      None,
-      command.token.as_ref(),
-    ));
+    if let Some(balance_change) = &command.balance_change {
+      // Add zkapp balance update operation
+      operations.push(operation(
+        0,
+        Some(balance_change),
+        &AccountIdentifier {
+          address: command.pk_update_body.unwrap_or_default().clone(),
+          metadata: Some(json!({ "token_id": command.token })),
+          sub_account: None,
+        },
+        OperationType::ZkappBalanceUpdate,
+        Some(&command.status),
+        None,
+        None,
+        command.token.as_ref(),
+      ));
+    }
   }
 
   // Reindex operations within each transaction

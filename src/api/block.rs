@@ -149,7 +149,7 @@ pub struct BlockMetadata {
   state_hash: String,
   sub_window_densities: Vec<i64>,
   timestamp: String,
-  total_currency: String,
+  total_currency: Option<String>,
   parent_hash: String,
   parent_id: Option<i32>,
   proposed_protocol_version_id: Option<i32>,
