@@ -106,6 +106,7 @@ fn normalize_body(raw: &str) -> Result<String> {
   let mut json_unsorted: Value = serde_json::from_str(raw)?;
   sort_json_value(&mut json_unsorted);
   remove_empty_tx_fields(&mut json_unsorted);
+  sort_transactions(&mut json_unsorted);
   Ok(serde_json::to_string_pretty(&json_unsorted)?)
 }
 
@@ -157,6 +158,20 @@ fn remove_empty_tx_fields(value: &mut Value) {
       }
     }
     _ => {}
+  }
+}
+
+fn sort_transactions(value: &mut Value) {
+  if let Some(block) = value.get_mut("block") {
+    if let Some(Value::Array(tx_array)) = block.get_mut("transactions") {
+      tx_array.sort_by(|a, b| {
+        let hash_a =
+          a.get("transaction_identifier").and_then(|ti| ti.get("hash")).and_then(|h| h.as_str()).unwrap_or("");
+        let hash_b =
+          b.get("transaction_identifier").and_then(|ti| ti.get("hash")).and_then(|h| h.as_str()).unwrap_or("");
+        hash_a.cmp(hash_b)
+      });
+    }
   }
 }
 

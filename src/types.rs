@@ -95,13 +95,13 @@ pub struct ZkAppCommand {
   pub memo: Option<String>,
   pub hash: String,
   pub fee_payer: String,
-  pub pk_update_body: String,
+  pub pk_update_body: Option<String>,
   pub fee: String,
   pub valid_until: Option<i64>,
   pub nonce: Option<i64>,
   pub sequence_no: i32,
   pub status: TransactionStatus,
-  pub balance_change: String,
+  pub balance_change: Option<String>,
   pub state_hash: Option<String>,
   pub failure_reasons: Option<Vec<String>>,
   pub token: Option<String>,
@@ -144,7 +144,7 @@ pub struct UserCommandMetadata {
   pub command_type: UserCommandType,
   pub nonce: i64,
   pub amount: Option<String>,
-  pub fee: String,
+  pub fee: Option<String>,
   pub valid_until: Option<i64>,
   pub memo: Option<String>,
   pub hash: String,
@@ -247,7 +247,7 @@ impl UserCommandOperationsData for UserCommandMetadata {
   }
 
   fn fee(&self) -> &str {
-    &self.fee
+    self.fee.as_deref().unwrap_or("0")
   }
 
   fn status(&self) -> &TransactionStatus {
@@ -288,7 +288,7 @@ pub struct InternalCommand {
 pub struct InternalCommandMetadata {
   pub command_type: InternalCommandType,
   pub receiver: String,
-  pub fee: String,
+  pub fee: Option<String>,
   pub hash: String,
   pub creation_fee: Option<String>,
   pub sequence_no: i32,
@@ -342,7 +342,7 @@ impl InternalCommandOperationsData for InternalCommandMetadata {
   }
 
   fn fee(&self) -> String {
-    self.fee.clone()
+    self.fee.clone().unwrap_or("0".to_string())
   }
 
   fn creation_fee(&self) -> Option<&String> {
