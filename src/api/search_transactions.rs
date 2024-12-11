@@ -17,56 +17,53 @@ impl MinaMesh {
   ) -> Result<SearchTransactionsResponse, MinaMeshError> {
     self.validate_network(&req.network_identifier).await?;
     let original_offset = req.offset.unwrap_or(0);
-    let mut offset = original_offset;
-    let mut limit = req.limit.unwrap_or(100);
-    let mut transactions = Vec::new();
-    let mut txs_len = 0;
+    let limit = req.limit.unwrap_or(100);
     let mut total_count = 0;
 
-    // User Commands
-    let user_commands = self.fetch_user_commands(&req, offset, limit).await?;
-    let user_commands_len = user_commands.len() as i64;
-    let user_commands_total_count = user_commands.first().and_then(|uc| uc.total_count).unwrap_or(0);
-    transactions.extend(user_commands.into_iter().map(|ic| ic.into()));
-    total_count += user_commands_total_count;
-    txs_len += user_commands_len;
+    // Fetch total counts concurrently
+    let (user_commands_total, internal_commands_total, zkapp_commands_total) = tokio::try_join!(
+      async {
+        self.fetch_user_commands(&req, 0, 1).await.map(|cmds| cmds.first().and_then(|uc| uc.total_count).unwrap_or(0))
+      },
+      async {
+        self
+          .fetch_internal_commands(&req, 0, 1)
+          .await
+          .map(|cmds| cmds.first().and_then(|ic| ic.total_count).unwrap_or(0))
+      },
+      async {
+        self.fetch_zkapp_commands(&req, 0, 1).await.map(|cmds| cmds.first().and_then(|zc| zc.total_count).unwrap_or(0))
+      }
+    )?;
 
-    // Internal Commands
-    if limit > total_count {
-      // if we are below the limit, fetch internal commands
-      (offset, limit) = adjust_limit_and_offset(limit, offset, txs_len);
-      let internal_commands = self.fetch_internal_commands(&req, offset, limit).await?;
-      let internal_commands_len = internal_commands.len() as i64;
-      let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
-      transactions.extend(internal_commands.into_iter().map(|uc| uc.into()));
-      txs_len += internal_commands_len;
+    total_count = user_commands_total + internal_commands_total + zkapp_commands_total;
 
-      total_count += internal_commands_total_count;
-    } else {
-      // otherwise only fetch the first internal command to get the total count
-      let internal_commands = self.fetch_internal_commands(&req, 0, 1).await?;
-      let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
-      total_count += internal_commands_total_count;
-    }
+    // Adjust offset and limit for each category
+    let user_command_offset = original_offset;
+    let user_command_limit = limit.min(user_commands_total.saturating_sub(user_command_offset));
 
-    // ZkApp Commands
-    if limit > total_count {
-      // if we are below the limit, fetch zkapp commands
-      (offset, limit) = adjust_limit_and_offset(limit, offset, txs_len);
-      let zkapp_commands = self.fetch_zkapp_commands(&req, offset, limit).await?;
-      let zkapp_commands_len = zkapp_commands.len() as i64;
-      let zkapp_commands_total_count = zkapp_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
-      transactions.extend(zkapp_commands_to_block_transactions(zkapp_commands));
-      txs_len += zkapp_commands_len;
-      total_count += zkapp_commands_total_count;
-    } else {
-      // otherwise only fetch the first zkapp command to get the total count
-      let zkapp_commands = self.fetch_zkapp_commands(&req, 0, 1).await?;
-      let zkapp_commands_total_count = zkapp_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
-      total_count += zkapp_commands_total_count;
-    }
+    let internal_command_offset = (user_command_offset + user_command_limit).saturating_sub(user_commands_total);
+    let internal_command_limit = limit.min(internal_commands_total.saturating_sub(internal_command_offset));
 
-    let next_offset = original_offset + txs_len;
+    let zkapp_command_offset =
+      (internal_command_offset + internal_command_limit).saturating_sub(internal_commands_total);
+    let zkapp_command_limit = limit.min(zkapp_commands_total.saturating_sub(zkapp_command_offset));
+
+    // Fetch data concurrently
+    let (user_commands, internal_commands, zkapp_commands) = tokio::try_join!(
+      async { self.fetch_user_commands(&req, user_command_offset, user_command_limit).await },
+      async { self.fetch_internal_commands(&req, internal_command_offset, internal_command_limit).await },
+      async { self.fetch_zkapp_commands(&req, zkapp_command_offset, zkapp_command_limit).await }
+    )?;
+
+    // Aggregate transactions
+    let mut transactions = Vec::new();
+    transactions.extend(user_commands.into_iter().map(|uc| uc.into()));
+    transactions.extend(internal_commands.into_iter().map(|ic| ic.into()));
+    transactions.extend(zkapp_commands_to_block_transactions(zkapp_commands));
+
+    // Determine the next offset
+    let next_offset = original_offset + transactions.len() as i64;
     let response = SearchTransactionsResponse {
       transactions,
       total_count,
