@@ -247,7 +247,7 @@ impl UserCommandOperationsData for UserCommandMetadata {
   }
 
   fn fee(&self) -> &str {
-    &self.fee.as_deref().unwrap_or("0")
+    self.fee.as_deref().unwrap_or("0")
   }
 
   fn status(&self) -> &TransactionStatus {

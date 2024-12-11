@@ -279,15 +279,21 @@ pub fn generate_operations_internal_command<T: InternalCommandOperationsData>(da
   operations
 }
 
+type BlockKey = (Option<i64>, Option<String>); // Represents the block identifier
+type TransactionOperations = BTreeMap<String, Vec<Operation>>; // Maps transaction hashes to their operations
+type BlockMap = BTreeMap<BlockKey, TransactionOperations>; // Maps block keys to transaction operations
+
 /// Groups zkApp commands into operations mapped by block and transaction.
 ///
 /// This function processes a vector of `ZkAppCommand` objects, generating
-/// operations for each command and organizing them into a nested `BTreeMap`
+/// operations for each command and organizing them into
+/// `BlockMap = BTreeMap<BlockKey, TransactionOperations>` a nested `BTreeMap`
 /// structure:
-/// - Outer key: `(Option<i64>, Option<String>)` representing block height and
+/// - `BlockKey`: `(Option<i64>, Option<String>)` representing block height and
 ///   state hash.
-/// - Inner key: `String` representing the transaction hash.
-/// - Value: `Vec<Operation>` containing operations for each transaction.
+/// - `TransactionOperations = BTreeMap<String, Vec<Operation>>` mapping
+///   - Inner key: `String` representing the transaction hash.
+///   - Value: `Vec<Operation>` containing operations for each transaction.
 ///
 /// ### Operations Generated
 /// - `ZkappFeePayerDec`: Deducts the fee from the fee payer account.
@@ -303,10 +309,8 @@ pub fn generate_operations_internal_command<T: InternalCommandOperationsData>(da
 ///
 /// This function supports constructing higher-level transaction structures like
 /// `BlockTransaction`, `Transaction`.
-pub fn generate_operations_zkapp_command(
-  commands: Vec<ZkAppCommand>,
-) -> BTreeMap<(Option<i64>, Option<String>), BTreeMap<String, Vec<Operation>>> {
-  let mut block_map: BTreeMap<(Option<i64>, Option<String>), BTreeMap<String, Vec<Operation>>> = BTreeMap::new();
+pub fn generate_operations_zkapp_command(commands: Vec<ZkAppCommand>) -> BlockMap {
+  let mut block_map: BlockMap = BTreeMap::new();
 
   for command in commands {
     let block_key = (command.height, command.state_hash.clone());
@@ -351,7 +355,7 @@ pub fn generate_operations_zkapp_command(
     }
   }
 
-  // Reindex operations within each transaction
+  // Re-index operations within each transaction
   for (_, tx_map) in block_map.iter_mut() {
     for (_, operations) in tx_map.iter_mut() {
       for (i, operation) in operations.iter_mut().enumerate() {

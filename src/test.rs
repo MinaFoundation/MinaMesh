@@ -163,16 +163,14 @@ fn remove_empty_tx_fields(value: &mut Value) {
 
 fn sort_transactions(value: &mut Value) {
   if let Some(block) = value.get_mut("block") {
-    if let Some(transactions) = block.get_mut("transactions") {
-      if let Value::Array(tx_array) = transactions {
-        tx_array.sort_by(|a, b| {
-          let hash_a =
-            a.get("transaction_identifier").and_then(|ti| ti.get("hash")).and_then(|h| h.as_str()).unwrap_or("");
-          let hash_b =
-            b.get("transaction_identifier").and_then(|ti| ti.get("hash")).and_then(|h| h.as_str()).unwrap_or("");
-          hash_a.cmp(hash_b)
-        });
-      }
+    if let Some(Value::Array(tx_array)) = block.get_mut("transactions") {
+      tx_array.sort_by(|a, b| {
+        let hash_a =
+          a.get("transaction_identifier").and_then(|ti| ti.get("hash")).and_then(|h| h.as_str()).unwrap_or("");
+        let hash_b =
+          b.get("transaction_identifier").and_then(|ti| ti.get("hash")).and_then(|h| h.as_str()).unwrap_or("");
+        hash_a.cmp(hash_b)
+      });
     }
   }
 }
