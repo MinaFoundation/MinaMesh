@@ -133,6 +133,10 @@ fn sort_json_value(value: &mut Value) {
   }
 }
 
+// Remove empty "related_transactions" | "other_transactions" arrays from the
+// JSON This is necessary because Rosetta OCaml includes empty arrays in the
+// response but mina-mesh does not
+// Workaround for https://github.com/MinaFoundation/MinaMesh/issues/48
 fn remove_empty_tx_fields(value: &mut Value) {
   match value {
     Value::Object(map) => {

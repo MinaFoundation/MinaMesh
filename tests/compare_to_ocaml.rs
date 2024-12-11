@@ -86,3 +86,9 @@ async fn block() -> Result<()> {
   let (subpath, reqs) = fixtures::block();
   assert_responses_eq(subpath, &reqs).await
 }
+
+#[tokio::test]
+async fn block_not_found() -> Result<()> {
+  let (subpath, reqs) = fixtures::block_not_found();
+  assert_responses_contain(subpath, &reqs, "\"message\": \"Block not found").await
+}
