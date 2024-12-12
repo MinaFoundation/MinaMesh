@@ -2,6 +2,7 @@ use coinbase_mesh::models::{
   BlockIdentifier, BlockTransaction, SearchTransactionsRequest, SearchTransactionsResponse, Transaction,
   TransactionIdentifier,
 };
+use serde::de;
 
 use crate::{
   generate_internal_command_transaction_identifier, generate_operations_internal_command,
@@ -16,10 +17,10 @@ impl MinaMesh {
     req: SearchTransactionsRequest,
   ) -> Result<SearchTransactionsResponse, MinaMeshError> {
     self.validate_network(&req.network_identifier).await?;
-    let original_offset = req.offset.unwrap_or(0);
-    let limit = req.limit.unwrap_or(100);
-    let mut total_count = 0;
-
+    let original_offset: u64 = req.offset.unwrap_or(0).try_into().unwrap();
+    let limit: u64 = req.limit.unwrap_or(100).try_into().unwrap();
+    tracing::debug!("Search transactions request: {:?}", req);
+    tracing::debug!("Original offset: {}, limit: {}", original_offset, limit);
     // Fetch total counts concurrently
     let (user_commands_total, internal_commands_total, zkapp_commands_total) = tokio::try_join!(
       async {
@@ -36,24 +37,33 @@ impl MinaMesh {
       }
     )?;
 
-    total_count = user_commands_total + internal_commands_total + zkapp_commands_total;
-
+    let total_count = user_commands_total + internal_commands_total + zkapp_commands_total;
+    tracing::debug!(
+      "Total count: {}, user_commands_count: {}, internal_commands_count: {}, zkapp_commands_count: {}",
+      total_count,
+      user_commands_total,
+      internal_commands_total,
+      zkapp_commands_total
+    );
     // Adjust offset and limit for each category
     let user_command_offset = original_offset;
-    let user_command_limit = limit.min(user_commands_total.saturating_sub(user_command_offset));
+    let user_command_limit = limit.min((user_commands_total as u64).saturating_sub(user_command_offset));
+    tracing::debug!("User command offset: {}, limit: {}", user_command_offset, user_command_limit);
 
-    let internal_command_offset = (user_command_offset + user_command_limit).saturating_sub(user_commands_total);
-    let internal_command_limit = limit.min(internal_commands_total.saturating_sub(internal_command_offset));
+    let internal_command_offset = (user_command_offset + user_command_limit).saturating_sub(user_commands_total as u64);
+    let internal_command_limit = limit.min((internal_commands_total as u64).saturating_sub(internal_command_offset));
+    tracing::debug!("Internal command offset: {}, limit: {}", internal_command_offset, internal_command_limit);
 
     let zkapp_command_offset =
-      (internal_command_offset + internal_command_limit).saturating_sub(internal_commands_total);
-    let zkapp_command_limit = limit.min(zkapp_commands_total.saturating_sub(zkapp_command_offset));
+      (internal_command_offset + internal_command_limit).saturating_sub(internal_commands_total as u64);
+    let zkapp_command_limit = limit.min((zkapp_commands_total as u64).saturating_sub(zkapp_command_offset));
+    tracing::debug!("Zkapp command offset: {}, limit: {}", zkapp_command_offset, zkapp_command_limit);
 
     // Fetch data concurrently
     let (user_commands, internal_commands, zkapp_commands) = tokio::try_join!(
-      async { self.fetch_user_commands(&req, user_command_offset, user_command_limit).await },
-      async { self.fetch_internal_commands(&req, internal_command_offset, internal_command_limit).await },
-      async { self.fetch_zkapp_commands(&req, zkapp_command_offset, zkapp_command_limit).await }
+      async { self.fetch_user_commands(&req, user_command_offset as i64, user_command_limit as i64).await },
+      async { self.fetch_internal_commands(&req, internal_command_offset as i64, internal_command_limit as i64).await },
+      async { self.fetch_zkapp_commands(&req, zkapp_command_offset as i64, zkapp_command_limit as i64).await }
     )?;
 
     // Aggregate transactions
@@ -63,11 +73,11 @@ impl MinaMesh {
     transactions.extend(zkapp_commands_to_block_transactions(zkapp_commands));
 
     // Determine the next offset
-    let next_offset = original_offset + transactions.len() as i64;
+    let next_offset = original_offset + transactions.len() as u64;
     let response = SearchTransactionsResponse {
       transactions,
-      total_count,
-      next_offset: if next_offset < total_count { Some(next_offset) } else { None },
+      total_count: total_count as i64,
+      next_offset: if (next_offset as i64) < total_count { Some(next_offset as i64) } else { None },
     };
 
     Ok(response)
