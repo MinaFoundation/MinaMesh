@@ -2,7 +2,6 @@ use coinbase_mesh::models::{
   BlockIdentifier, BlockTransaction, SearchTransactionsRequest, SearchTransactionsResponse, Transaction,
   TransactionIdentifier,
 };
-use serde::de;
 
 use crate::{
   generate_internal_command_transaction_identifier, generate_operations_internal_command,
@@ -18,9 +17,10 @@ impl MinaMesh {
   ) -> Result<SearchTransactionsResponse, MinaMeshError> {
     self.validate_network(&req.network_identifier).await?;
     let original_offset: u64 = req.offset.unwrap_or(0).try_into().unwrap();
-    let limit: u64 = req.limit.unwrap_or(100).try_into().unwrap();
-    tracing::debug!("Search transactions request: {:?}", req);
-    tracing::debug!("Original offset: {}, limit: {}", original_offset, limit);
+    let mut remaining_limit: u64 = req.limit.unwrap_or(100).try_into().unwrap();
+    tracing::debug!("SearchTransactionsRequest: {:?}", req);
+    tracing::debug!("Original offset: {}, limit: {}", original_offset, remaining_limit);
+
     // Fetch total counts concurrently
     let (user_commands_total, internal_commands_total, zkapp_commands_total) = tokio::try_join!(
       async {
@@ -45,18 +45,26 @@ impl MinaMesh {
       internal_commands_total,
       zkapp_commands_total
     );
-    // Adjust offset and limit for each category
-    let user_command_offset = original_offset;
-    let user_command_limit = limit.min((user_commands_total as u64).saturating_sub(user_command_offset));
+
+    // Adjust user command limit and offset
+    let user_command_offset = original_offset.min(user_commands_total as u64);
+    let user_command_limit = remaining_limit.min(user_commands_total as u64 - user_command_offset);
+    remaining_limit -= user_command_limit;
+
     tracing::debug!("User command offset: {}, limit: {}", user_command_offset, user_command_limit);
 
-    let internal_command_offset = (user_command_offset + user_command_limit).saturating_sub(user_commands_total as u64);
-    let internal_command_limit = limit.min((internal_commands_total as u64).saturating_sub(internal_command_offset));
+    // Adjust internal command limit and offset
+    let internal_command_offset = (original_offset + user_command_limit).saturating_sub(user_commands_total as u64);
+    let internal_command_limit = remaining_limit.min(internal_commands_total as u64 - internal_command_offset);
+    remaining_limit -= internal_command_limit;
+
     tracing::debug!("Internal command offset: {}, limit: {}", internal_command_offset, internal_command_limit);
 
-    let zkapp_command_offset =
-      (internal_command_offset + internal_command_limit).saturating_sub(internal_commands_total as u64);
-    let zkapp_command_limit = limit.min((zkapp_commands_total as u64).saturating_sub(zkapp_command_offset));
+    // Adjust zkapp command limit and offset
+    let zkapp_command_offset = (original_offset + user_command_limit + internal_command_limit)
+      .saturating_sub(user_commands_total as u64 + internal_commands_total as u64);
+    let zkapp_command_limit = remaining_limit.min(zkapp_commands_total as u64 - zkapp_command_offset);
+
     tracing::debug!("Zkapp command offset: {}, limit: {}", zkapp_command_offset, zkapp_command_limit);
 
     // Fetch data concurrently
@@ -357,18 +365,4 @@ impl TryFrom<SearchTransactionsRequest> for SearchTransactionsQueryParams {
     };
     Ok(st)
   }
-}
-
-fn adjust_limit_and_offset(mut limit: i64, mut offset: i64, txs_len: i64) -> (i64, i64) {
-  if offset >= txs_len {
-    offset -= txs_len;
-  } else {
-    offset = 0;
-  }
-  if limit >= txs_len {
-    limit -= txs_len;
-  } else {
-    limit = 0;
-  }
-  (offset, limit)
 }
