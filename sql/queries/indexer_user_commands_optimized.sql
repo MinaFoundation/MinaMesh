@@ -1,4 +1,27 @@
 WITH
+  blocks AS (
+    SELECT
+      *
+    FROM
+      blocks
+    WHERE
+      chain_status='canonical'
+    UNION ALL
+    SELECT
+      *
+    FROM
+      blocks AS b
+    WHERE
+      b.chain_status='pending'
+      AND b.height>(
+        SELECT
+          max(HEIGHT)
+        FROM
+          blocks
+        WHERE
+          chain_status='canonical'
+      )
+  ),
   user_command_info AS (
     SELECT DISTINCT
       ON (uca.block_id, uca.id, uca.sequence_no) uca.id,
@@ -32,10 +55,6 @@ WITH
       INNER JOIN blocks AS b ON uca.block_id=b.id
     WHERE
       (
-        b.chain_status='canonical'
-        OR b.chain_status='pending'
-      )
-      AND (
         $1>=b.height
         OR $1 IS NULL
       )
