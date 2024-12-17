@@ -29,29 +29,21 @@ impl MinaMesh {
 
     // User Commands
     let user_commands = self.fetch_user_commands(&query_params, offset, limit).await?;
-    let user_commands_len = user_commands.len() as i64;
     let user_commands_total_count = user_commands.first().and_then(|uc| uc.total_count).unwrap_or(0);
     transactions.extend(user_commands.into_iter().map(|ic| ic.into()));
     total_count += user_commands_total_count;
-    txs_len += user_commands_len;
-    tracing::debug!("User commands total: {}, retrieved: {}", user_commands_total_count, user_commands_len);
+    tracing::debug!("User commands total: {}, retrieved: {}", user_commands_total_count, transactions.len());
 
     // Internal Commands
-    if limit > total_count {
+    if limit > transactions.len() as i64 {
       // if we are below the limit, fetch internal commands
       (offset, limit) = adjust_limit_and_offset(limit, offset, txs_len);
       tracing::debug!("Offset: {}, Limit: {}", offset, limit);
       let internal_commands = self.fetch_internal_commands(&query_params, offset, limit).await?;
-      let internal_commands_len = internal_commands.len() as i64;
       let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
       transactions.extend(internal_commands.into_iter().map(|uc| uc.into()));
-      txs_len += internal_commands_len;
       total_count += internal_commands_total_count;
-      tracing::debug!(
-        "Internal commands total: {}, retrieved: {}",
-        internal_commands_total_count,
-        internal_commands_len
-      );
+      tracing::debug!("Internal commands total: {}, retrieved: {}", internal_commands_total_count, transactions.len());
     } else {
       // otherwise only fetch the first internal command to get the total count
       let internal_commands = self.fetch_internal_commands(&query_params, 0, 1).await?;
@@ -61,17 +53,15 @@ impl MinaMesh {
     }
 
     // ZkApp Commands
-    if limit > total_count {
+    if limit > transactions.len() as i64 {
       // if we are below the limit, fetch zkapp commands
       (offset, limit) = adjust_limit_and_offset(limit, offset, txs_len);
       tracing::debug!("Offset: {}, Limit: {}", offset, limit);
       let zkapp_commands = self.fetch_zkapp_commands(&query_params, offset, limit).await?;
-      let zkapp_commands_len = zkapp_commands.len() as i64;
       let zkapp_commands_total_count = zkapp_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
       transactions.extend(zkapp_commands_to_block_transactions(zkapp_commands));
-      txs_len += zkapp_commands_len;
       total_count += zkapp_commands_total_count;
-      tracing::debug!("Zkapp commands total: {}, retrieved: {}", zkapp_commands_total_count, zkapp_commands_len);
+      tracing::debug!("Zkapp commands total: {}, retrieved: {}", zkapp_commands_total_count, transactions.len());
     } else {
       // otherwise only fetch the first zkapp command to get the total count
       let zkapp_commands = self.fetch_zkapp_commands(&query_params, 0, 1).await?;
@@ -80,13 +70,14 @@ impl MinaMesh {
       tracing::debug!("Zkapp commands total: {}", zkapp_commands_total_count);
     }
 
-    let next_offset = original_offset + txs_len;
+    let next_offset = original_offset + transactions.len() as i64;
+    let tx_len = transactions.len() as i64;
     let response = SearchTransactionsResponse {
       transactions,
       total_count,
       next_offset: if next_offset < total_count { Some(next_offset) } else { None },
     };
-    tracing::debug!("Total count: {}, retrieved: {}, next_offset: {}", total_count, txs_len, next_offset);
+    tracing::debug!("Total count: {}, retrieved: {}, next_offset: {}", total_count, tx_len, next_offset);
 
     Ok(response)
   }
