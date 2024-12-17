@@ -45,6 +45,9 @@ impl MinaMesh {
       internal_commands_total,
       zkapp_commands_total
     );
+    if total_count == 0 {
+      return Ok(SearchTransactionsResponse { transactions: vec![], total_count: 0, next_offset: None });
+    }
 
     // Adjust user command limit and offset
     let user_command_offset = original_offset.min(user_commands_total as u64);
@@ -69,9 +72,27 @@ impl MinaMesh {
 
     // Fetch data concurrently
     let (user_commands, internal_commands, zkapp_commands) = tokio::try_join!(
-      async { self.fetch_user_commands(&req, user_command_offset as i64, user_command_limit as i64).await },
-      async { self.fetch_internal_commands(&req, internal_command_offset as i64, internal_command_limit as i64).await },
-      async { self.fetch_zkapp_commands(&req, zkapp_command_offset as i64, zkapp_command_limit as i64).await }
+      async {
+        if user_commands_total > 0 && user_command_limit > 0 {
+          self.fetch_user_commands(&req, user_command_offset as i64, user_command_limit as i64).await
+        } else {
+          Ok(Vec::new())
+        }
+      },
+      async {
+        if internal_commands_total > 0 && internal_command_limit > 0 {
+          self.fetch_internal_commands(&req, internal_command_offset as i64, internal_command_limit as i64).await
+        } else {
+          Ok(Vec::new())
+        }
+      },
+      async {
+        if zkapp_commands_total > 0 && zkapp_command_limit > 0 {
+          self.fetch_zkapp_commands(&req, zkapp_command_offset as i64, zkapp_command_limit as i64).await
+        } else {
+          Ok(Vec::new())
+        }
+      }
     )?;
 
     let user_commands_bt = user_commands.into_iter().map(|uc| uc.into()).collect::<Vec<BlockTransaction>>();
