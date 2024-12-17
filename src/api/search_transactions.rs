@@ -74,11 +74,20 @@ impl MinaMesh {
       async { self.fetch_zkapp_commands(&req, zkapp_command_offset as i64, zkapp_command_limit as i64).await }
     )?;
 
+    tracing::debug!(
+      "Fetched user commands: {}, internal commands: {}, zkapp_commands: {}",
+      user_commands.len(),
+      internal_commands.len(),
+      zkapp_commands.len()
+    );
+
     // Aggregate transactions
     let mut transactions = Vec::new();
     transactions.extend(user_commands.into_iter().map(|uc| uc.into()));
     transactions.extend(internal_commands.into_iter().map(|ic| ic.into()));
     transactions.extend(zkapp_commands_to_block_transactions(zkapp_commands));
+
+    tracing::debug!("Total transactions: {}", transactions.len());
 
     // Determine the next offset
     let next_offset = original_offset + transactions.len() as u64;
