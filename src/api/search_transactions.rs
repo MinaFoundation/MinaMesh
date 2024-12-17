@@ -74,28 +74,33 @@ impl MinaMesh {
       async { self.fetch_zkapp_commands(&req, zkapp_command_offset as i64, zkapp_command_limit as i64).await }
     )?;
 
+    let user_commands_bt = user_commands.into_iter().map(|uc| uc.into()).collect::<Vec<BlockTransaction>>();
+    let internal_commands_bt = internal_commands.into_iter().map(|ic| ic.into()).collect::<Vec<BlockTransaction>>();
+    let zkapp_commands_bt = zkapp_commands_to_block_transactions(zkapp_commands);
+
     tracing::debug!(
       "Fetched user commands: {}, internal commands: {}, zkapp_commands: {}",
-      user_commands.len(),
-      internal_commands.len(),
-      zkapp_commands.len()
+      user_commands_bt.len(),
+      internal_commands_bt.len(),
+      zkapp_commands_bt.len()
     );
 
     // Aggregate transactions
     let mut transactions = Vec::new();
-    transactions.extend(user_commands.into_iter().map(|uc| uc.into()));
-    transactions.extend(internal_commands.into_iter().map(|ic| ic.into()));
-    transactions.extend(zkapp_commands_to_block_transactions(zkapp_commands));
-
-    tracing::debug!("Total transactions: {}", transactions.len());
+    transactions.extend(user_commands_bt);
+    transactions.extend(internal_commands_bt);
+    transactions.extend(zkapp_commands_bt);
 
     // Determine the next offset
-    let next_offset = original_offset + transactions.len() as u64;
-    let response = SearchTransactionsResponse {
-      transactions,
-      total_count: total_count as i64,
-      next_offset: if (next_offset as i64) < total_count { Some(next_offset as i64) } else { None },
-    };
+    let offset = original_offset + transactions.len() as u64;
+    let next_offset = if (offset as i64) < total_count { Some(offset as i64) } else { None };
+    tracing::debug!(
+      "Total transactions count: {}, retrieved: {}, next_offset: {:?}",
+      total_count,
+      transactions.len(),
+      next_offset
+    );
+    let response = SearchTransactionsResponse { transactions, total_count: total_count as i64, next_offset };
 
     Ok(response)
   }
