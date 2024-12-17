@@ -1,4 +1,27 @@
 WITH
+  blocks AS (
+    SELECT
+      *
+    FROM
+      blocks
+    WHERE
+      chain_status='canonical'
+    UNION ALL
+    SELECT
+      *
+    FROM
+      blocks AS b
+    WHERE
+      b.chain_status='pending'
+      AND b.height>(
+        SELECT
+          max(HEIGHT)
+        FROM
+          blocks
+        WHERE
+          chain_status='canonical'
+      )
+  ),
   zkapp_commands_info AS (
     SELECT
       zca.id,
@@ -27,10 +50,6 @@ WITH
     FROM
       zkapp_commands_aggregated AS zca
       INNER JOIN blocks AS b ON zca.block_id=b.id
-      AND (
-        b.chain_status='canonical'
-        OR b.chain_status='pending'
-      )
       LEFT JOIN zkapp_account_update AS zau ON zau.id=ANY (zca.zkapp_account_updates_ids)
       INNER JOIN zkapp_account_update_body AS zaub ON zau.body_id=zaub.id
       INNER JOIN account_identifiers AS ai_update_body ON zaub.account_identifier_id=ai_update_body.id
