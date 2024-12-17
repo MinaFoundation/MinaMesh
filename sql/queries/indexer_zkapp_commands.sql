@@ -1,38 +1,26 @@
 WITH
-  canonical_blocks AS (
+  blocks AS (
     SELECT
       *
     FROM
       blocks
     WHERE
       chain_status='canonical'
-  ),
-  max_canonical_height AS (
-    SELECT
-      max(HEIGHT) AS max_height
-    FROM
-      canonical_blocks
-  ),
-  pending_blocks AS (
-    SELECT
-      b.*
-    FROM
-      blocks AS b,
-      max_canonical_height AS m
-    WHERE
-      b.height>m.max_height
-      AND b.chain_status='pending'
-  ),
-  blocks AS (
-    SELECT
-      *
-    FROM
-      canonical_blocks
     UNION ALL
     SELECT
       *
     FROM
-      pending_blocks
+      blocks AS b
+    WHERE
+      b.chain_status='pending'
+      AND b.height>(
+        SELECT
+          max(HEIGHT)
+        FROM
+          blocks
+        WHERE
+          chain_status='canonical'
+      )
   ),
   zkapp_commands_info AS (
     SELECT
