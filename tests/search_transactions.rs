@@ -183,3 +183,24 @@ async fn search_transactions_zkapp_tokens_tx_hash() -> Result<()> {
   assert_debug_snapshot!(response_tx_hash);
   Ok(())
 }
+
+#[tokio::test]
+async fn search_transactions_offset_limit() -> Result<()> {
+  let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
+  // cspell:disable-next-line
+  let address = "B62qrHd4Wg8z6N6tCC9pVtRtxEuBXLWPH61gbcgotURdiU1rSURMdFB";
+  let max_block = 370_000;
+  let request = SearchTransactionsRequest {
+    network_identifier: Box::new(network_id()),
+    address: Some(address.to_string()),
+    max_block: Some(max_block),
+    limit: Some(15),
+    offset: Some(5),
+    ..Default::default()
+  };
+  let response = mina_mesh.search_transactions(request).await;
+
+  assert!(response.is_ok());
+  assert_debug_snapshot!(response);
+  Ok(())
+}
