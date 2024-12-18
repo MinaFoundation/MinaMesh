@@ -20,7 +20,6 @@ impl MinaMesh {
     let mut offset = original_offset;
     let mut limit = req.limit.unwrap_or(100);
     let mut transactions = Vec::new();
-    let mut txs_len = 0;
     let mut total_count = 0;
     tracing::debug!("{:?}", req);
     tracing::debug!("Offset: {}, Limit: {}", offset, limit);
@@ -37,7 +36,7 @@ impl MinaMesh {
     // Internal Commands
     if limit > transactions.len() as i64 {
       // if we are below the limit, fetch internal commands
-      (offset, limit) = adjust_limit_and_offset(limit, offset, txs_len);
+      (offset, limit) = adjust_limit_and_offset(limit, offset, transactions.len() as i64);
       tracing::debug!("Offset: {}, Limit: {}", offset, limit);
       let internal_commands = self.fetch_internal_commands(&query_params, offset, limit).await?;
       let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
@@ -55,7 +54,7 @@ impl MinaMesh {
     // ZkApp Commands
     if limit > transactions.len() as i64 {
       // if we are below the limit, fetch zkapp commands
-      (offset, limit) = adjust_limit_and_offset(limit, offset, txs_len);
+      (offset, limit) = adjust_limit_and_offset(limit, offset, transactions.len() as i64);
       tracing::debug!("Offset: {}, Limit: {}", offset, limit);
       let zkapp_commands = self.fetch_zkapp_commands(&query_params, offset, limit).await?;
       let zkapp_commands_total_count = zkapp_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
