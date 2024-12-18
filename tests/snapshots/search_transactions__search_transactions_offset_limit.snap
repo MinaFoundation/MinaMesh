@@ -1,6 +1,5 @@
 ---
 source: tests/search_transactions.rs
-assertion_line: 204
 expression: response
 ---
 Ok(
