@@ -1,4 +1,27 @@
 WITH
+  blocks AS (
+    SELECT
+      *
+    FROM
+      blocks
+    WHERE
+      chain_status='canonical'
+    UNION ALL
+    SELECT
+      *
+    FROM
+      blocks AS b
+    WHERE
+      b.chain_status='pending'
+      AND b.height>(
+        SELECT
+          max(HEIGHT)
+        FROM
+          blocks
+        WHERE
+          chain_status='canonical'
+      )
+  ),
   coinbase_receiver_info AS (
     SELECT
       bic.block_id,
@@ -43,10 +66,6 @@ WITH
     FROM
       internal_commands_aggregated AS ica
       INNER JOIN blocks AS b ON ica.block_id=b.id
-      AND (
-        b.chain_status='canonical'
-        OR b.chain_status='pending'
-      )
       LEFT JOIN coinbase_receiver_info AS cri ON ica.block_id=cri.block_id
       AND ica.id=cri.internal_command_id
       AND ica.sequence_no=cri.sequence_no
