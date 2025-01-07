@@ -25,11 +25,25 @@ impl MinaMesh {
     tracing::debug!("Offset: {}, Limit: {}", offset, limit);
 
     let query_params = SearchTransactionsQueryParams::try_from(req.clone())?;
+    let include_timestamp = req.include_timestamp.unwrap_or(false);
 
     // User Commands
     let user_commands = self.fetch_user_commands(&query_params, offset, limit).await?;
     let user_commands_total_count = user_commands.first().and_then(|uc| uc.total_count).unwrap_or(0);
-    transactions.extend(user_commands.into_iter().map(|ic| ic.into()));
+    let user_transactions: Vec<BlockTransaction> = user_commands
+      .into_iter()
+      .map(|uc| {
+        let timestamp = uc.timestamp.clone();
+        let mut transaction: BlockTransaction = uc.into();
+        if include_timestamp {
+          transaction.timestamp = timestamp.map(|ts| ts.parse::<i64>().unwrap_or_default());
+        } else {
+          transaction.timestamp = None;
+        }
+        transaction
+      })
+      .collect();
+    transactions.extend(user_transactions);
     total_count += user_commands_total_count;
     tracing::debug!("User commands total: {}, retrieved: {}", user_commands_total_count, transactions.len());
 
@@ -240,6 +254,7 @@ pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<
           metadata: None,
           related_transactions: None,
         }),
+        timestamp: None,
       };
       result.push(transaction);
     }

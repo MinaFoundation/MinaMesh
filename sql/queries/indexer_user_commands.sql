@@ -45,7 +45,8 @@ WITH
       buc.failure_reason,
       b.state_hash,
       b.chain_status AS "chain_status: ChainStatus",
-      b.height
+      b.height,
+      b.timestamp
     FROM
       user_commands AS u
       INNER JOIN blocks_user_commands AS buc ON u.id=buc.user_command_id

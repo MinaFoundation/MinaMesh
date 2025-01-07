@@ -1,0 +1,103 @@
+---
+source: tests/search_transactions.rs
+assertion_line: 163
+expression: response_address1_token
+---
+Ok(
+    SearchTransactionsResponse {
+        transactions: [
+            BlockTransaction {
+                block_identifier: BlockIdentifier {
+                    index: 319856,
+                    hash: "3NKjAbntQZNxPwbHkRbDAjPrMRoR58MAFepDsPtyQ3vSbhAWEeuu",
+                },
+                transaction: Transaction {
+                    transaction_identifier: TransactionIdentifier {
+                        hash: "5JuotEHhjuYbu2oucyTiVhJX3Abx5DPL4NXnM7CP9hfJZLE5G8n9",
+                    },
+                    operations: [
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 0,
+                                network_index: None,
+                            },
+                            related_operations: None,
+                            type: "zkapp_fee_payer_dec",
+                            status: Some(
+                                "Success",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qituGxc1ZNbWfz4SnftNUaJ78YYYsmuuuJr1FFHjbRqLir7tvBew",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "-100000000",
+                                    currency: Currency {
+                                        symbol: "MINA",
+                                        decimals: 9,
+                                        metadata: None,
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                        Operation {
+                            operation_identifier: OperationIdentifier {
+                                index: 1,
+                                network_index: None,
+                            },
+                            related_operations: None,
+                            type: "zkapp_balance_update",
+                            status: Some(
+                                "Success",
+                            ),
+                            account: Some(
+                                AccountIdentifier {
+                                    address: "B62qjwDWxjf4LtJ4YWJQDdTNPqZ69ZyeCzbpAFKN7EoZzYig5ZRz8JE",
+                                    sub_account: None,
+                                    metadata: Some(
+                                        Object {
+                                            "token_id": String("xBxjFpJkbWpbGua7Lf36S1NLhffFoEChyP3pz6SYKnx7dFCTwg"),
+                                        },
+                                    ),
+                                },
+                            ),
+                            amount: Some(
+                                Amount {
+                                    value: "10000000000000",
+                                    currency: Currency {
+                                        symbol: "MINA+",
+                                        decimals: 9,
+                                        metadata: Some(
+                                            Object {
+                                                "token_id": String("xBxjFpJkbWpbGua7Lf36S1NLhffFoEChyP3pz6SYKnx7dFCTwg"),
+                                            },
+                                        ),
+                                    },
+                                    metadata: None,
+                                },
+                            ),
+                            coin_change: None,
+                            metadata: None,
+                        },
+                    ],
+                    related_transactions: None,
+                    metadata: None,
+                },
+                timestamp: None,
+            },
+        ],
+        total_count: 1,
+        next_offset: None,
+    },
+)

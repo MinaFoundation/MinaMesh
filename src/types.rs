@@ -136,6 +136,7 @@ pub struct UserCommand {
   pub source: String,
   pub receiver: String,
   pub creation_fee: Option<String>,
+  pub timestamp: Option<String>,
 }
 
 // Used in block
