@@ -54,6 +54,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
         ],
         total_count: 1,

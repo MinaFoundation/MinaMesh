@@ -62,7 +62,8 @@ WITH
       bic.block_id,
       bic.status AS "status: TransactionStatus",
       b.state_hash,
-      b.height
+      b.height,
+      b.timestamp
     FROM
       internal_commands AS i
       INNER JOIN blocks_internal_commands AS bic ON i.id=bic.internal_command_id

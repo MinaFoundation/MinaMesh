@@ -1,6 +1,6 @@
 ---
 source: tests/search_transactions.rs
-expression: response
+expression: response_addr
 ---
 Ok(
     SearchTransactionsResponse {
@@ -170,6 +170,7 @@ Ok(
                         },
                     ),
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -301,6 +302,7 @@ Ok(
                         },
                     ),
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -432,6 +434,7 @@ Ok(
                         },
                     ),
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -515,6 +518,7 @@ Ok(
                         },
                     ),
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -598,6 +602,7 @@ Ok(
                         },
                     ),
                 },
+                timestamp: None,
             },
         ],
         total_count: 5,

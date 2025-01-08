@@ -282,6 +282,7 @@ pub struct InternalCommand {
   pub height: Option<i64>,
   pub total_count: Option<i64>,
   pub creation_fee: Option<String>,
+  pub timestamp: Option<String>,
 }
 
 // Used in block

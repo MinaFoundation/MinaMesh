@@ -307,6 +307,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -645,6 +646,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -948,6 +950,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -1251,6 +1254,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -1554,6 +1558,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -1857,6 +1862,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -2160,6 +2166,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -2463,6 +2470,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -2766,6 +2774,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -3069,6 +3078,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -3372,6 +3382,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -3675,6 +3686,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -3978,6 +3990,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -4281,6 +4294,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
             BlockTransaction {
                 block_identifier: BlockIdentifier {
@@ -4584,6 +4598,7 @@ Ok(
                     related_transactions: None,
                     metadata: None,
                 },
+                timestamp: None,
             },
         ],
         total_count: 26,
