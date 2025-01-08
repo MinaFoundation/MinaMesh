@@ -17,7 +17,7 @@ anyhow = "1.0.86"
 axum = { version = "0.7.5", features = ["macros"] }
 bs58 = "0.5.1"
 clap = { version = "4.5.11", features = ["derive", "env"] }
-coinbase-mesh = { git = "https://github.com/MinaFoundation/coinbase-mesh.git", branch = "optional-timestamp-field" }
+coinbase-mesh = "0.1.1"
 convert_case = "0.6.0"
 cynic = { version = "3.7.3", features = ["http-reqwest-blocking"] }
 dashmap = "6.1.0"

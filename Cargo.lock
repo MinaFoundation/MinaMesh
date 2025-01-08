@@ -463,8 +463,9 @@ checksum = "1462739cb27611015575c0c11df5df7601141071f07518d56fcc1be504cbec97"
 
 [[package]]
 name = "coinbase-mesh"
-version = "0.1.0"
-source = "git+https://github.com/MinaFoundation/coinbase-mesh.git?branch=optional-timestamp-field#d1e7b432e9682d93ba36c79efccbb09bdbf54cbf"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a31fc19b9b4b3a1e0f07804e982b9bfe4fcba4bdda5908d5de28bd01b26be20f"
 dependencies = [
  "reqwest",
  "serde",
