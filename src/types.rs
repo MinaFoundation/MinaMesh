@@ -108,6 +108,7 @@ pub struct ZkAppCommand {
   pub height: Option<i64>,
   pub total_count: Option<i64>,
   pub block_id: Option<i32>,
+  pub timestamp: Option<String>,
 }
 
 // Used in search transactions

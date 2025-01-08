@@ -91,7 +91,7 @@ impl MinaMesh {
       tracing::debug!("Offset: {}, Limit: {}", offset, limit);
       let zkapp_commands = self.fetch_zkapp_commands(&query_params, offset, limit).await?;
       let zkapp_commands_total_count = zkapp_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
-      let zkapp_commands_bt = zkapp_commands_to_block_transactions(zkapp_commands);
+      let zkapp_commands_bt = zkapp_commands_to_block_transactions(zkapp_commands, include_timestamp);
       let zkapp_commands_bt_len = zkapp_commands_bt.len();
       transactions.extend(zkapp_commands_bt);
       total_count += zkapp_commands_total_count;
@@ -250,11 +250,14 @@ impl MinaMesh {
   }
 }
 
-pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<BlockTransaction> {
+pub fn zkapp_commands_to_block_transactions(
+  commands: Vec<ZkAppCommand>,
+  include_timestamp: bool,
+) -> Vec<BlockTransaction> {
   let block_map = generate_operations_zkapp_command(commands);
 
   let mut result = Vec::new();
-  for ((block_index, block_hash), tx_map) in block_map {
+  for ((block_index, block_hash, timestamp), tx_map) in block_map {
     let block_index = block_index.unwrap_or(0);
     let block_hash = block_hash.unwrap_or_default();
     for (tx_hash, operations) in tx_map {
@@ -266,7 +269,14 @@ pub fn zkapp_commands_to_block_transactions(commands: Vec<ZkAppCommand>) -> Vec<
           metadata: None,
           related_transactions: None,
         }),
-        timestamp: None,
+        timestamp: {
+          if include_timestamp {
+            let ts = timestamp.clone().unwrap_or_default();
+            Some(ts.parse::<i64>().unwrap_or_default())
+          } else {
+            None
+          }
+        },
       };
       result.push(transaction);
     }

@@ -279,7 +279,7 @@ pub fn generate_operations_internal_command<T: InternalCommandOperationsData>(da
   operations
 }
 
-type BlockKey = (Option<i64>, Option<String>); // Represents the block identifier
+type BlockKey = (Option<i64>, Option<String>, Option<String>); // Represents the block identifier
 type TransactionOperations = BTreeMap<String, Vec<Operation>>; // Maps transaction hashes to their operations
 type BlockMap = BTreeMap<BlockKey, TransactionOperations>; // Maps block keys to transaction operations
 
@@ -289,8 +289,8 @@ type BlockMap = BTreeMap<BlockKey, TransactionOperations>; // Maps block keys to
 /// operations for each command and organizing them into
 /// `BlockMap = BTreeMap<BlockKey, TransactionOperations>` a nested `BTreeMap`
 /// structure:
-/// - `BlockKey`: `(Option<i64>, Option<String>)` representing block height and
-///   state hash.
+/// - `BlockKey`: `(Option<i64>, Option<String> ,Option<String>)` representing
+///   block height, state hash and timestamp. state hash.
 /// - `TransactionOperations = BTreeMap<String, Vec<Operation>>` mapping
 ///   - Inner key: `String` representing the transaction hash.
 ///   - Value: `Vec<Operation>` containing operations for each transaction.
@@ -313,7 +313,7 @@ pub fn generate_operations_zkapp_command(commands: Vec<ZkAppCommand>) -> BlockMa
   let mut block_map: BlockMap = BTreeMap::new();
 
   for command in commands {
-    let block_key = (command.height, command.state_hash.clone());
+    let block_key = (command.height, command.state_hash.clone(), command.timestamp.clone());
     let tx_hash = command.hash.clone();
 
     let operations = block_map.entry(block_key).or_default().entry(tx_hash.clone()).or_default();

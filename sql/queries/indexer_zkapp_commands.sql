@@ -38,6 +38,7 @@ WITH
       bzc.block_id,
       b.state_hash,
       b.height,
+      b.timestamp,
       token_update_body.value AS token,
       ARRAY(
         SELECT
