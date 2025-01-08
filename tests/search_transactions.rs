@@ -204,3 +204,70 @@ async fn search_transactions_offset_limit() -> Result<()> {
   assert_debug_snapshot!(response);
   Ok(())
 }
+
+#[tokio::test]
+async fn search_transactions_uc_include_timestamp() -> Result<()> {
+  let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
+
+  let request = SearchTransactionsRequest {
+    network_identifier: Box::new(network_id()),
+    include_timestamp: Some(true),
+    address: Some(
+      // cspell:disable-next-line
+      "B62qkd6yYALkQMq2SFd5B57bJbGBMA2QuGtLPMzRhhnvexRtVRycZWP".to_string(),
+    ),
+    limit: Some(5),
+    ..Default::default()
+  };
+
+  let response = mina_mesh.search_transactions(request).await;
+
+  assert!(response.is_ok());
+  assert_debug_snapshot!(response);
+  Ok(())
+}
+
+#[tokio::test]
+async fn search_transactions_ic_include_timestamp() -> Result<()> {
+  let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
+
+  let request = SearchTransactionsRequest {
+    network_identifier: Box::new(network_id()),
+    max_block: Some(44),
+    include_timestamp: Some(true),
+    transaction_identifier: Some(Box::new(TransactionIdentifier::new(
+      // cspell:disable-next-line
+      "CkpYcKc2oGs8JUd4tmdGBsZXQCQVkayuyffEjrNWctX5Wuad3vVNe".to_string(),
+    ))),
+    limit: Some(5),
+    ..Default::default()
+  };
+
+  let response = mina_mesh.search_transactions(request).await;
+
+  assert!(response.is_ok());
+  assert_debug_snapshot!(response);
+  Ok(())
+}
+
+#[tokio::test]
+async fn search_transactions_zk_include_timestamp() -> Result<()> {
+  let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
+
+  let request = SearchTransactionsRequest {
+    network_identifier: Box::new(network_id()),
+    transaction_identifier: Some(Box::new(TransactionIdentifier::new(
+      // cspell:disable-next-line
+      "5JvFoEyvuPu9zmi4bDGbhqsakre2SPQU1KKbeh2Lk5uC9eYrc2h2".to_string(),
+    ))),
+    limit: Some(1),
+    include_timestamp: Some(true),
+    ..Default::default()
+  };
+
+  let response = mina_mesh.search_transactions(request).await;
+
+  assert!(response.is_ok());
+  assert_debug_snapshot!(response);
+  Ok(())
+}
