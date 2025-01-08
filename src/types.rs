@@ -140,6 +140,43 @@ pub struct UserCommand {
   pub timestamp: Option<String>,
 }
 
+// Used in search transactions
+#[derive(Debug, FromRow)]
+pub struct InternalCommand {
+  pub id: Option<i32>,
+  pub command_type: InternalCommandType,
+  pub receiver_id: Option<i32>,
+  pub fee: Option<String>,
+  pub hash: String,
+  pub receiver: String,
+  pub coinbase_receiver: Option<String>,
+  pub sequence_no: i32,
+  pub secondary_sequence_no: i32,
+  pub block_id: i32,
+  pub status: TransactionStatus,
+  pub state_hash: Option<String>,
+  pub height: Option<i64>,
+  pub total_count: Option<i64>,
+  pub creation_fee: Option<String>,
+  pub timestamp: Option<String>,
+}
+
+pub trait HasTimestamp {
+  fn timestamp(&self) -> Option<String>;
+}
+
+impl HasTimestamp for UserCommand {
+  fn timestamp(&self) -> Option<String> {
+    self.timestamp.clone()
+  }
+}
+
+impl HasTimestamp for InternalCommand {
+  fn timestamp(&self) -> Option<String> {
+    self.timestamp.clone()
+  }
+}
+
 // Used in block
 #[derive(Debug, PartialEq, Eq, FromRow, Serialize)]
 pub struct UserCommandMetadata {
@@ -263,27 +300,6 @@ impl UserCommandOperationsData for UserCommandMetadata {
   fn creation_fee(&self) -> Option<&str> {
     self.creation_fee.as_deref()
   }
-}
-
-// Used in search transactions
-#[derive(Debug, FromRow)]
-pub struct InternalCommand {
-  pub id: Option<i32>,
-  pub command_type: InternalCommandType,
-  pub receiver_id: Option<i32>,
-  pub fee: Option<String>,
-  pub hash: String,
-  pub receiver: String,
-  pub coinbase_receiver: Option<String>,
-  pub sequence_no: i32,
-  pub secondary_sequence_no: i32,
-  pub block_id: i32,
-  pub status: TransactionStatus,
-  pub state_hash: Option<String>,
-  pub height: Option<i64>,
-  pub total_count: Option<i64>,
-  pub creation_fee: Option<String>,
-  pub timestamp: Option<String>,
 }
 
 // Used in block

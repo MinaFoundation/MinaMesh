@@ -6,8 +6,8 @@ use coinbase_mesh::models::{
 use crate::{
   generate_internal_command_transaction_identifier, generate_operations_internal_command,
   generate_operations_user_command, generate_operations_zkapp_command, generate_transaction_metadata, ChainStatus,
-  InternalCommand, InternalCommandType, MinaMesh, MinaMeshError, TransactionStatus, UserCommand, UserCommandType,
-  ZkAppCommand,
+  HasTimestamp, InternalCommand, InternalCommandType, MinaMesh, MinaMeshError, TransactionStatus, UserCommand,
+  UserCommandType, ZkAppCommand,
 };
 
 impl MinaMesh {
@@ -30,19 +30,7 @@ impl MinaMesh {
     // User Commands
     let user_commands = self.fetch_user_commands(&query_params, offset, limit).await?;
     let user_commands_total_count = user_commands.first().and_then(|uc| uc.total_count).unwrap_or(0);
-    let user_transactions_bt: Vec<BlockTransaction> = user_commands
-      .into_iter()
-      .map(|uc| {
-        let timestamp = uc.timestamp.clone();
-        let mut transaction: BlockTransaction = uc.into();
-        if include_timestamp {
-          transaction.timestamp = timestamp.map(|ts| ts.parse::<i64>().unwrap_or_default());
-        } else {
-          transaction.timestamp = None;
-        }
-        transaction
-      })
-      .collect();
+    let user_transactions_bt: Vec<BlockTransaction> = map_to_block_transactions(user_commands, include_timestamp);
     transactions.extend(user_transactions_bt);
     total_count += user_commands_total_count;
     tracing::debug!("User commands total: {}, retrieved: {}", user_commands_total_count, transactions.len());
@@ -55,19 +43,7 @@ impl MinaMesh {
       tracing::debug!("Offset: {}, Limit: {}", offset, limit);
       let internal_commands = self.fetch_internal_commands(&query_params, offset, limit).await?;
       let internal_commands_total_count = internal_commands.first().and_then(|ic| ic.total_count).unwrap_or(0);
-      let internal_commands_bt: Vec<BlockTransaction> = internal_commands
-        .into_iter()
-        .map(|ic| {
-          let timestamp = ic.timestamp.clone();
-          let mut transaction: BlockTransaction = ic.into();
-          if include_timestamp {
-            transaction.timestamp = timestamp.map(|ts| ts.parse::<i64>().unwrap_or_default());
-          } else {
-            transaction.timestamp = None;
-          }
-          transaction
-        })
-        .collect();
+      let internal_commands_bt: Vec<BlockTransaction> = map_to_block_transactions(internal_commands, include_timestamp);
       internal_commands_bt_len = internal_commands_bt.len();
       transactions.extend(internal_commands_bt);
       total_count += internal_commands_total_count;
@@ -283,6 +259,25 @@ pub fn zkapp_commands_to_block_transactions(
   }
 
   result
+}
+
+fn map_to_block_transactions<T>(commands: Vec<T>, include_timestamp: bool) -> Vec<BlockTransaction>
+where
+  T: Into<BlockTransaction> + HasTimestamp,
+{
+  commands
+    .into_iter()
+    .map(|cmd| {
+      let timestamp = cmd.timestamp().map(|ts| ts.parse::<i64>().unwrap_or_default());
+      let mut transaction: BlockTransaction = cmd.into();
+      if include_timestamp {
+        transaction.timestamp = timestamp;
+      } else {
+        transaction.timestamp = None;
+      }
+      transaction
+    })
+    .collect()
 }
 
 impl From<InternalCommand> for BlockTransaction {
