@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT\n  zc.id,\n  zc.memo,\n  zc.hash,\n  pk_fee_payer.value AS fee_payer,\n  zfpb.fee,\n  zfpb.valid_until,\n  zfpb.nonce,\n  bzc.sequence_no,\n  bzc.status AS \"status: TransactionStatus\",\n  b.state_hash,\n  b.height,\n  bzc.block_id,\n  cast(0 AS BIGINT) AS total_count,\n  ARRAY(\n    SELECT\n      unnest(zauf.failures)\n    FROM\n      zkapp_account_update_failures AS zauf\n    WHERE\n      zauf.id=ANY (bzc.failure_reasons_ids)\n  ) AS failure_reasons,\n  zaub.balance_change AS \"balance_change?\",\n  pk_update_body.value AS \"pk_update_body?\",\n  token_update_body.value AS \"token?\"\nFROM\n  blocks_zkapp_commands AS bzc\n  INNER JOIN zkapp_commands AS zc ON bzc.zkapp_command_id=zc.id\n  INNER JOIN zkapp_fee_payer_body AS zfpb ON zc.zkapp_fee_payer_body_id=zfpb.id\n  INNER JOIN public_keys AS pk_fee_payer ON zfpb.public_key_id=pk_fee_payer.id\n  INNER JOIN blocks AS b ON bzc.block_id=b.id\n  LEFT JOIN zkapp_account_update AS zau ON zau.id=ANY (zc.zkapp_account_updates_ids)\n  LEFT JOIN zkapp_account_update_body AS zaub ON zau.body_id=zaub.id\n  LEFT JOIN account_identifiers AS ai_update_body ON zaub.account_identifier_id=ai_update_body.id\n  LEFT JOIN public_keys AS pk_update_body ON ai_update_body.public_key_id=pk_update_body.id\n  LEFT JOIN tokens AS token_update_body ON ai_update_body.token_id=token_update_body.id\nWHERE\n  bzc.block_id=$1\n  AND (\n    token_update_body.value=$2\n    OR token_update_body.id IS NULL\n  )\nORDER BY\n  zc.id,\n  bzc.sequence_no\n",
+  "query": "SELECT\n  zc.id,\n  zc.memo,\n  zc.hash,\n  pk_fee_payer.value AS fee_payer,\n  zfpb.fee,\n  zfpb.valid_until,\n  zfpb.nonce,\n  bzc.sequence_no,\n  bzc.status AS \"status: TransactionStatus\",\n  b.state_hash,\n  b.height,\n  b.timestamp,\n  bzc.block_id,\n  cast(0 AS BIGINT) AS total_count,\n  ARRAY(\n    SELECT\n      unnest(zauf.failures)\n    FROM\n      zkapp_account_update_failures AS zauf\n    WHERE\n      zauf.id=ANY (bzc.failure_reasons_ids)\n  ) AS failure_reasons,\n  zaub.balance_change AS \"balance_change?\",\n  pk_update_body.value AS \"pk_update_body?\",\n  token_update_body.value AS \"token?\"\nFROM\n  blocks_zkapp_commands AS bzc\n  INNER JOIN zkapp_commands AS zc ON bzc.zkapp_command_id=zc.id\n  INNER JOIN zkapp_fee_payer_body AS zfpb ON zc.zkapp_fee_payer_body_id=zfpb.id\n  INNER JOIN public_keys AS pk_fee_payer ON zfpb.public_key_id=pk_fee_payer.id\n  INNER JOIN blocks AS b ON bzc.block_id=b.id\n  LEFT JOIN zkapp_account_update AS zau ON zau.id=ANY (zc.zkapp_account_updates_ids)\n  LEFT JOIN zkapp_account_update_body AS zaub ON zau.body_id=zaub.id\n  LEFT JOIN account_identifiers AS ai_update_body ON zaub.account_identifier_id=ai_update_body.id\n  LEFT JOIN public_keys AS pk_update_body ON ai_update_body.public_key_id=pk_update_body.id\n  LEFT JOIN tokens AS token_update_body ON ai_update_body.token_id=token_update_body.id\nWHERE\n  bzc.block_id=$1\n  AND (\n    token_update_body.value=$2\n    OR token_update_body.id IS NULL\n  )\nORDER BY\n  zc.id,\n  bzc.sequence_no\n",
   "describe": {
     "columns": [
       {
@@ -70,31 +70,36 @@
       },
       {
         "ordinal": 11,
+        "name": "timestamp",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
         "name": "block_id",
         "type_info": "Int4"
       },
       {
-        "ordinal": 12,
+        "ordinal": 13,
         "name": "total_count",
         "type_info": "Int8"
       },
       {
-        "ordinal": 13,
+        "ordinal": 14,
         "name": "failure_reasons",
         "type_info": "TextArray"
       },
       {
-        "ordinal": 14,
+        "ordinal": 15,
         "name": "balance_change?",
         "type_info": "Text"
       },
       {
-        "ordinal": 15,
+        "ordinal": 16,
         "name": "pk_update_body?",
         "type_info": "Text"
       },
       {
-        "ordinal": 16,
+        "ordinal": 17,
         "name": "token?",
         "type_info": "Text"
       }
@@ -118,6 +123,7 @@
       false,
       false,
       false,
+      false,
       null,
       null,
       false,
@@ -125,5 +131,5 @@
       false
     ]
   },
-  "hash": "b060c16dd0800f47632051a04106fa9675d842510ca206e8e32066423eacb79e"
+  "hash": "aab8301ed951ec5ebb6e2b6756df0380c10a7888182363340090a2153cfaf1a7"
 }
