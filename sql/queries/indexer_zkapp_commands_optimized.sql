@@ -15,7 +15,7 @@ WITH
       b.chain_status='pending'
       AND b.height>(
         SELECT
-          max(HEIGHT)
+          max(height)
         FROM
           blocks
         WHERE

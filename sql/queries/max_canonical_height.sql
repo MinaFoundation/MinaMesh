@@ -1,5 +1,5 @@
 SELECT
-  max(HEIGHT) AS max_canonical_height
+  max(height) AS max_canonical_height
 FROM
   blocks
 WHERE

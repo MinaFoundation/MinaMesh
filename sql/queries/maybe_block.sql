@@ -1,9 +1,9 @@
 SELECT
-  HEIGHT,
+  height,
   state_hash,
   global_slot_since_genesis
 FROM
   blocks
 WHERE
-  HEIGHT=$1
+  height=$1
   AND chain_status='canonical'
