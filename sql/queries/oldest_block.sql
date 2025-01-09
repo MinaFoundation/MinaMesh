@@ -1,5 +1,5 @@
 SELECT
-  HEIGHT,
+  height,
   state_hash
 FROM
   blocks

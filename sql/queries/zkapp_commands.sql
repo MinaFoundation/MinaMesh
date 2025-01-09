@@ -10,6 +10,7 @@ SELECT
   bzc.status AS "status: TransactionStatus",
   b.state_hash,
   b.height,
+  b.timestamp,
   bzc.block_id,
   cast(0 AS BIGINT) AS total_count,
   ARRAY(

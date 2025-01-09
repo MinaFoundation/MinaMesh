@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT\n  HEIGHT,\n  state_hash,\n  global_slot_since_genesis\nFROM\n  blocks\nWHERE\n  HEIGHT=$1\n  AND chain_status='canonical'\n",
+  "query": "SELECT\n  height,\n  state_hash,\n  global_slot_since_genesis\nFROM\n  blocks\nWHERE\n  height=$1\n  AND chain_status='canonical'\n",
   "describe": {
     "columns": [
       {
@@ -30,5 +30,5 @@
       false
     ]
   },
-  "hash": "76f72d89a71d495d377c194cef07b96369948cf852eec22158ed4913e6bdf0bd"
+  "hash": "3601e8af9794936939ec7921e6b5e94106fbcbb53d876cf9ffad52447e78554a"
 }

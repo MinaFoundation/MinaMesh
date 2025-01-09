@@ -65,8 +65,7 @@ FROM
 
 -- NEXT --
 -- Create the trigger function to insert a new row into user_commands_aggregated
-CREATE
-OR REPLACE function add_to_user_commands_aggregated () returns trigger AS $$
+CREATE OR REPLACE FUNCTION add_to_user_commands_aggregated () returns trigger AS $$
 BEGIN
   -- Insert a new row into user_commands_aggregated only if the corresponding entry doesn't already exist
   INSERT INTO user_commands_aggregated (
@@ -116,7 +115,7 @@ $$ language plpgsql;
 -- NEXT --
 -- Create the trigger that fires after each insert into blocks_user_commands
 CREATE
-OR REPLACE trigger trigger_add_to_user_commands_aggregated
+OR replace trigger trigger_add_to_user_commands_aggregated
 AFTER insert ON blocks_user_commands FOR each ROW
 EXECUTE function add_to_user_commands_aggregated ();
 
@@ -172,8 +171,7 @@ FROM
 
 -- NEXT --
 -- Create the trigger function to insert a new row into internal_commands_aggregated
-CREATE
-OR REPLACE function add_to_internal_commands_aggregated () returns trigger AS $$
+CREATE OR REPLACE FUNCTION add_to_internal_commands_aggregated () returns trigger AS $$
 BEGIN
   -- Insert a new row into internal_commands_aggregated only if the corresponding entry doesn't already exist
   INSERT INTO internal_commands_aggregated (
@@ -273,8 +271,7 @@ FROM
 
 -- NEXT --
 -- Create the trigger function to insert a new row into zkapp_commands_aggregated
-CREATE
-OR REPLACE function add_to_zkapp_commands_aggregated () returns trigger AS $$
+CREATE OR REPLACE FUNCTION add_to_zkapp_commands_aggregated () returns trigger AS $$
 BEGIN
   -- Insert a new row into zkapp_commands_aggregated only if the corresponding entry doesn't already exist
   INSERT INTO zkapp_commands_aggregated (

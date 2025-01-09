@@ -15,7 +15,7 @@ WITH
       b.chain_status='pending'
       AND b.height>(
         SELECT
-          max(HEIGHT)
+          max(height)
         FROM
           blocks
         WHERE
@@ -62,7 +62,8 @@ WITH
       ica.block_id,
       ica.status AS "status: TransactionStatus",
       b.state_hash,
-      b.height
+      b.height,
+      b.timestamp
     FROM
       internal_commands_aggregated AS ica
       INNER JOIN blocks AS b ON ica.block_id=b.id

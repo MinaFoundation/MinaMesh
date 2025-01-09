@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT\n  HEIGHT,\n  state_hash\nFROM\n  blocks\nORDER BY\n  TIMESTAMP ASC,\n  state_hash ASC\nLIMIT\n  1\n",
+  "query": "SELECT\n  height,\n  state_hash\nFROM\n  blocks\nORDER BY\n  TIMESTAMP ASC,\n  state_hash ASC\nLIMIT\n  1\n",
   "describe": {
     "columns": [
       {
@@ -22,5 +22,5 @@
       false
     ]
   },
-  "hash": "faa85708c63428d8b8261bf16541c4f6585fab71dcdcb1e5c498bfa048a77bdd"
+  "hash": "97c4d63829c1e2ba70c6e65ac76113325d9ebcbbeea4cff381d523e59842992d"
 }
