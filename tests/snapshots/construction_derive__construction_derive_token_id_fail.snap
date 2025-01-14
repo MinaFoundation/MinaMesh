@@ -1,0 +1,9 @@
+---
+source: tests/construction_derive.rs
+expression: response
+---
+Err(
+    MalformedPublicKey(
+        "Token_id too short",
+    ),
+)
