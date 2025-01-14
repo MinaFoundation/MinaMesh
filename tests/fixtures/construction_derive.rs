@@ -30,7 +30,7 @@ fn public_keys() -> Vec<String> {
   ]
 }
 
-fn construction_derive_payloads<'a>() -> Vec<Box<dyn erased_serde::Serialize>> {
+fn construction_derive_payloads() -> Vec<Box<dyn erased_serde::Serialize>> {
   let token_ids = token_ids();
   let public_keys = public_keys();
 

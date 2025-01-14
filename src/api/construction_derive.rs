@@ -62,8 +62,8 @@ fn to_public_key_compressed(hex: &str) -> Result<CompressedPubKey, MinaMeshError
   bits.reverse();
 
   // Create the x-coordinate as a BaseField element
-  let x = BaseField::from_bits(&bits)
-    .or_else(|_| Err(MinaMeshError::MalformedPublicKey("Invalid x-coordinate".to_string())))?;
+  let x =
+    BaseField::from_bits(&bits).map_err(|_| MinaMeshError::MalformedPublicKey("Invalid x-coordinate".to_string()))?;
 
   // Construct the compressed public key
   Ok(CompressedPubKey { x, is_odd })
@@ -88,6 +88,7 @@ fn decode_token_id(metadata: Option<Value>) -> Result<String, MinaMeshError> {
 }
 
 /// Validates the token ID format (base58 and checksum)
+/// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/lib/base58_check/base58_check.ml
 fn validate_base58_token_id(token_id: &str) -> Result<(), MinaMeshError> {
   // Decode the token ID using base58
   let bytes = bs58::decode(token_id)
@@ -104,7 +105,7 @@ fn validate_base58_token_id(token_id: &str) -> Result<(), MinaMeshError> {
   let (payload, checksum) = bytes.split_at(bytes.len() - 4);
 
   // Recompute checksum
-  let computed_checksum = sha2::Sha256::digest(&sha2::Sha256::digest(payload));
+  let computed_checksum = sha2::Sha256::digest(sha2::Sha256::digest(payload));
   if &computed_checksum[.. 4] != checksum {
     return Err(MinaMeshError::MalformedPublicKey("Token_id checksum mismatch".to_string()));
   }
