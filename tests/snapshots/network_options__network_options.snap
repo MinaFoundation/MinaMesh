@@ -157,7 +157,9 @@ Allow {
             ),
             retriable: false,
             details: Some(
-                String(""),
+                Object {
+                    "error": String("Error message"),
+                },
             ),
         },
         Error {

@@ -71,7 +71,13 @@ async fn test_error_properties() {
       true,
       StatusCode::NOT_FOUND,
     ),
-    (MalformedPublicKey, 10, "The provided public key is malformed.", false, StatusCode::BAD_REQUEST),
+    (
+      MalformedPublicKey("error message".to_string()),
+      10,
+      "The provided public key is malformed.",
+      false,
+      StatusCode::BAD_REQUEST,
+    ),
     (
       OperationsNotValid(vec![]),
       11,
