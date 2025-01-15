@@ -1,0 +1,21 @@
+---
+source: tests/construction_derive.rs
+expression: response
+---
+Ok(
+    ConstructionDeriveResponse {
+        address: None,
+        account_identifier: Some(
+            AccountIdentifier {
+                address: "B62qrrtL6pgcErCoPXjvehdPVHJD44huGAoJn988YvqRdTMXJVgGPTc",
+                sub_account: None,
+                metadata: Some(
+                    Object {
+                        "token_id": String("weihj2SSP7Z96acs56ygP64Te6wauzvWWfAPHKb1gzqem9J4Ne"),
+                    },
+                ),
+            },
+        ),
+        metadata: None,
+    },
+)

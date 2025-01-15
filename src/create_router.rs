@@ -80,6 +80,7 @@ create_handler!(search_transactions, SearchTransactionsRequest);
 async fn handle_available_endpoints() -> impl IntoResponse {
   Json([
     "/account/balance",
+    "/construction/derive",
     "/block",
     "/mempool",
     "/mempool/transaction",

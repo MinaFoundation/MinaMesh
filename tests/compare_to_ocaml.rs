@@ -92,3 +92,9 @@ async fn block_not_found() -> Result<()> {
   let (subpath, reqs) = fixtures::block_not_found();
   assert_responses_contain(subpath, &reqs, "\"message\": \"Block not found").await
 }
+
+#[tokio::test]
+async fn construction_derive() -> Result<()> {
+  let (subpath, reqs) = fixtures::construction_derive();
+  assert_responses_eq(subpath, &reqs).await
+}

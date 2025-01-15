@@ -42,7 +42,7 @@ pub enum MinaMeshError {
   BlockMissing(Option<i64>, Option<String>),
 
   #[error("Malformed public key")]
-  MalformedPublicKey,
+  MalformedPublicKey(String),
 
   #[error("Cannot convert operations to valid transaction")]
   OperationsNotValid(Vec<PartialReason>),
@@ -119,7 +119,7 @@ impl MinaMeshError {
       MinaMeshError::InvariantViolation,
       MinaMeshError::TransactionNotFound("Transaction ID".to_string()),
       MinaMeshError::BlockMissing(Some(-1), Some("test_hash".to_string())),
-      MinaMeshError::MalformedPublicKey,
+      MinaMeshError::MalformedPublicKey("Error message".to_string()),
       MinaMeshError::OperationsNotValid(vec![]),
       MinaMeshError::UnsupportedOperationForConstruction,
       MinaMeshError::SignatureMissing,
@@ -151,7 +151,7 @@ impl MinaMeshError {
       MinaMeshError::InvariantViolation => 7,
       MinaMeshError::TransactionNotFound(_) => 8,
       MinaMeshError::BlockMissing(_, _) => 9,
-      MinaMeshError::MalformedPublicKey => 10,
+      MinaMeshError::MalformedPublicKey(_) => 10,
       MinaMeshError::OperationsNotValid(_) => 11,
       MinaMeshError::UnsupportedOperationForConstruction => 12,
       MinaMeshError::SignatureMissing => 13,
@@ -218,6 +218,9 @@ impl MinaMeshError {
           ),
         "transaction": tx,
       }),
+      MinaMeshError::MalformedPublicKey(err) => json!({
+        "error": err,
+      }),
       MinaMeshError::BlockMissing(index, hash) => {
         let block_identifier = match (index, hash) {
           (Some(idx), Some(hsh)) => format!("index={}, hash={}", idx, hsh),
@@ -264,7 +267,7 @@ impl MinaMeshError {
       MinaMeshError::InvariantViolation => "An internal invariant was violated.".to_string(),
       MinaMeshError::TransactionNotFound(_) => "The specified transaction could not be found.".to_string(),
       MinaMeshError::BlockMissing(_, _) => "The specified block could not be found.".to_string(),
-      MinaMeshError::MalformedPublicKey => "The provided public key is malformed.".to_string(),
+      MinaMeshError::MalformedPublicKey(_) => "The provided public key is malformed.".to_string(),
       MinaMeshError::OperationsNotValid(_) => {
         "We could not convert those operations to a valid transaction.".to_string()
       }
@@ -310,7 +313,7 @@ impl IntoResponse for MinaMeshError {
       MinaMeshError::InvariantViolation => StatusCode::INTERNAL_SERVER_ERROR,
       MinaMeshError::TransactionNotFound(_) => StatusCode::NOT_FOUND,
       MinaMeshError::BlockMissing(_, _) => StatusCode::NOT_FOUND,
-      MinaMeshError::MalformedPublicKey => StatusCode::BAD_REQUEST,
+      MinaMeshError::MalformedPublicKey(_) => StatusCode::BAD_REQUEST,
       MinaMeshError::OperationsNotValid(_) => StatusCode::BAD_REQUEST,
       MinaMeshError::UnsupportedOperationForConstruction => StatusCode::BAD_REQUEST,
       MinaMeshError::SignatureMissing => StatusCode::BAD_REQUEST,
