@@ -3,9 +3,8 @@ use coinbase_mesh::models::{AccountIdentifier, ConstructionDeriveRequest, Constr
 use mina_signer::{BaseField, CompressedPubKey};
 use o1_utils::FieldHelpers;
 use serde_json::{json, Value};
-use sha2::Digest;
 
-use crate::{util::DEFAULT_TOKEN_ID, MinaMesh, MinaMeshError};
+use crate::{base58::validate_base58_with_checksum, util::DEFAULT_TOKEN_ID, MinaMesh, MinaMeshError};
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/construction.ml#L162
 impl MinaMesh {
@@ -88,27 +87,6 @@ fn decode_token_id(metadata: Option<Value>) -> Result<String, MinaMeshError> {
 }
 
 /// Validates the token ID format (base58 and checksum)
-/// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/lib/base58_check/base58_check.ml
 fn validate_base58_token_id(token_id: &str) -> Result<(), MinaMeshError> {
-  // Decode the token ID using base58
-  let bytes = bs58::decode(token_id)
-    .with_alphabet(bs58::Alphabet::BITCOIN)
-    .into_vec()
-    .map_err(|_| MinaMeshError::MalformedPublicKey("Token_id not valid base58".to_string()))?;
-
-  // Check the length (e.g., must include version and checksum)
-  if bytes.len() < 5 {
-    return Err(MinaMeshError::MalformedPublicKey("Token_id too short".to_string()));
-  }
-
-  // Split into payload and checksum
-  let (payload, checksum) = bytes.split_at(bytes.len() - 4);
-
-  // Recompute checksum
-  let computed_checksum = sha2::Sha256::digest(sha2::Sha256::digest(payload));
-  if &computed_checksum[.. 4] != checksum {
-    return Err(MinaMeshError::MalformedPublicKey("Token_id checksum mismatch".to_string()));
-  }
-
-  Ok(())
+  validate_base58_with_checksum(token_id, None)
 }

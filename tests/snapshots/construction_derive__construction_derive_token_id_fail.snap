@@ -4,6 +4,6 @@ expression: response
 ---
 Err(
     MalformedPublicKey(
-        "Token_id too short",
+        "Input too short",
     ),
 )

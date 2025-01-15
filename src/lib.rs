@@ -1,4 +1,5 @@
 mod api;
+pub mod base58;
 mod commands;
 mod config;
 mod create_router;
