@@ -1,9 +1,8 @@
-use convert_case::{Case, Casing};
 use derive_more::derive::Display;
 use serde::Serialize;
 use sqlx::{FromRow, Type};
 use strum::IntoEnumIterator;
-use strum_macros::EnumIter;
+use strum_macros::{Display as StrumDisplay, EnumIter, EnumString};
 
 #[derive(Type, Debug, PartialEq, Eq, Serialize)]
 #[sqlx(type_name = "chain_status_type", rename_all = "lowercase")]
@@ -50,7 +49,8 @@ impl From<TransactionStatus> for OperationStatus {
   }
 }
 
-#[derive(Debug, Display, EnumIter)]
+#[derive(Debug, StrumDisplay, EnumIter, EnumString)]
+#[strum(serialize_all = "snake_case")]
 pub enum OperationType {
   FeePayerDec,
   FeeReceiverInc,
@@ -66,7 +66,7 @@ pub enum OperationType {
 }
 
 pub fn operation_types() -> Vec<String> {
-  OperationType::iter().map(|variant| format!("{:?}", variant).to_case(Case::Snake)).collect()
+  OperationType::iter().map(|variant| variant.to_string()).collect()
 }
 
 #[derive(Type, Debug, PartialEq, Eq, Serialize, Display)]
