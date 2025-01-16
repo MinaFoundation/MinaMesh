@@ -95,13 +95,13 @@ pub enum MinaMeshError {
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub enum PartialReason {
-  LengthMismatch,
+  LengthMismatch(String),
   FeePayerAndSourceMismatch,
   FeeNotNegative,
   AmountNotSome,
   AmountNotValid,
   AccountNotSome,
-  InvalidMetadata,
+  InvalidMetadata(String),
   IncorrectTokenId,
   AmountIncDecMismatch,
   StatusNotPending,
