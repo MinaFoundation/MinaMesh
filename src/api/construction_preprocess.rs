@@ -99,17 +99,17 @@ impl PartialUserCommand {
     let memo = metadata.memo;
 
     match operations.len() {
-      3 => Self::parse_payment_operations(operations, valid_until, memo).or_else(|err| {
-        if let MinaMeshError::OperationsNotValid(reasons) = err {
-          errors.extend(reasons);
+      3 => Self::parse_payment_operations(operations, valid_until, memo).map_err(|err| {
+        if let MinaMeshError::OperationsNotValid(reasons) = &err {
+          errors.extend(reasons.clone());
         }
-        Err(MinaMeshError::OperationsNotValid(errors.clone()))
+        MinaMeshError::OperationsNotValid(errors.clone())
       }),
-      2 => Self::parse_delegation_operations(operations, valid_until, memo).or_else(|err| {
-        if let MinaMeshError::OperationsNotValid(reasons) = err {
-          errors.extend(reasons);
+      2 => Self::parse_delegation_operations(operations, valid_until, memo).map_err(|err| {
+        if let MinaMeshError::OperationsNotValid(reasons) = &err {
+          errors.extend(reasons.clone());
         }
-        Err(MinaMeshError::OperationsNotValid(errors.clone()))
+        MinaMeshError::OperationsNotValid(errors.clone())
       }),
       _ => {
         errors.push(PartialReason::LengthMismatch(format!(
