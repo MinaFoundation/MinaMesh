@@ -40,7 +40,7 @@ pub fn validate_base58_with_checksum(input: &str, expected_version: Option<u8>) 
   }
 
   // Recompute checksum
-  let computed_checksum = sha2::Sha256::digest(sha2::Sha256::digest(&[version, payload].concat()));
+  let computed_checksum = sha2::Sha256::digest(sha2::Sha256::digest([version, payload].concat()));
   if &computed_checksum[.. 4] != checksum {
     return Err(MinaMeshError::MalformedPublicKey("Checksum mismatch".to_string()));
   }

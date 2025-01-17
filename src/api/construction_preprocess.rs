@@ -141,22 +141,19 @@ impl PartialUserCommand {
   ) -> Result<Self, MinaMeshError> {
     let mut errors = Vec::new();
 
-    let fee_payment = Self::find_operation(operations, FeePayment).map_err(|e| {
-      errors.push(PartialReason::CanNotFindKind(FeePayment.to_string()));
-      e
+    let fee_payment = Self::find_operation(operations, FeePayment).inspect_err(|e| {
+      errors.push(e.clone());
     });
 
-    let source_dec = Self::find_operation(operations, PaymentSourceDec).map_err(|e| {
-      errors.push(PartialReason::CanNotFindKind(PaymentSourceDec.to_string()));
-      e
+    let source_dec = Self::find_operation(operations, PaymentSourceDec).inspect_err(|e| {
+      errors.push(e.clone());
     });
 
-    let receiver_inc = Self::find_operation(operations, PaymentReceiverInc).map_err(|e| {
-      errors.push(PartialReason::CanNotFindKind(PaymentReceiverInc.to_string()));
-      e
+    let receiver_inc = Self::find_operation(operations, PaymentReceiverInc).inspect_err(|e| {
+      errors.push(e.clone());
     });
 
-    if errors.len() > 0 {
+    if !errors.is_empty() {
       return Err(MinaMeshError::OperationsNotValid(errors));
     }
 
@@ -210,17 +207,15 @@ impl PartialUserCommand {
   ) -> Result<Self, MinaMeshError> {
     let mut errors = Vec::new();
 
-    let fee_payment = Self::find_operation(operations, FeePayment).map_err(|e| {
-      errors.push(PartialReason::CanNotFindKind(FeePayment.to_string()));
-      e
+    let fee_payment = Self::find_operation(operations, FeePayment).inspect_err(|e| {
+      errors.push(e.clone());
     });
 
-    let delegate_change = Self::find_operation(operations, DelegateChange).map_err(|e| {
-      errors.push(PartialReason::CanNotFindKind(DelegateChange.to_string()));
-      e
+    let delegate_change = Self::find_operation(operations, DelegateChange).inspect_err(|e| {
+      errors.push(e.clone());
     });
 
-    if errors.len() > 0 {
+    if !errors.is_empty() {
       return Err(MinaMeshError::OperationsNotValid(errors));
     }
 
@@ -279,11 +274,11 @@ impl PartialUserCommand {
     })
   }
 
-  fn find_operation<'a>(operations: &'a [Operation], op_type: OperationType) -> Result<&'a Operation, MinaMeshError> {
+  fn find_operation(operations: &[Operation], op_type: OperationType) -> Result<&Operation, PartialReason> {
     operations
       .iter()
       .find(|op| op.r#type == op_type.to_string())
-      .ok_or_else(|| MinaMeshError::OperationsNotValid(vec![PartialReason::CanNotFindKind(op_type.to_string())]))
+      .ok_or_else(|| PartialReason::CanNotFindKind(op_type.to_string()))
   }
 
   fn token_id_from_operation(operation: &Operation) -> String {
