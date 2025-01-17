@@ -1,0 +1,9 @@
+---
+source: tests/construction_preprocess.rs
+expression: response
+---
+Err(
+    PublicKeyFormatNotValid(
+        "Malformed public key: Checksum mismatch",
+    ),
+)

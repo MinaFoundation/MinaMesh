@@ -1,6 +1,5 @@
 use anyhow::Result;
 use coinbase_mesh::models::{ConstructionPreprocessRequest, ConstructionPreprocessResponse, Operation};
-use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
 
 use crate::{
@@ -8,7 +7,7 @@ use crate::{
   util::DEFAULT_TOKEN_ID,
   MinaMesh, MinaMeshError,
   OperationType::{self, *},
-  PartialReason, UserCommandType,
+  PartialReason, PreprocessMetadata, UserCommandType,
 };
 
 impl MinaMesh {
@@ -38,7 +37,6 @@ fn make_response_options(partial_command: PartialUserCommand) -> Value {
   options.insert("sender".to_string(), json!(partial_command.fee_payer));
   options.insert("receiver".to_string(), json!(partial_command.receiver));
   options.insert("token_id".to_string(), json!(partial_command.token));
-  options.insert("fee".to_string(), json!(partial_command.fee));
 
   if let Some(valid_until) = partial_command.valid_until {
     options.insert("valid_until".to_string(), json!(valid_until));
@@ -53,24 +51,6 @@ fn make_response_options(partial_command: PartialUserCommand) -> Value {
 
 fn validate_base58_public_key(token_id: &str) -> Result<(), MinaMeshError> {
   validate_base58_with_checksum(token_id, None).map_err(|e| MinaMeshError::PublicKeyFormatNotValid(e.to_string()))
-}
-
-#[derive(Serialize, Deserialize, Debug, Default)]
-pub struct PreprocessMetadata {
-  valid_until: Option<String>,
-  memo: Option<String>,
-}
-
-impl PreprocessMetadata {
-  fn from_json(metadata: Option<Value>) -> Result<Option<Self>, MinaMeshError> {
-    if let Some(meta) = metadata {
-      serde_json::from_value(meta)
-        .map(Some)
-        .map_err(|e| MinaMeshError::JsonParse(Some(format!("Failed to parse metadata: {}", e))))
-    } else {
-      Ok(None)
-    }
-  }
 }
 
 #[allow(dead_code)]

@@ -1,0 +1,11 @@
+---
+source: tests/construction_preprocess.rs
+expression: response
+---
+Err(
+    OperationsNotValid(
+        [
+            FeePayerAndSourceMismatch,
+        ],
+    ),
+)

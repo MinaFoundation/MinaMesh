@@ -1,8 +1,11 @@
 use derive_more::derive::Display;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::{FromRow, Type};
 use strum::IntoEnumIterator;
 use strum_macros::{Display as StrumDisplay, EnumIter, EnumString};
+
+use crate::MinaMeshError;
 
 #[derive(Type, Debug, PartialEq, Eq, Serialize)]
 #[sqlx(type_name = "chain_status_type", rename_all = "lowercase")]
@@ -381,4 +384,30 @@ impl InternalCommandOperationsData for InternalCommandMetadata {
 #[derive(Debug, Display, Hash, PartialEq, Eq)]
 pub enum CacheKey {
   NetworkId,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct PreprocessMetadata {
+  pub valid_until: Option<String>,
+  pub memo: Option<String>,
+}
+
+impl PreprocessMetadata {
+  pub fn from_json(metadata: Option<Value>) -> Result<Option<Self>, MinaMeshError> {
+    if let Some(meta) = metadata {
+      serde_json::from_value(meta)
+        .map(Some)
+        .map_err(|e| MinaMeshError::JsonParse(Some(format!("Failed to parse metadata: {}", e))))
+    } else {
+      Ok(None)
+    }
+  }
+
+  pub fn to_json(&self) -> Value {
+    serde_json::to_value(self).unwrap_or_default()
+  }
+
+  pub fn new(valid_until: Option<String>, memo: Option<String>) -> Self {
+    Self { valid_until, memo }
+  }
 }
