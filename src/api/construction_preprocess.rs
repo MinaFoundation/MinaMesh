@@ -38,6 +38,7 @@ fn make_response_options(partial_command: PartialUserCommand) -> Value {
   options.insert("sender".to_string(), json!(partial_command.fee_payer));
   options.insert("receiver".to_string(), json!(partial_command.receiver));
   options.insert("token_id".to_string(), json!(partial_command.token));
+  options.insert("fee".to_string(), json!(partial_command.fee));
 
   if let Some(valid_until) = partial_command.valid_until {
     options.insert("valid_until".to_string(), json!(valid_until));
@@ -93,44 +94,30 @@ impl PartialUserCommand {
     metadata: Option<PreprocessMetadata>,
   ) -> Result<Self, MinaMeshError> {
     let mut errors = Vec::new();
-    let valid_until;
-    let memo;
+    let metadata = metadata.unwrap_or_default();
+    let valid_until = metadata.valid_until;
+    let memo = metadata.memo;
 
-    if let Some(metadata) = metadata {
-      valid_until = metadata.valid_until;
-      memo = metadata.memo;
-    } else {
-      valid_until = None;
-      memo = None;
-    }
-
-    if operations.len() == 3 {
-      match Self::parse_payment_operations(operations, valid_until, memo) {
-        Ok(cmd) => return Ok(cmd),
-        Err(MinaMeshError::OperationsNotValid(reasons)) => {
+    match operations.len() {
+      3 => Self::parse_payment_operations(operations, valid_until, memo).or_else(|err| {
+        if let MinaMeshError::OperationsNotValid(reasons) = err {
           errors.extend(reasons);
         }
-        _ => {}
-      }
-    } else if operations.len() == 2 {
-      match Self::parse_delegation_operations(operations, valid_until, memo) {
-        Ok(cmd) => return Ok(cmd),
-        Err(MinaMeshError::OperationsNotValid(reasons)) => {
+        Err(MinaMeshError::OperationsNotValid(errors.clone()))
+      }),
+      2 => Self::parse_delegation_operations(operations, valid_until, memo).or_else(|err| {
+        if let MinaMeshError::OperationsNotValid(reasons) = err {
           errors.extend(reasons);
         }
-        _ => {}
+        Err(MinaMeshError::OperationsNotValid(errors.clone()))
+      }),
+      _ => {
+        errors.push(PartialReason::LengthMismatch(format!(
+          "Expected 2 operations for delegation or 3 for payment, got {}",
+          operations.len()
+        )));
+        Err(MinaMeshError::OperationsNotValid(errors))
       }
-    } else {
-      errors.push(PartialReason::LengthMismatch(format!(
-        "Expected 2 operations for delegation or 3 operations for payment, got {}",
-        operations.len()
-      )));
-    }
-
-    if !errors.is_empty() {
-      Err(MinaMeshError::OperationsNotValid(errors))
-    } else {
-      Err(MinaMeshError::OperationsNotValid(vec![PartialReason::CanNotFindKind("Unknown".to_string())]))
     }
   }
 
@@ -168,18 +155,26 @@ impl PartialUserCommand {
       errors.push(PartialReason::FeePayerAndSourceMismatch);
     }
 
-    let mut fee = 0;
-    if let Some(amount) = &fee_payment.amount {
-      if let Ok(value) = amount.value.parse::<i64>() {
-        if value >= 0 {
-          errors.push(PartialReason::FeeNotNegative);
-        }
-        fee = value
-      } else {
-        errors.push(PartialReason::AmountNotValid);
-      }
-    } else {
-      errors.push(PartialReason::AmountNotSome);
+    //Validate source and receiver amounts match
+    let source_amt = Self::parse_amount_as_i64(source_dec).map_err(|e| {
+      errors.push(e.clone());
+      MinaMeshError::OperationsNotValid(errors.clone())
+    })?;
+    let receiver_amt = Self::parse_amount_as_i64(receiver_inc).map_err(|e| {
+      errors.push(e.clone());
+      MinaMeshError::OperationsNotValid(errors.clone())
+    })?;
+    if (source_amt + receiver_amt) != 0 {
+      errors.push(PartialReason::AmountIncDecMismatch);
+    }
+
+    // Validate the fee
+    let fee = Self::parse_amount_as_i64(fee_payment).map_err(|e| {
+      errors.push(e.clone());
+      MinaMeshError::OperationsNotValid(errors.clone())
+    })?;
+    if fee >= 0 {
+      errors.push(PartialReason::FeeNotNegative);
     }
 
     if !errors.is_empty() {
@@ -229,18 +224,13 @@ impl PartialUserCommand {
       errors.push(PartialReason::FeePayerAndSourceMismatch);
     }
 
-    let mut fee = 0;
-    if let Some(amount) = &fee_payment.amount {
-      if let Ok(value) = amount.value.parse::<i64>() {
-        if value >= 0 {
-          errors.push(PartialReason::FeeNotNegative);
-        }
-        fee = value;
-      } else {
-        errors.push(PartialReason::AmountNotValid);
-      }
-    } else {
-      errors.push(PartialReason::AmountNotSome);
+    // Validate the fee
+    let fee = Self::parse_amount_as_i64(fee_payment).map_err(|e| {
+      errors.push(e.clone());
+      MinaMeshError::OperationsNotValid(errors.clone())
+    })?;
+    if fee >= 0 {
+      errors.push(PartialReason::FeeNotNegative);
     }
 
     if let Some(metadata) = &delegate_change.metadata {
@@ -278,7 +268,15 @@ impl PartialUserCommand {
     operations
       .iter()
       .find(|op| op.r#type == op_type.to_string())
-      .ok_or_else(|| PartialReason::CanNotFindKind(op_type.to_string()))
+      .ok_or(PartialReason::CanNotFindKind(op_type.to_string()))
+  }
+
+  fn parse_amount_as_i64(operation: &Operation) -> Result<i64, PartialReason> {
+    operation
+      .amount
+      .as_ref()
+      .ok_or(PartialReason::AmountNotSome)
+      .and_then(|amount| amount.value.parse::<i64>().map_err(|_| PartialReason::AmountNotValid))
   }
 
   fn token_id_from_operation(operation: &Operation) -> String {
