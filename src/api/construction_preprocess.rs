@@ -83,7 +83,7 @@ pub struct PartialUserCommand {
   pub fee_token: String,
   pub token: String,
   pub fee: i64,
-  pub amount: Option<String>,
+  pub amount: Option<i64>,
   pub valid_until: Option<String>,
   pub memo: Option<String>,
 }
@@ -189,7 +189,7 @@ impl PartialUserCommand {
       fee_token,
       token,
       fee,
-      amount: Self::amount_from_operation(receiver_inc),
+      amount: Some(receiver_amt),
       valid_until,
       memo,
     })
@@ -300,9 +300,5 @@ impl PartialUserCommand {
     } else {
       operation.account.as_ref().map_or_else(String::new, |acc| acc.address.clone())
     }
-  }
-
-  fn amount_from_operation(operation: &Operation) -> Option<String> {
-    operation.amount.as_ref().map_or_else(|| None, |amount| Some(amount.value.clone()))
   }
 }
