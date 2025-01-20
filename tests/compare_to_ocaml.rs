@@ -98,3 +98,9 @@ async fn construction_derive() -> Result<()> {
   let (subpath, reqs) = fixtures::construction_derive();
   assert_responses_eq(subpath, &reqs).await
 }
+
+#[tokio::test]
+async fn construction_preprocess() -> Result<()> {
+  let (subpath, reqs) = fixtures::construction_preprocess();
+  assert_responses_eq(subpath, &reqs).await
+}
