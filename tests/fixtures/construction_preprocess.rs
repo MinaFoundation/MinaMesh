@@ -16,6 +16,7 @@ pub fn construction_preprocess<'a>() -> CompareGroup<'a> {
       r#type: FeePayment.to_string(),
       account: Some(
         AccountIdentifier {
+          // cspell:disable-next-line
           address: "B62qkUHaJUHERZuCHQhXCQ8xsGBqyYSgjQsKnKN5HhSJecakuJ4pYyk".into(),
           sub_account: None,
           metadata: json!({ "token_id": "1" }).into(),
@@ -33,6 +34,7 @@ pub fn construction_preprocess<'a>() -> CompareGroup<'a> {
       r#type: PaymentSourceDec.to_string(),
       account: Some(
         AccountIdentifier {
+          // cspell:disable-next-line
           address: "B62qkUHaJUHERZuCHQhXCQ8xsGBqyYSgjQsKnKN5HhSJecakuJ4pYyk".into(),
           sub_account: None,
           metadata: json!({ "token_id": "1" }).into(),
@@ -50,6 +52,7 @@ pub fn construction_preprocess<'a>() -> CompareGroup<'a> {
       r#type: PaymentReceiverInc.to_string(),
       account: Some(
         AccountIdentifier {
+          // cspell:disable-next-line
           address: "B62qoDWfBZUxKpaoQCoFqr12wkaY84FrhxXNXzgBkMUi2Tz4K8kBDiv".into(),
           sub_account: None,
           metadata: json!({ "token_id": "1" }).into(),
@@ -68,6 +71,7 @@ pub fn construction_preprocess<'a>() -> CompareGroup<'a> {
       operation_identifier: OperationIdentifier::new(0).into(),
       related_operations: None,
       r#type: FeePayment.to_string(),
+      // cspell:disable-next-line
       account: Some(AccountIdentifier::new("B62qoDWfBZUxKpaoQCoFqr12wkaY84FrhxXNXzgBkMUi2Tz4K8kBDiv".into()).into()),
       amount: Some(Box::new(Amount::new("-500".into(), Currency::new("MINA".into(), 9)))),
       coin_change: None,
@@ -78,10 +82,12 @@ pub fn construction_preprocess<'a>() -> CompareGroup<'a> {
       operation_identifier: OperationIdentifier::new(1).into(),
       related_operations: None,
       r#type: DelegateChange.to_string(),
+      // cspell:disable-next-line
       account: Some(AccountIdentifier::new("B62qoDWfBZUxKpaoQCoFqr12wkaY84FrhxXNXzgBkMUi2Tz4K8kBDiv".into()).into()),
       amount: None,
       coin_change: None,
       metadata: Some(json!({
+          // cspell:disable-next-line
           "delegate_change_target": "B62qiburnzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzmp7r7UN6X"
       })),
       status: None,
