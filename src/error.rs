@@ -41,7 +41,7 @@ pub enum MinaMeshError {
   #[error("Block not found")]
   BlockMissing(Option<i64>, Option<String>),
 
-  #[error("Malformed public key")]
+  #[error("Malformed public key: {0}")]
   MalformedPublicKey(String),
 
   #[error("Cannot convert operations to valid transaction")]
@@ -54,7 +54,7 @@ pub enum MinaMeshError {
   SignatureMissing,
 
   #[error("Invalid public key format")]
-  PublicKeyFormatNotValid,
+  PublicKeyFormatNotValid(String),
 
   #[error("No options provided")]
   NoOptionsProvided,
@@ -95,12 +95,13 @@ pub enum MinaMeshError {
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub enum PartialReason {
-  LengthMismatch,
+  LengthMismatch(String),
   FeePayerAndSourceMismatch,
   FeeNotNegative,
   AmountNotSome,
+  AmountNotValid,
   AccountNotSome,
-  InvalidMetadata,
+  InvalidMetadata(String),
   IncorrectTokenId,
   AmountIncDecMismatch,
   StatusNotPending,
@@ -123,7 +124,7 @@ impl MinaMeshError {
       MinaMeshError::OperationsNotValid(vec![]),
       MinaMeshError::UnsupportedOperationForConstruction,
       MinaMeshError::SignatureMissing,
-      MinaMeshError::PublicKeyFormatNotValid,
+      MinaMeshError::PublicKeyFormatNotValid("Error message".to_string()),
       MinaMeshError::NoOptionsProvided,
       MinaMeshError::Exception("Unexpected error".to_string()),
       MinaMeshError::SignatureInvalid,
@@ -155,7 +156,7 @@ impl MinaMeshError {
       MinaMeshError::OperationsNotValid(_) => 11,
       MinaMeshError::UnsupportedOperationForConstruction => 12,
       MinaMeshError::SignatureMissing => 13,
-      MinaMeshError::PublicKeyFormatNotValid => 14,
+      MinaMeshError::PublicKeyFormatNotValid(_) => 14,
       MinaMeshError::NoOptionsProvided => 15,
       MinaMeshError::Exception(_) => 16,
       MinaMeshError::SignatureInvalid => 17,
@@ -221,6 +222,13 @@ impl MinaMeshError {
       MinaMeshError::MalformedPublicKey(err) => json!({
         "error": err,
       }),
+      MinaMeshError::PublicKeyFormatNotValid(err) => json!({
+        "error": err,
+      }),
+      MinaMeshError::OperationsNotValid(reasons) => json!({
+        "error": "We could not convert those operations to a valid transaction.",
+        "reasons": reasons,
+      }),
       MinaMeshError::BlockMissing(index, hash) => {
         let block_identifier = match (index, hash) {
           (Some(idx), Some(hsh)) => format!("index={}, hash={}", idx, hsh),
@@ -275,7 +283,7 @@ impl MinaMeshError {
         "The operation is not supported for transaction construction.".to_string()
       }
       MinaMeshError::SignatureMissing => "Your request is missing a signature.".to_string(),
-      MinaMeshError::PublicKeyFormatNotValid => "The public key you provided had an invalid format.".to_string(),
+      MinaMeshError::PublicKeyFormatNotValid(_) => "The public key you provided had an invalid format.".to_string(),
       MinaMeshError::NoOptionsProvided => "Your request is missing options.".to_string(),
       MinaMeshError::Exception(_) => "An internal exception occurred.".to_string(),
       MinaMeshError::SignatureInvalid => "Your request has an invalid signature.".to_string(),
@@ -317,7 +325,7 @@ impl IntoResponse for MinaMeshError {
       MinaMeshError::OperationsNotValid(_) => StatusCode::BAD_REQUEST,
       MinaMeshError::UnsupportedOperationForConstruction => StatusCode::BAD_REQUEST,
       MinaMeshError::SignatureMissing => StatusCode::BAD_REQUEST,
-      MinaMeshError::PublicKeyFormatNotValid => StatusCode::BAD_REQUEST,
+      MinaMeshError::PublicKeyFormatNotValid(_) => StatusCode::BAD_REQUEST,
       MinaMeshError::NoOptionsProvided => StatusCode::BAD_REQUEST,
       MinaMeshError::Exception(_) => StatusCode::INTERNAL_SERVER_ERROR,
       MinaMeshError::SignatureInvalid => StatusCode::BAD_REQUEST,

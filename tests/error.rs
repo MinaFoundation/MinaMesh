@@ -93,7 +93,13 @@ async fn test_error_properties() {
       StatusCode::BAD_REQUEST,
     ),
     (SignatureMissing, 13, "Your request is missing a signature.", false, StatusCode::BAD_REQUEST),
-    (PublicKeyFormatNotValid, 14, "The public key you provided had an invalid format.", false, StatusCode::BAD_REQUEST),
+    (
+      PublicKeyFormatNotValid("error message".to_string()),
+      14,
+      "The public key you provided had an invalid format.",
+      false,
+      StatusCode::BAD_REQUEST,
+    ),
     (NoOptionsProvided, 15, "Your request is missing options.", false, StatusCode::BAD_REQUEST),
     (
       Exception("Unexpected error".to_string()),

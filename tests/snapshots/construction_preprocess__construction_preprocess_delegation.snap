@@ -1,0 +1,18 @@
+---
+source: tests/construction_preprocess.rs
+expression: response
+---
+Ok(
+    ConstructionPreprocessResponse {
+        options: Some(
+            Object {
+                "receiver": String("B62qiburnzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzmp7r7UN6X"),
+                "sender": String("B62qkXajxfnicuCNtaurdAhQpkFsqjoyPJuw53aeJP848bsa3Ne3RvB"),
+                "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+            },
+        ),
+        required_public_keys: Some(
+            [],
+        ),
+    },
+)
