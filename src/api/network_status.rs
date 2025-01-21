@@ -4,7 +4,7 @@ use coinbase_mesh::models::{BlockIdentifier, NetworkRequest, NetworkStatusRespon
 use cynic::QueryBuilder;
 
 use crate::{
-  graphql::{Block3, DaemonStatus3, QueryNetworkStatus},
+  graphql::{Block4, DaemonStatus3, QueryNetworkStatus},
   MinaMesh, MinaMeshError,
 };
 
@@ -16,7 +16,7 @@ impl MinaMesh {
       self.graphql_client.send(QueryNetworkStatus::build(())).await?;
     let blocks = best_chain.ok_or(MinaMeshError::ChainInfoMissing)?;
     let first_block = blocks.first().ok_or(MinaMeshError::ChainInfoMissing)?;
-    let Block3 { protocol_state, state_hash } = first_block;
+    let Block4 { protocol_state, state_hash } = first_block;
     let oldest_block = sqlx::query_file!("sql/queries/oldest_block.sql").fetch_one(&self.pg_pool).await?;
     Ok(NetworkStatusResponse {
       peers: Some(peers.into_iter().map(|peer| Peer::new(peer.peer_id)).collect()),
