@@ -38,6 +38,7 @@ impl Wrapper<Option<serde_json::Value>> {
 
 // cspell:disable-next-line
 pub const DEFAULT_TOKEN_ID: &str = "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf";
+pub const MINIMUM_USER_COMMAND_FEE: u64 = 1_000_000;
 
 pub fn default_mina_proxy_url() -> String {
   "https://mainnet.minaprotocol.network/graphql".to_string()
