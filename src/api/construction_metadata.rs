@@ -1,15 +1,17 @@
 use anyhow::Result;
 use coinbase_mesh::models::{Amount, ConstructionMetadataRequest, ConstructionMetadataResponse};
 use cynic::QueryBuilder;
-use serde_json::{json, Map};
+use serde_json::{json, Map, Value};
 
 use crate::{
+  base58::validate_base58_with_checksum,
   create_currency,
-  graphql::{PublicKey, QueryConstructionMetadata, QueryConstructionMetadataVariables, TokenId},
-  util::MINIMUM_USER_COMMAND_FEE,
+  graphql::{Block3, PublicKey, QueryConstructionMetadata, QueryConstructionMetadataVariables, TokenId},
+  util::{DEFAULT_TOKEN_ID, MINIMUM_USER_COMMAND_FEE},
   MinaMesh, MinaMeshError,
 };
 
+/// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/construction.ml#L133
 impl MinaMesh {
   pub async fn construction_metadata(
     &self,
@@ -22,51 +24,38 @@ impl MinaMesh {
     let options =
       request.options.as_ref().ok_or(MinaMeshError::JsonParse("Field `options` missing".to_string().into()))?;
 
-    let sender = options
-      .get("sender")
-      .and_then(|v| v.as_str())
-      .ok_or(MinaMeshError::JsonParse("Field `sender` missing".to_string().into()))?;
+    let sender = self.get_field_from_options(options, "sender")?;
+    validate_base58_with_checksum(sender, None)
+      .map_err(|e| MinaMeshError::JsonParse(Some(format!("Sender key not valid: {}", e.to_string()))))?;
 
-    let receiver = options
-      .get("receiver")
-      .and_then(|v| v.as_str())
-      .ok_or(MinaMeshError::JsonParse("Field `receiver` missing".to_string().into()))?;
+    let receiver = self.get_field_from_options(options, "receiver")?;
+    validate_base58_with_checksum(receiver, None)
+      .map_err(|e| MinaMeshError::JsonParse(Some(format!("Receiver key not valid: {}", e.to_string()))))?;
 
-    let token_id = options
-      .get("token_id")
-      .and_then(|v| v.as_str())
-      .ok_or(MinaMeshError::JsonParse("Field `token_id` missing".to_string().into()))?;
+    let token_id = self.get_field_from_options(options, "token_id")?;
 
     // Send GraphQL query
     let query_variables = QueryConstructionMetadataVariables {
       sender: PublicKey(sender.to_string()),
-      token_id: Some(TokenId(token_id.to_string())),
+      // for now, nonce is based on the fee payer's account using the default token ID
+      // https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/construction.ml#L239
+      token_id: Some(TokenId(DEFAULT_TOKEN_ID.to_string())),
       receiver_key: PublicKey(receiver.to_string()),
     };
     let query = QueryConstructionMetadata::build(query_variables);
     let response = self.graphql_client.send(query).await?;
 
-    // Extract inferred nonce
-    let inferred_nonce = response.sender.and_then(|acc| acc.inferred_nonce.map(|n| n.0));
+    // Extract inferred nonce from sender
+    let inferred_nonce = response
+      .sender
+      .ok_or(MinaMeshError::AccountNotFound(format!("Sender account not found: {}", sender)))?
+      .inferred_nonce
+      .map(|n| n.0)
+      .unwrap_or("0".to_string()); // Default to 0 if missing;
 
-    // Calculate suggested fee (convert `Fee` to u64)
-    let suggested_fee = response
-      .best_chain
-      .and_then(|blocks| {
-        let mut fees: Vec<u64> = blocks
-          .iter()
-          .flat_map(|block| block.transactions.user_commands.iter().map(|cmd| cmd.fee.to_u64()))
-          .flatten()
-          .collect();
-
-        if fees.is_empty() {
-          None
-        } else {
-          fees.sort_unstable();
-          Some(fees[fees.len() / 2]) // Median fee
-        }
-      })
-      .unwrap_or(MINIMUM_USER_COMMAND_FEE);
+    // Calculate suggested fee from best_chain
+    let best_chain = response.best_chain.ok_or(MinaMeshError::ChainInfoMissing)?;
+    let suggested_fee = self.suggested_fee(best_chain).unwrap_or(MINIMUM_USER_COMMAND_FEE);
 
     // Construct metadata
     let mut metadata_map = Map::new();
@@ -101,5 +90,37 @@ impl MinaMesh {
     };
 
     Ok(ConstructionMetadataResponse { metadata, suggested_fee: Some(vec![suggested_fee_entry]) })
+  }
+
+  fn get_field_from_options<'a>(&self, options: &'a Value, field: &'a str) -> Result<&'a str, MinaMeshError> {
+    options
+      .get(field)
+      .and_then(|v| v.as_str())
+      .ok_or_else(|| MinaMeshError::JsonParse(format!("Field `{}` missing", field).into()))
+  }
+
+  // Calculate suggested fee (median + IQR/2)
+  // https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/construction.ml#L275
+  fn suggested_fee(&self, blocks: Vec<Block3>) -> Option<u64> {
+    let mut fees: Vec<u64> = blocks
+      .iter()
+      .flat_map(|block| block.transactions.user_commands.iter().map(|cmd| cmd.fee.to_u64()))
+      .flatten()
+      .collect();
+
+    if fees.is_empty() {
+      None
+    } else {
+      fees.sort_unstable();
+
+      let len = fees.len();
+      let median = fees[len / 2];
+      let q3 = fees[(3 * len) / 4];
+      let q1 = fees[len / 4];
+      let iqr = q3.saturating_sub(q1); // Ensure no underflow
+      let suggested = median + (iqr / 2);
+
+      Some(suggested)
+    }
   }
 }
