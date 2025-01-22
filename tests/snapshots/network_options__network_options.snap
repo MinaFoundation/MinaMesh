@@ -219,7 +219,7 @@ Allow {
             ),
             retriable: false,
             details: Some(
-                String(""),
+                String("No 'options' provided"),
             ),
         },
         Error {

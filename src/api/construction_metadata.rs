@@ -21,8 +21,7 @@ impl MinaMesh {
     self.validate_network(&request.network_identifier).await?;
 
     // Extract sender, receiver, and token_id from options
-    let options =
-      request.options.as_ref().ok_or(MinaMeshError::JsonParse("Field `options` missing".to_string().into()))?;
+    let options = request.options.as_ref().ok_or(MinaMeshError::NoOptionsProvided)?;
 
     let sender = self.get_field_from_options(options, "sender")?;
     validate_base58_with_checksum(sender, None)
