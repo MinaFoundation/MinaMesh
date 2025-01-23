@@ -25,11 +25,11 @@ impl MinaMesh {
 
     let sender = self.get_field_from_options(options, "sender")?;
     validate_base58_with_checksum(sender, None)
-      .map_err(|e| MinaMeshError::JsonParse(Some(format!("Sender key not valid: {}", e.to_string()))))?;
+      .map_err(|e| MinaMeshError::JsonParse(Some(format!("Sender key not valid: {}", e))))?;
 
     let receiver = self.get_field_from_options(options, "receiver")?;
     validate_base58_with_checksum(receiver, None)
-      .map_err(|e| MinaMeshError::JsonParse(Some(format!("Receiver key not valid: {}", e.to_string()))))?;
+      .map_err(|e| MinaMeshError::JsonParse(Some(format!("Receiver key not valid: {}", e))))?;
 
     let token_id = self.get_field_from_options(options, "token_id")?;
 
