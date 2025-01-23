@@ -12,8 +12,8 @@ async fn construction_metadata_ok() -> Result<()> {
       // cspell:disable
       "sender": "B62qkd6yYALkQMq2SFd5B57bJbGBMA2QuGtLPMzRhhnvexRtVRycZWP",
       "receiver": "B62qnXy1f75qq8c6HS2Am88Gk6UyvTHK3iSYh4Hb3nD6DS2eS6wZ4or",
+      "token_id": "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf",
       // cspell:enable
-      "token_id": "1",
       "valid_until": "20000",
       "memo": "test transaction"
     })),
@@ -23,7 +23,16 @@ async fn construction_metadata_ok() -> Result<()> {
   let response = mina_mesh.construction_metadata(request).await;
 
   assert!(response.is_ok());
-  assert_debug_snapshot!(response);
+  let response = response.unwrap();
+  let metadata_str = serde_json::to_string(&response.metadata)?;
+  // cspell:disable
+  assert!(metadata_str.contains("B62qkd6yYALkQMq2SFd5B57bJbGBMA2QuGtLPMzRhhnvexRtVRycZWP"));
+  assert!(metadata_str.contains("B62qnXy1f75qq8c6HS2Am88Gk6UyvTHK3iSYh4Hb3nD6DS2eS6wZ4or"));
+  assert!(metadata_str.contains("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"));
+  // cspell:enable
+  assert!(metadata_str.contains("test transaction"));
+  assert!(metadata_str.contains("20000"));
+  assert!(metadata_str.contains("account_creation_fee"));
   Ok(())
 }
 

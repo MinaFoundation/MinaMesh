@@ -52,6 +52,9 @@ impl MinaMesh {
       .map(|n| n.0)
       .unwrap_or("0".to_string()); // Default to 0 if missing;
 
+    // Extract account creation fee
+    let account_creation_fee = response.genesis_constants.account_creation_fee;
+
     // Calculate suggested fee from best_chain
     let best_chain = response.best_chain.ok_or(MinaMeshError::ChainInfoMissing)?;
     let suggested_fee = self.suggested_fee(best_chain).unwrap_or(MINIMUM_USER_COMMAND_FEE);
@@ -69,6 +72,10 @@ impl MinaMesh {
 
     if let Some(memo) = options.get("memo").and_then(|v| v.as_str()) {
       metadata_map.insert("memo".to_string(), json!(memo));
+    }
+
+    if response.receiver.is_none() {
+      metadata_map.insert("account_creation_fee".to_string(), json!(account_creation_fee));
     }
 
     let metadata = json!(metadata_map);

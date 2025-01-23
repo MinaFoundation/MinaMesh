@@ -18,4 +18,8 @@ query QueryConstructionMetadata(
   sender: account(publicKey: $sender, token: $token_id) {
     inferredNonce
   }
+
+  genesisConstants {
+    accountCreationFee
+  }
 }
