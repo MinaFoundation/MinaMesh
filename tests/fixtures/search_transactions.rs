@@ -35,7 +35,7 @@ pub fn search_transactions<'a>() -> CompareGroup<'a> {
       network_identifier: Box::new(network_id()),
       transaction_identifier: Some(Box::new(TransactionIdentifier::new(
         // cspell:disable-next-line
-        "5JvFoEyvuPu9zmi4bDGbhqsakre2SPQU1KKbeh2Lk5uC9eYrc2h2".to_string(),
+        "5JuBzSkpBQWVmHoL8bCxPqddrzs8CbhkHG2n5BayCYG11idS8LCs".to_string(),
       ))),
       limit: Some(1),
       ..Default::default()
