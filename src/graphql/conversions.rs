@@ -2,7 +2,7 @@ use coinbase_mesh::models::{
   AccountIdentifier, Amount, Currency, Operation, OperationIdentifier, SyncStatus as MeshSyncStatus,
 };
 
-use super::{PublicKey, SyncStatus, UserCommand};
+use super::{AccountNonce, Fee, PublicKey, SyncStatus, UserCommand};
 
 impl From<SyncStatus> for MeshSyncStatus {
   fn from(value: SyncStatus) -> Self {
@@ -37,5 +37,23 @@ impl From<UserCommand> for Operation {
 impl From<String> for PublicKey {
   fn from(value: String) -> Self {
     Self(value)
+  }
+}
+
+impl From<String> for AccountNonce {
+  fn from(value: String) -> Self {
+    Self(value)
+  }
+}
+
+impl From<String> for Fee {
+  fn from(value: String) -> Self {
+    Self(value)
+  }
+}
+
+impl Fee {
+  pub fn to_u64(&self) -> Option<u64> {
+    self.0.parse().ok() // Convert String -> u64 safely
   }
 }

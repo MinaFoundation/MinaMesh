@@ -19,10 +19,22 @@ impl GraphQLClient {
     operation: cynic::Operation<ResponseData, Vars>,
   ) -> Result<ResponseData, MinaMeshError>
   where
-    Vars: serde::Serialize,
-    ResponseData: serde::de::DeserializeOwned + 'static,
+    Vars: serde::Serialize + derive_more::Debug,
+    ResponseData: serde::de::DeserializeOwned + 'static + derive_more::Debug,
   {
-    let response = self.client.post(self.mina_proxy_url.to_owned()).run_graphql(operation).await?;
+    tracing::debug!("GraphQL request to: {}, with variables: {:?}", self.mina_proxy_url, operation.variables);
+
+    let response = match self.client.post(self.mina_proxy_url.to_owned()).run_graphql(operation).await {
+      Ok(resp) => {
+        tracing::debug!("GraphQL Raw Response: {:?}", resp);
+        resp
+      }
+      Err(e) => {
+        tracing::error!("GraphQL Request Failed: {:?}", e);
+        return Err(MinaMeshError::GraphqlMinaQuery(e.to_string()));
+      }
+    };
+
     if let Some(errors) = response.errors {
       Err(MinaMeshError::GraphqlMinaQuery(errors.into_iter().map(|err| err.message).collect::<Vec<_>>().join("\n\n")))
     } else if let Some(data) = response.data {

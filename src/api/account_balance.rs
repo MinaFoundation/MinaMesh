@@ -6,7 +6,7 @@ use cynic::QueryBuilder;
 use crate::{
   create_currency,
   graphql::{
-    Account, AccountNonce, AnnotatedBalance, Balance, Length, QueryBalance, QueryBalanceVariables, StateHash, TokenId,
+    Account3, AccountNonce, AnnotatedBalance, Balance, Length, QueryBalance, QueryBalanceVariables, StateHash, TokenId,
   },
   util::Wrapper,
   MinaMesh, MinaMeshError,
@@ -111,7 +111,7 @@ impl MinaMesh {
       .await?;
     if let QueryBalance {
       account:
-        Some(Account {
+        Some(Account3 {
           balance:
             AnnotatedBalance {
               block_height: Length(index_raw),

@@ -1,0 +1,9 @@
+---
+source: tests/construction_metadata.rs
+expression: response
+---
+Err(
+    AccountNotFound(
+        "Sender account not found: B62qpLST3UC1rpVT6SHfB7wqW2iQgiopFAGfrcovPgLjgfpDUN2LLeg",
+    ),
+)

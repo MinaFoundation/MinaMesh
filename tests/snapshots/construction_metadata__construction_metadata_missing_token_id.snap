@@ -1,0 +1,11 @@
+---
+source: tests/construction_metadata.rs
+expression: response
+---
+Err(
+    JsonParse(
+        Some(
+            "Field `token_id` missing",
+        ),
+    ),
+)

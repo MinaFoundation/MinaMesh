@@ -1,0 +1,25 @@
+query QueryConstructionMetadata(
+  $sender: PublicKey!
+  $token_id: TokenId
+  $receiver_key: PublicKey!
+) {
+  bestChain(maxLength: 5) {
+    transactions {
+      userCommands {
+        fee
+      }
+    }
+  }
+
+  receiver: account(publicKey: $receiver_key, token: $token_id) {
+    nonce
+  }
+
+  sender: account(publicKey: $sender, token: $token_id) {
+    inferredNonce
+  }
+
+  genesisConstants {
+    accountCreationFee
+  }
+}
