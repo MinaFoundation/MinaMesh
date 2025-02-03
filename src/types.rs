@@ -1,7 +1,7 @@
 use coinbase_mesh::models::Operation;
 use derive_more::derive::Display;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{json, Value};
 use sqlx::{FromRow, Type};
 use strum::IntoEnumIterator;
 use strum_macros::{Display as StrumDisplay, EnumIter, EnumString};
@@ -639,5 +639,61 @@ impl PartialUserCommand {
     } else {
       operation.account.as_ref().map_or_else(String::new, |acc| acc.address.clone())
     }
+  }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TransactionMetadata {
+  pub sender: String,
+  pub receiver: String,
+  pub nonce: String,
+  pub token_id: String,
+  pub account_creation_fee: Option<String>,
+  pub valid_until: Option<String>,
+  pub memo: Option<String>,
+}
+
+impl TransactionMetadata {
+  pub fn new(
+    sender: impl Into<String>,
+    receiver: impl Into<String>,
+    nonce: impl Into<String>,
+    token_id: impl Into<String>,
+    account_creation_fee: Option<impl Into<String>>,
+    valid_until: Option<impl Into<String>>,
+    memo: Option<impl Into<String>>,
+  ) -> Self {
+    TransactionMetadata {
+      sender: sender.into(),
+      receiver: receiver.into(),
+      nonce: nonce.into(),
+      token_id: token_id.into(),
+      account_creation_fee: account_creation_fee.map(Into::into),
+      valid_until: valid_until.map(Into::into),
+      memo: memo.map(Into::into),
+    }
+  }
+
+  /// Convert metadata into JSON for Rosetta responses
+  pub fn to_json(&self) -> Value {
+    let mut map = serde_json::Map::new();
+    map.insert("sender".to_string(), json!(self.sender));
+    map.insert("nonce".to_string(), json!(self.nonce));
+    map.insert("token_id".to_string(), json!(self.token_id));
+    map.insert("receiver".to_string(), json!(self.receiver));
+
+    if let Some(valid_until) = &self.valid_until {
+      map.insert("valid_until".to_string(), json!(valid_until));
+    }
+
+    if let Some(memo) = &self.memo {
+      map.insert("memo".to_string(), json!(memo));
+    }
+
+    if let Some(account_creation_fee) = &self.account_creation_fee {
+      map.insert("account_creation_fee".to_string(), json!(account_creation_fee));
+    }
+
+    json!(map)
   }
 }
