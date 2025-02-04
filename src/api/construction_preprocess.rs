@@ -11,8 +11,9 @@ impl MinaMesh {
   ) -> Result<ConstructionPreprocessResponse, MinaMeshError> {
     self.validate_network(&request.network_identifier).await?;
 
-    let metadata = PreprocessMetadata::from_json(request.metadata)?;
-    let partial_command = PartialUserCommand::from_operations(&request.operations, metadata)?;
+    let metadata = PreprocessMetadata::from_json(request.metadata)?.unwrap_or_default();
+    let partial_command =
+      PartialUserCommand::from_operations(&request.operations, metadata.valid_until, metadata.memo)?;
 
     validate_base58_public_key(partial_command.fee_payer.as_str())?;
     validate_base58_public_key(partial_command.source.as_str())?;

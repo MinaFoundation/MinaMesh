@@ -430,12 +430,10 @@ pub struct PartialUserCommand {
 impl PartialUserCommand {
   pub fn from_operations(
     operations: &[Operation],
-    metadata: Option<PreprocessMetadata>,
+    valid_until: Option<String>,
+    memo: Option<String>,
   ) -> Result<Self, MinaMeshError> {
     let mut errors = Vec::new();
-    let metadata = metadata.unwrap_or_default();
-    let valid_until = metadata.valid_until;
-    let memo = metadata.memo;
 
     match operations.len() {
       3 => Self::parse_payment_operations(operations, valid_until, memo).map_err(|err| {
@@ -695,5 +693,43 @@ impl TransactionMetadata {
     }
 
     json!(map)
+  }
+}
+
+impl TryFrom<Value> for TransactionMetadata {
+  type Error = MinaMeshError;
+
+  fn try_from(value: Value) -> Result<Self, Self::Error> {
+    let sender = value
+      .get("sender")
+      .and_then(Value::as_str)
+      .ok_or_else(|| MinaMeshError::JsonParse(Some("Missing sender in metadata".to_string())))?
+      .to_string();
+
+    let receiver = value
+      .get("receiver")
+      .and_then(Value::as_str)
+      .ok_or_else(|| MinaMeshError::JsonParse(Some("Missing receiver in metadata".to_string())))?
+      .to_string();
+
+    let nonce = value
+      .get("nonce")
+      .and_then(Value::as_str)
+      .ok_or_else(|| MinaMeshError::JsonParse(Some("Missing nonce in metadata".to_string())))?
+      .to_string();
+
+    let token_id = value
+      .get("token_id")
+      .and_then(Value::as_str)
+      .ok_or_else(|| MinaMeshError::JsonParse(Some("Missing token_id in metadata".to_string())))?
+      .to_string();
+
+    let account_creation_fee = value.get("account_creation_fee").and_then(Value::as_str).map(|s| s.to_string());
+
+    let valid_until = value.get("valid_until").and_then(Value::as_str).map(|s| s.to_string());
+
+    let memo = value.get("memo").and_then(Value::as_str).map(|s| s.to_string());
+
+    Ok(TransactionMetadata { sender, receiver, nonce, token_id, account_creation_fee, valid_until, memo })
   }
 }
