@@ -26,6 +26,12 @@ impl MinaMesh {
     let _ = CompressedPubKey::from_address(&partial_user_command.source)
       .map_err(|e| MinaMeshError::MalformedPublicKey(format!("Invalid source public key: {}", e.to_string())))?;
 
+    let nonce_u32 = metadata
+      .nonce
+      .parse::<u32>()
+      .map_err(|_| MinaMeshError::JsonParse(Some(format!("Invalid nonce: {}", metadata.nonce))))?;
+    let user_command_payload = partial_user_command.to_user_command_payload(nonce_u32)?;
+
     Ok(ConstructionPayloadsResponse::new("".to_string(), vec![]))
   }
 }

@@ -1,12 +1,19 @@
 use coinbase_mesh::models::Operation;
 use derive_more::derive::Display;
+use mina_signer::CompressedPubKey;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use sqlx::{FromRow, Type};
 use strum::IntoEnumIterator;
 use strum_macros::{Display as StrumDisplay, EnumIter, EnumString};
 
-use crate::{util::DEFAULT_TOKEN_ID, MinaMeshError, OperationType::*, PartialReason};
+use crate::{
+  memo::Memo,
+  util::DEFAULT_TOKEN_ID,
+  MinaMeshError,
+  OperationType::*,
+  PartialReason::{self, *},
+};
 
 #[derive(Type, Debug, PartialEq, Eq, Serialize)]
 #[sqlx(type_name = "chain_status_type", rename_all = "lowercase")]
@@ -387,6 +394,7 @@ pub enum CacheKey {
   NetworkId,
 }
 
+// Construction types
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct PreprocessMetadata {
   pub valid_until: Option<String>,
@@ -413,6 +421,22 @@ impl PreprocessMetadata {
   }
 }
 
+#[derive(Debug, Clone)]
+pub struct UserCommandPayload {
+  pub fee: u64,
+  pub fee_payer: CompressedPubKey,
+  pub nonce: u32,
+  pub valid_until: Option<u32>,
+  pub memo: Memo,
+  pub body: UserCommandBody,
+}
+
+#[derive(Debug, Clone)]
+pub enum UserCommandBody {
+  Payment { receiver: CompressedPubKey, amount: i64 },
+  Delegation { new_delegate: CompressedPubKey },
+}
+
 #[derive(Debug)]
 pub struct PartialUserCommand {
   pub kind: UserCommandType,
@@ -428,6 +452,35 @@ pub struct PartialUserCommand {
 }
 
 impl PartialUserCommand {
+  pub fn to_user_command_payload(&self, nonce: u32) -> Result<UserCommandPayload, MinaMeshError> {
+    let fee_payer_pk = Self::address_to_compressed_pub_key("fee_payer", &self.fee_payer)?;
+    let source_pk = Self::address_to_compressed_pub_key("source", &self.source)?;
+    let receiver_pk = Self::address_to_compressed_pub_key("receiver", &self.receiver)?;
+
+    if fee_payer_pk != source_pk {
+      return Err(MinaMeshError::OperationsNotValid(vec![FeePayerAndSourceMismatch]));
+    }
+
+    let memo = self.memo.as_deref().map_or(Ok(Memo::empty()), Memo::from_string)?;
+
+    let body = match self.kind {
+      UserCommandType::Payment => {
+        let amount = self.amount.ok_or(MinaMeshError::OperationsNotValid(vec![AccountNotSome]))?;
+        UserCommandBody::Payment { receiver: receiver_pk, amount }
+      }
+      UserCommandType::Delegation => UserCommandBody::Delegation { new_delegate: receiver_pk },
+    };
+
+    Ok(UserCommandPayload {
+      fee: self.fee.unsigned_abs() as u64,
+      fee_payer: fee_payer_pk,
+      nonce,
+      valid_until: self.valid_until.as_deref().map(|v| v.parse::<u32>().ok()).flatten(),
+      memo,
+      body,
+    })
+  }
+
   pub fn from_operations(
     operations: &[Operation],
     valid_until: Option<String>,
@@ -456,6 +509,10 @@ impl PartialUserCommand {
         Err(MinaMeshError::OperationsNotValid(errors))
       }
     }
+  }
+
+  fn address_to_compressed_pub_key(context: &str, address: &str) -> Result<CompressedPubKey, MinaMeshError> {
+    CompressedPubKey::from_address(address).map_err(|_| MinaMeshError::MalformedPublicKey(context.to_string()))
   }
 
   fn parse_payment_operations(
