@@ -1,5 +1,4 @@
 mod api;
-pub mod base58;
 mod commands;
 mod config;
 mod create_router;
@@ -7,6 +6,7 @@ mod error;
 mod graphql;
 pub mod memo;
 mod playground;
+pub mod signer_utils;
 pub mod test;
 mod transaction_operations;
 mod types;

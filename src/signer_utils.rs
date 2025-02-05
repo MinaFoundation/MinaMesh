@@ -1,3 +1,5 @@
+use mina_signer::{BaseField, CompressedPubKey};
+use o1_utils::FieldHelpers;
 use sha2::Digest;
 
 use crate::MinaMeshError;
@@ -46,4 +48,38 @@ pub fn validate_base58_with_checksum(input: &str, expected_version: Option<u8>) 
   }
 
   Ok(())
+}
+
+/// Converts a hex string into a compressed public key
+/// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/lib/rosetta_coding/coding.ml#L128
+pub fn hex_to_compressed_pub_key(hex: &str) -> Result<CompressedPubKey, MinaMeshError> {
+  if hex.len() != 64 {
+    return Err(MinaMeshError::MalformedPublicKey("Invalid length for hex".to_string()));
+  }
+
+  // Decode the hex string
+  let mut bytes =
+    hex::decode(hex).map_err(|_| MinaMeshError::MalformedPublicKey("Invalid hex encoding".to_string()))?;
+  // Reverse the bytes
+  bytes.reverse();
+
+  // Convert bytes to bits
+  let mut bits: Vec<bool> = bytes.iter().flat_map(|byte| (0 .. 8).rev().map(move |i| (byte >> i) & 1 == 1)).collect();
+
+  // Extract the `is_odd` bit
+  let is_odd = bits.remove(0);
+
+  // Reverse the remaining bits
+  bits.reverse();
+
+  // Create the x-coordinate as a BaseField element
+  let x =
+    BaseField::from_bits(&bits).map_err(|_| MinaMeshError::MalformedPublicKey("Invalid x-coordinate".to_string()))?;
+
+  // Construct the compressed public key
+  Ok(CompressedPubKey { x, is_odd })
+}
+
+pub fn address_to_compressed_pub_key(context: &str, address: &str) -> Result<CompressedPubKey, MinaMeshError> {
+  CompressedPubKey::from_address(address).map_err(|_| MinaMeshError::MalformedPublicKey(context.to_string()))
 }

@@ -9,6 +9,7 @@ use strum_macros::{Display as StrumDisplay, EnumIter, EnumString};
 
 use crate::{
   memo::Memo,
+  signer_utils::address_to_compressed_pub_key,
   util::DEFAULT_TOKEN_ID,
   MinaMeshError,
   OperationType::*,
@@ -453,9 +454,9 @@ pub struct PartialUserCommand {
 
 impl PartialUserCommand {
   pub fn to_user_command_payload(&self, nonce: u32) -> Result<UserCommandPayload, MinaMeshError> {
-    let fee_payer_pk = Self::address_to_compressed_pub_key("fee_payer", &self.fee_payer)?;
-    let source_pk = Self::address_to_compressed_pub_key("source", &self.source)?;
-    let receiver_pk = Self::address_to_compressed_pub_key("receiver", &self.receiver)?;
+    let fee_payer_pk = address_to_compressed_pub_key("fee_payer", &self.fee_payer)?;
+    let source_pk = address_to_compressed_pub_key("source", &self.source)?;
+    let receiver_pk = address_to_compressed_pub_key("receiver", &self.receiver)?;
 
     if fee_payer_pk != source_pk {
       return Err(MinaMeshError::OperationsNotValid(vec![FeePayerAndSourceMismatch]));
@@ -509,10 +510,6 @@ impl PartialUserCommand {
         Err(MinaMeshError::OperationsNotValid(errors))
       }
     }
-  }
-
-  fn address_to_compressed_pub_key(context: &str, address: &str) -> Result<CompressedPubKey, MinaMeshError> {
-    CompressedPubKey::from_address(address).map_err(|_| MinaMeshError::MalformedPublicKey(context.to_string()))
   }
 
   fn parse_payment_operations(

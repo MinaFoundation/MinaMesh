@@ -2,7 +2,9 @@ use anyhow::Result;
 use coinbase_mesh::models::{ConstructionPreprocessRequest, ConstructionPreprocessResponse};
 use serde_json::{json, Map, Value};
 
-use crate::{base58::validate_base58_with_checksum, MinaMesh, MinaMeshError, PartialUserCommand, PreprocessMetadata};
+use crate::{
+  signer_utils::validate_base58_with_checksum, MinaMesh, MinaMeshError, PartialUserCommand, PreprocessMetadata,
+};
 
 impl MinaMesh {
   pub async fn construction_preprocess(

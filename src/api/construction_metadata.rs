@@ -4,9 +4,9 @@ use cynic::QueryBuilder;
 use serde_json::{json, Value};
 
 use crate::{
-  base58::validate_base58_with_checksum,
   create_currency,
   graphql::{Block3, PublicKey, QueryConstructionMetadata, QueryConstructionMetadataVariables, TokenId},
+  signer_utils::validate_base58_with_checksum,
   util::{DEFAULT_TOKEN_ID, MINIMUM_USER_COMMAND_FEE},
   MinaMesh, MinaMeshError, TransactionMetadata,
 };
