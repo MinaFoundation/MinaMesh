@@ -5,6 +5,7 @@ mod config;
 mod create_router;
 mod error;
 mod graphql;
+pub mod memo;
 mod playground;
 pub mod test;
 mod transaction_operations;
