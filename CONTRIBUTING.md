@@ -14,7 +14,7 @@ To develop on your machine, install the following (and please submit issues if e
 - [Rust](https://www.rust-lang.org/tools/install)
 - [Docker](https://docs.docker.com/get-docker/)
 - [dprint](https://dprint.dev/)
-- [Deno](https://github.com/denoland/deno?tab=readme-ov-file#installation)
+- [Just](https://github.com/casey/just?tab=readme-ov-file#installation)
 - [sql-formatter](https://github.com/sql-formatter-org/sql-formatter)
 - [insta](https://insta.rs/)
 
@@ -85,10 +85,10 @@ changes by contributors where you believe you have something valuable to add or 
 ### Ensure Test DB Accessible
 
 If you've already initialized the archive database, ensure it's running (potentially with a
-`deno pg:up`). Otherwise, initialize the development archive database.
+`just pg-up`). Otherwise, initialize the development archive database.
 
 ```sh
-deno task dev:init
+just dev-init
 ```
 
 > You only need to reinitialize the database if you want the latest data dump.
