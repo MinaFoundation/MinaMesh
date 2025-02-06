@@ -57,3 +57,4 @@ webroot
 xlarge
 zkapp
 zkapps
+psql
