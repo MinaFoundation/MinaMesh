@@ -4,7 +4,6 @@ darklight
 dashmap
 datetime
 deamon
-deno
 devnet
 dotenv
 dprint
