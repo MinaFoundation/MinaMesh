@@ -1,17 +1,18 @@
 use crate::MinaMeshError;
 
-const MEMO_LENGTH: usize = 32;
+const MEMO_LENGTH: usize = 34;
 const TAG_INDEX: usize = 0;
 const LENGTH_INDEX: usize = 1;
 const BYTES_TAG: u8 = 0x01;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Memo([u8; MEMO_LENGTH]);
+pub struct Memo(pub [u8; MEMO_LENGTH]);
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/lib/rosetta_lib/user_command_info.ml#L152
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/lib/mina_base/signed_command_memo.ml#L126
 impl Memo {
-  /// Creates a memo from a string, enforcing a 32-byte length.
+  /// Creates a memo from a string, enforcing a 34-byte length memo (but 32-byte
+  /// input length).
   pub fn from_string(s: &str) -> Result<Self, MinaMeshError> {
     let input_bytes = s.as_bytes();
     let input_len = input_bytes.len();
