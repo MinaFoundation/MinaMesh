@@ -1,5 +1,6 @@
 use coinbase_mesh::models::Operation;
 use derive_more::derive::Display;
+use mina_hasher::ROInput;
 use mina_signer::CompressedPubKey;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -24,7 +25,7 @@ pub enum ChainStatus {
   Orphaned,
 }
 
-#[derive(Type, Debug, PartialEq, Eq, Serialize)]
+#[derive(Type, Debug, PartialEq, Eq, Serialize, Deserialize, Copy, Clone)]
 #[sqlx(type_name = "command_type", rename_all = "lowercase")]
 pub enum UserCommandType {
   Payment,
@@ -434,11 +435,123 @@ pub struct UserCommandPayload {
 
 #[derive(Debug, Clone)]
 pub enum UserCommandBody {
-  Payment { receiver: CompressedPubKey, amount: i64 },
+  Payment { receiver: CompressedPubKey, amount: u64 },
   Delegation { new_delegate: CompressedPubKey },
 }
 
-#[derive(Debug)]
+impl UserCommandBody {
+  pub fn is_payment(&self) -> bool {
+    matches!(self, UserCommandBody::Payment { .. })
+  }
+
+  pub fn is_delegation(&self) -> bool {
+    matches!(self, UserCommandBody::Delegation { .. })
+  }
+
+  pub fn receiver_is_odd(&self) -> bool {
+    match self {
+      UserCommandBody::Payment { receiver, .. } => receiver.is_odd,
+      UserCommandBody::Delegation { new_delegate } => new_delegate.is_odd,
+    }
+  }
+
+  pub fn receiver(&self) -> &CompressedPubKey {
+    match self {
+      UserCommandBody::Payment { receiver, .. } => receiver,
+      UserCommandBody::Delegation { new_delegate } => new_delegate,
+    }
+  }
+
+  pub fn amount(&self) -> u64 {
+    match self {
+      UserCommandBody::Payment { amount, .. } => *amount,
+      _ => 0,
+    }
+  }
+}
+
+// NOTE: was trying additional conversion to PayloadCommon and
+// TransactionUnionPayload as in Ocaml but I think they are not necessary as we
+// can directly convert UserCommandPayload to random oracle input
+// commented out for now
+// struct PayloadCommon {
+//   fee: u64,
+//   fee_payer_pk: CompressedPubKey,
+//   fee_token: u64,
+//   nonce: u32,
+//   valid_until: u32,
+//   memo: Memo,
+// }
+
+// impl From<&UserCommandPayload> for PayloadCommon {
+//   fn from(cmd: &UserCommandPayload) -> Self {
+//     PayloadCommon {
+//       fee: cmd.fee,
+//       fee_payer_pk: cmd.fee_payer.clone(),
+//       fee_token: 1, // Token_id.default in OCaml
+//       nonce: cmd.nonce,
+//       valid_until: cmd.valid_until.unwrap_or(0),
+//       memo: cmd.memo.clone(),
+//     }
+//   }
+// }
+
+// struct TransactionUnionPayload {
+//   tag: u32,
+//   source_pk: CompressedPubKey,
+//   receiver_pk: CompressedPubKey,
+//   token_id: u64,
+//   amount: u64,
+// }
+
+// impl From<&UserCommandPayload> for TransactionUnionPayload {
+//   fn from(cmd: &UserCommandPayload) -> Self {
+//     let (tag, receiver_pk, amount) = match &cmd.body {
+//       UserCommandBody::Payment { receiver, amount } => (0, receiver.clone(),
+// *amount as u64),       UserCommandBody::Delegation { new_delegate } => (1,
+// new_delegate.clone(), 0),     };
+
+//     TransactionUnionPayload { tag, source_pk: cmd.fee_payer.clone(),
+// receiver_pk, token_id: 1, amount }   }
+// }
+
+impl UserCommandPayload {
+  pub fn to_random_oracle_input(&self) -> String {
+    // 1. Append three field elements.
+    let roi = ROInput::new()
+    .append_bytes(&self.fee_payer.to_bytes()) // Fee payer
+    .append_bytes(&self.fee_payer.to_bytes()) // Source
+    .append_bytes(&self.body.receiver().to_bytes()) // Receiver
+
+    // 2. Append numeric and boolean fields.
+    .append_u64(self.fee) // Fee
+    .append_u64(1) // fee token
+    .append_bool(self.fee_payer.is_odd) // fee payer pk odd
+    .append_u32(self.nonce) // Nonce
+    .append_u32(self.valid_until.unwrap_or(u32::MAX)) // valid_until
+    .append_bytes(&self.memo.0) // Memo
+    .append_bool(self.body.is_payment()) // Is payment
+    .append_bool(self.body.is_delegation()) // Is delegation
+    .append_bool(false) // reserved(?)
+    .append_bool(self.fee_payer.is_odd) // sender pk odd
+    .append_bool(self.body.receiver_is_odd()) // receiver pk odd
+    .append_u64(1) // token_id
+    .append_u64(self.body.amount()) // Amount
+    .append_bool(false); // token_locked
+
+    // Finally, convert the assembled ROInput to bytes and then hex encode.
+    hex::encode(roi.to_bytes()).to_uppercase()
+  }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct TransactionUnsigned {
+  pub random_oracle_input: String,
+  pub command: PartialUserCommand,
+  pub nonce: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PartialUserCommand {
   pub kind: UserCommandType,
   pub fee_payer: String,
@@ -466,7 +579,7 @@ impl PartialUserCommand {
 
     let body = match self.kind {
       UserCommandType::Payment => {
-        let amount = self.amount.ok_or(MinaMeshError::OperationsNotValid(vec![AccountNotSome]))?;
+        let amount = self.amount.ok_or(MinaMeshError::OperationsNotValid(vec![AccountNotSome]))? as u64;
         UserCommandBody::Payment { receiver: receiver_pk, amount }
       }
       UserCommandType::Delegation => UserCommandBody::Delegation { new_delegate: receiver_pk },
