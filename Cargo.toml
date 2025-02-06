@@ -29,6 +29,7 @@ hex = "0.4.3"
 http = "1.1.0"
 http-body-util = "0.1.2"
 mime = "0.3.17"
+mina-hasher = { git = "https://github.com/o1-labs/proof-systems", rev = "872c8f2" }
 mina-signer = { git = "https://github.com/o1-labs/proof-systems", rev = "872c8f2" }
 o1-utils = { git = "https://github.com/o1-labs/proof-systems", rev = "872c8f2" }
 paste = "1.0.15"

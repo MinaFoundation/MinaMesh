@@ -1795,6 +1795,7 @@ dependencies = [
  "indoc",
  "insta",
  "mime",
+ "mina-hasher",
  "mina-signer",
  "o1-utils",
  "paste",
