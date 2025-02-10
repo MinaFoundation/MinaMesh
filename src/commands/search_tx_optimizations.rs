@@ -1,6 +1,8 @@
 use anyhow::{bail, Result};
 use clap::Args;
-use sqlx::{PgPool, Row};
+use sqlx::{migrate::Migrator, PgPool};
+
+static MIGRATOR: Migrator = sqlx::migrate!("sql/migrations");
 
 #[derive(Debug, Args)]
 #[command(about = "Command to apply or drop search transaction optimizations in the archive database.")]
@@ -52,12 +54,9 @@ impl SearchTxOptimizationsCommand {
   }
 
   async fn apply_optimizations(&self, pool: &PgPool) -> Result<()> {
-    println!("Applying search transaction optimizations on Archive Database (this may take few minutes)...");
+    println!("Applying search transaction optimizations on Archive Database (this may take a few minutes)...");
 
-    // Load and execute the SQL from the file
-    let sql =
-      include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/sql/migrations/1_apply_search_tx_optimizations.up.sql"));
-    self.execute_sql_file(pool, sql, "-- NEXT --").await?;
+    MIGRATOR.run(pool).await?;
 
     println!("Optimizations applied successfully.");
     Ok(())
@@ -66,30 +65,21 @@ impl SearchTxOptimizationsCommand {
   async fn drop_optimizations(&self, pool: &PgPool) -> Result<()> {
     println!("Dropping search transaction optimizations from Archive Database...");
 
-    // Load and execute the SQL from the file
-    let sql =
-      include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/sql/migrations/1_apply_search_tx_optimizations.down.sql"));
-    self.execute_sql_file(pool, sql, ";").await?;
+    MIGRATOR.undo(pool, 0).await?;
 
     println!("Optimizations dropped successfully.");
     Ok(())
   }
 
   async fn check_if_optimizations_applied(&self, pool: &PgPool) -> Result<bool> {
-    // select if table exists
-    let result = sqlx::query(
-      "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'user_commands_aggregated')",
-    )
-    .fetch_one(pool)
-    .await?;
-    Ok(result.get(0))
-  }
+    // select the latest migration version in the DB
+    let result: Option<i64> = sqlx::query_scalar("SELECT MAX(version) FROM _sqlx_migrations").fetch_one(pool).await?;
+    let db_latest_version = result.unwrap_or(0);
 
-  async fn execute_sql_file(&self, pool: &PgPool, file_content: &str, split_by: &str) -> Result<()> {
-    let statements: Vec<&str> = file_content.split(split_by).filter(|stmt| !stmt.trim().is_empty()).collect();
-    for stmt in statements {
-      sqlx::query(stmt).execute(pool).await?;
-    }
-    Ok(())
+    // get the latest migration from MIGRATOR
+    let latest_version = MIGRATOR.iter().fold(0, |acc, m| acc.max(m.version));
+
+    // check if the latest migration version is the same as the latest version in the MIGRATOR
+    return Ok(latest_version == db_latest_version);
   }
 }
