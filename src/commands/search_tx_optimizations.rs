@@ -79,7 +79,8 @@ impl SearchTxOptimizationsCommand {
     // get the latest migration from MIGRATOR
     let latest_version = MIGRATOR.iter().fold(0, |acc, m| acc.max(m.version));
 
-    // check if the latest migration version is the same as the latest version in the MIGRATOR
+    // check if the latest migration version is the same as the latest version in
+    // the MIGRATOR
     return Ok(latest_version == db_latest_version);
   }
 }
