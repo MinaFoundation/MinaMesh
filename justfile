@@ -9,7 +9,7 @@ dl network:
 
 # Initialize PostgreSQL database
 pg-init:
-    docker run -d --name {{DB_CONTAINER_NAME}} -p 5432:5432 -v $(pwd)/sql_scripts:/docker-entrypoint-initdb.d -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_USER=$POSTGRES_USER postgres postgres -c log_statement=all -c log_min_duration_statement=0
+    docker run -d --name {{DB_CONTAINER_NAME}} -p $POSTGRES_PORT:5432 -v $(pwd)/sql_scripts:/docker-entrypoint-initdb.d -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_USER=$POSTGRES_USER postgres postgres -c log_statement=all -c log_min_duration_statement=0
 
 # Wait for PostgreSQL to be ready
 pg-wait:
