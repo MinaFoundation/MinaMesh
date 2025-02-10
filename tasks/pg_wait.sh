@@ -8,8 +8,6 @@ if [ -z "$DATABASE_URL" ]; then
   exit 1
 fi
 
-echo "DATABASE_URL: $DATABASE_URL"
-
 MAX_RETRIES=200
 RETRY_INTERVAL_MS=10
 
