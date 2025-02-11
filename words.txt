@@ -58,3 +58,4 @@ xlarge
 zkapp
 zkapps
 psql
+regclass
