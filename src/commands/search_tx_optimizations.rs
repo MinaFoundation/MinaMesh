@@ -72,6 +72,15 @@ impl SearchTxOptimizationsCommand {
   }
 
   async fn check_if_optimizations_applied(&self, pool: &PgPool) -> Result<bool> {
+    // Check if the migrations table exists
+    let table_exists: Option<String> =
+      sqlx::query_scalar("SELECT to_regclass('_sqlx_migrations')::text").fetch_one(pool).await?;
+
+    if table_exists.is_none() {
+      // The table doesn't exist so the optimizations have not been applied
+      return Ok(false);
+    }
+
     // select the latest migration version in the DB
     let result: Option<i64> = sqlx::query_scalar("SELECT MAX(version) FROM _sqlx_migrations").fetch_one(pool).await?;
     let db_latest_version = result.unwrap_or(0);
