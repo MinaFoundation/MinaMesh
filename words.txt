@@ -58,3 +58,4 @@ webroot
 xlarge
 zkapp
 zkapps
+regclass
