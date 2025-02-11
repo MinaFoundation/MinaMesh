@@ -5,15 +5,33 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: dsherret/rust-toolchain-file@v1
-      - run: cargo install cargo-edit
-      - run: |
+
+      # Cache cargo-edit to avoid reinstalling
+      - name: Cache Cargo Binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: cargo-bin-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            cargo-bin-${{ runner.os }}-
+
+      # Install cargo-edit if not cached
+      - name: Install cargo-edit
+        run: |
+          if ! command -v cargo-set-version &> /dev/null; then
+            cargo install cargo-edit
+          fi
+
+      - name: Set Version of the crate
+        run: |
           VERSION=${GITHUB_REF_NAME#?}
           cargo set-version $VERSION
-      - uses: katyo/publish-crates@v2
+
+      - name: Publish to crates.io
+        uses: katyo/publish-crates@v2
         with:
           registry-token: ${{ secrets.CRATES_IO_TOKEN }}
           args: --allow-dirty --no-verify
