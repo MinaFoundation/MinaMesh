@@ -498,12 +498,60 @@ impl From<&Tag> for u8 {
   }
 }
 
-// impl From<&UserCommandPayload> for TransactionUnionPayload {
-//   fn from(cmd: &UserCommandPayload) -> Self {
-//     let (tag, receiver_pk, amount) = match &cmd.body {
-//       UserCommandBody::Payment { receiver, amount } => (0, receiver.clone(),
-// *amount as u64),       UserCommandBody::Delegation { new_delegate } => (1,
-// new_delegate.clone(), 0),     };
+#[derive(PartialEq)]
+struct TagUnpacked {
+  is_payment: bool,
+  is_stake_delegation: bool,
+  is_fee_transfer: bool,
+  is_coinbase: bool,
+  is_user_command: bool,
+}
+
+impl TagUnpacked {
+  const PAYMENT : TagUnpacked = TagUnpacked {
+    is_payment: true,
+    is_user_command: true,
+    is_stake_delegation: false,
+    is_fee_transfer: false,
+    is_coinbase: false,
+  };
+
+  const STAKE_DELEGATION : TagUnpacked = TagUnpacked {
+    is_stake_delegation: true,
+    is_user_command: true,
+    is_payment: false,
+    is_fee_transfer: false,
+    is_coinbase: false,
+  };
+
+  const FEE_TRANSFER : TagUnpacked = TagUnpacked {
+    is_fee_transfer: true,
+    is_user_command: false,
+    is_payment: false,
+    is_stake_delegation: false,
+    is_coinbase: false,
+  };
+
+  const COINBASE : TagUnpacked = TagUnpacked {
+    is_coinbase: true,
+    is_user_command: false,
+    is_payment: false,
+    is_stake_delegation: false,
+    is_fee_transfer: false,
+  };
+}
+
+impl From<Tag> for TagUnpacked {
+  fn from(tag:Tag) -> TagUnpacked {
+    match tag {
+      Tag::Payment => TagUnpacked::PAYMENT,
+      Tag::StakeDelegation => TagUnpacked::STAKE_DELEGATION,
+      Tag::FeeTransfer => TagUnpacked::FEE_TRANSFER,
+      Tag::Coinbase => TagUnpacked::COINBASE,
+    }
+  }
+}
+
 
 //     TransactionUnionPayload { tag, source_pk: cmd.fee_payer.clone(),
 // receiver_pk, token_id: 1, amount }   }
