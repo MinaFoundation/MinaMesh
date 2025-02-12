@@ -60,7 +60,7 @@ impl MinaMesh {
     let suggested_fee = self.suggested_fee(best_chain).unwrap_or(MINIMUM_USER_COMMAND_FEE);
 
     // Construct metadata
-    let account_creation_fee = response.receiver.is_none().then(|| account_creation_fee_value.0);
+    let account_creation_fee = response.receiver.is_none().then_some(account_creation_fee_value.0);
     let valid_until = options.get("valid_until").and_then(|v| v.as_str());
     let memo = options.get("memo").and_then(|v| v.as_str());
     let metadata =

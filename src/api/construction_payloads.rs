@@ -27,7 +27,7 @@ impl MinaMesh {
 
     // Ensure the source public key is valid and decompressible
     let _ = CompressedPubKey::from_address(&partial_user_command.source)
-      .map_err(|e| MinaMeshError::MalformedPublicKey(format!("Invalid source public key: {}", e.to_string())))?;
+      .map_err(|e| MinaMeshError::MalformedPublicKey(format!("Invalid source public key: {}", e)))?;
 
     let nonce_u32 = metadata
       .nonce

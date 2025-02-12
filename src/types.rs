@@ -572,7 +572,7 @@ pub struct TransactionUnionPayload {
 impl From<&UserCommandPayload> for TransactionUnionPayload {
   fn from(cmd: &UserCommandPayload) -> Self {
     let (tag, receiver_pk, amount) = match &cmd.body {
-      UserCommandBody::Payment { receiver, amount } => (Tag::Payment, receiver.clone(), *amount as u64),
+      UserCommandBody::Payment { receiver, amount } => (Tag::Payment, receiver.clone(), *amount),
       UserCommandBody::Delegation { new_delegate } => (Tag::StakeDelegation, new_delegate.clone(), 0),
     };
 
@@ -675,10 +675,10 @@ impl PartialUserCommand {
     };
 
     Ok(UserCommandPayload {
-      fee: self.fee.unsigned_abs() as u64,
+      fee: self.fee.unsigned_abs(),
       fee_payer: fee_payer_pk,
       nonce,
-      valid_until: self.valid_until.as_deref().map(|v| v.parse::<u32>().ok()).flatten(),
+      valid_until: self.valid_until.as_deref().and_then(|v| v.parse::<u32>().ok()),
       memo,
       body,
     })
