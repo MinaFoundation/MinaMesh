@@ -40,8 +40,11 @@ impl MinaMesh {
     tracing::debug!("Random oracle input: {:?}", random_oracle_input);
 
     // Construct the unsigned transaction
-    let unsigned_transaction =
-      TransactionUnsigned { random_oracle_input, command: partial_user_command.clone(), nonce: nonce_u32 };
+    let unsigned_transaction = TransactionUnsigned {
+      random_oracle_input: hex::encode(random_oracle_input.serialize_mesh_1()).to_uppercase(),
+      command: partial_user_command.clone(),
+      nonce: nonce_u32,
+    };
 
     // Serialize to JSON
     let unsigned_transaction_json = serde_json::to_string(&unsigned_transaction).map_err(|e| {
