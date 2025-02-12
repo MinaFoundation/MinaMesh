@@ -488,7 +488,7 @@ pub enum Tag {
 impl Tag {
   pub fn to_bits(&self) -> [bool; 3] {
     let i: u8 = self.into();
-    fn test_mask(i:u8, mask:u8) -> bool {
+    fn test_mask(i: u8, mask: u8) -> bool {
       i & mask == mask
     }
     [test_mask(i, 0b100), test_mask(i, 0b10), test_mask(i, 0b1)]
@@ -516,7 +516,7 @@ struct TagUnpacked {
 }
 
 impl TagUnpacked {
-  const PAYMENT : TagUnpacked = TagUnpacked {
+  const PAYMENT: TagUnpacked = TagUnpacked {
     is_payment: true,
     is_user_command: true,
     is_stake_delegation: false,
@@ -524,7 +524,7 @@ impl TagUnpacked {
     is_coinbase: false,
   };
 
-  const STAKE_DELEGATION : TagUnpacked = TagUnpacked {
+  const STAKE_DELEGATION: TagUnpacked = TagUnpacked {
     is_stake_delegation: true,
     is_user_command: true,
     is_payment: false,
@@ -532,7 +532,7 @@ impl TagUnpacked {
     is_coinbase: false,
   };
 
-  const FEE_TRANSFER : TagUnpacked = TagUnpacked {
+  const FEE_TRANSFER: TagUnpacked = TagUnpacked {
     is_fee_transfer: true,
     is_user_command: false,
     is_payment: false,
@@ -540,7 +540,7 @@ impl TagUnpacked {
     is_coinbase: false,
   };
 
-  const COINBASE : TagUnpacked = TagUnpacked {
+  const COINBASE: TagUnpacked = TagUnpacked {
     is_coinbase: true,
     is_user_command: false,
     is_payment: false,
@@ -550,7 +550,7 @@ impl TagUnpacked {
 }
 
 impl From<Tag> for TagUnpacked {
-  fn from(tag:Tag) -> TagUnpacked {
+  fn from(tag: Tag) -> TagUnpacked {
     match tag {
       Tag::Payment => TagUnpacked::PAYMENT,
       Tag::StakeDelegation => TagUnpacked::STAKE_DELEGATION,
@@ -629,8 +629,8 @@ async fn test_transaction_union_payload() {
     },
   };
 
-  let roi :ROInput= cmd.to_random_oracle_input();
-  let roi_hex :String= hex::encode(roi.serialize_mesh_1()).to_uppercase();
+  let roi: ROInput = cmd.to_random_oracle_input();
+  let roi_hex: String = hex::encode(roi.serialize_mesh_1()).to_uppercase();
   assert_eq!(roi_hex, "0000000327EA74CB13D3F1864C2E60C967577C055FD458D5AF93A59371905B8490B6567827EA74CB13D3F1864C2E60C967577C055FD458D5AF93A59371905B8490B656785E6737A0AC0A147918437FC8C21EA57CECFB613E711CA2E4FD328401657C291C000002570561800000000000800000000000000001F000007FFFFFFFC0500B531B1B7B000000000000000000000000000000000000000000000000000000060000000000000000013E815200000000");
 }
 
