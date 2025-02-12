@@ -470,39 +470,33 @@ impl UserCommandBody {
   }
 }
 
-// NOTE: was trying additional conversion to PayloadCommon and
-// TransactionUnionPayload as in Ocaml but I think they are not necessary as we
-// can directly convert UserCommandPayload to random oracle input
-// commented out for now
-// struct PayloadCommon {
-//   fee: u64,
-//   fee_payer_pk: CompressedPubKey,
-//   fee_token: u64,
-//   nonce: u32,
-//   valid_until: u32,
-//   memo: Memo,
-// }
+pub enum Tag {
+  Payment,
+  StakeDelegation,
+  FeeTransfer,
+  Coinbase,
+}
 
-// impl From<&UserCommandPayload> for PayloadCommon {
-//   fn from(cmd: &UserCommandPayload) -> Self {
-//     PayloadCommon {
-//       fee: cmd.fee,
-//       fee_payer_pk: cmd.fee_payer.clone(),
-//       fee_token: 1, // Token_id.default in OCaml
-//       nonce: cmd.nonce,
-//       valid_until: cmd.valid_until.unwrap_or(0),
-//       memo: cmd.memo.clone(),
-//     }
-//   }
-// }
+impl Tag {
+  pub fn to_bits(&self) -> [bool; 3] {
+    let i: u8 = self.into();
+    fn test_mask(i:u8, mask:u8) -> bool {
+      i & mask == mask
+    }
+    [test_mask(i, 0b100), test_mask(i, 0b10), test_mask(i, 0b1)]
+  }
+}
 
-// struct TransactionUnionPayload {
-//   tag: u32,
-//   source_pk: CompressedPubKey,
-//   receiver_pk: CompressedPubKey,
-//   token_id: u64,
-//   amount: u64,
-// }
+impl From<&Tag> for u8 {
+  fn from(tag: &Tag) -> u8 {
+    match tag {
+      Tag::Payment => 0,
+      Tag::StakeDelegation => 1,
+      Tag::FeeTransfer => 2,
+      Tag::Coinbase => 3,
+    }
+  }
+}
 
 // impl From<&UserCommandPayload> for TransactionUnionPayload {
 //   fn from(cmd: &UserCommandPayload) -> Self {
