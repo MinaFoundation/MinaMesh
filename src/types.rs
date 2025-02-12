@@ -615,6 +615,23 @@ impl TransactionUnionPayload {
   }
 }
 
+#[tokio::test]
+async fn test_transaction_union_payload() {
+  let cmd = UserCommandPayload {
+    fee: 100000,
+    fee_payer: CompressedPubKey::from_address("B62qkUHaJUHERZuCHQhXCQ8xsGBqyYSgjQsKnKN5HhSJecakuJ4pYyk").unwrap(),
+    nonce: 1984,
+    valid_until: None,
+    memo: Memo::from_string("hello").unwrap(),
+    body: UserCommandBody::Payment {
+      receiver: CompressedPubKey::from_address("B62qoDWfBZUxKpaoQCoFqr12wkaY84FrhxXNXzgBkMUi2Tz4K8kBDiv").unwrap(),
+      amount: 5000000000,
+    },
+  };
+
+  let roi :ROInput= cmd.to_random_oracle_input();
+  let roi_hex :String= hex::encode(roi.serialize_mesh_1()).to_uppercase();
+  assert_eq!(roi_hex, "0000000327EA74CB13D3F1864C2E60C967577C055FD458D5AF93A59371905B8490B6567827EA74CB13D3F1864C2E60C967577C055FD458D5AF93A59371905B8490B656785E6737A0AC0A147918437FC8C21EA57CECFB613E711CA2E4FD328401657C291C000002570561800000000000800000000000000001F000007FFFFFFFC0500B531B1B7B000000000000000000000000000000000000000000000000000000060000000000000000013E815200000000");
 }
 
 #[derive(Serialize, Deserialize)]
