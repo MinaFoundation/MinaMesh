@@ -37,14 +37,15 @@ impl Memo {
   /// Converts the memo to a string (ignoring trailing zeros)
   pub fn to_string(&self) -> String {
     let len = self.0[LENGTH_INDEX] as usize;
-    String::from_utf8_lossy(&self.0[2..2 + len]).into_owned()
+    String::from_utf8_lossy(&self.0[2 .. 2 + len]).into_owned()
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use super::*;
   use bitvec::prelude::*;
+
+  use super::*;
 
   #[tokio::test]
   async fn from_string() {

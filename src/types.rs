@@ -1,8 +1,6 @@
 use bitvec::prelude::*;
 use coinbase_mesh::models::Operation;
 use derive_more::derive::Display;
-
-use crate::ROInput;
 use mina_signer::CompressedPubKey;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -17,6 +15,7 @@ use crate::{
   MinaMeshError,
   OperationType::*,
   PartialReason::{self, *},
+  ROInput,
 };
 
 #[derive(Type, Debug, PartialEq, Eq, Serialize)]
