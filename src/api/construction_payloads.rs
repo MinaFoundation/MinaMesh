@@ -25,7 +25,7 @@ impl MinaMesh {
     let partial_user_command =
       PartialUserCommand::from_operations(&request.operations, metadata.valid_until, metadata.memo)?;
 
-    // Ensure the source public key is valid and decompressible
+    // Ensure the source public key is valid
     let _ = CompressedPubKey::from_address(&partial_user_command.source)
       .map_err(|e| MinaMeshError::MalformedPublicKey(format!("Invalid source public key: {}", e)))?;
 
