@@ -552,21 +552,35 @@ impl From<Tag> for TagUnpacked {
   }
 }
 
+pub struct TransactionUnionPayload {
+  pub common: UserCommandPayload,
+  pub fee_payer_token: u64,
+  pub tag: Tag,
+  pub source_pk: CompressedPubKey,
+  pub receiver_pk: CompressedPubKey,
+  pub token_id: u64,
+  pub amount: u64,
+}
 
-//     TransactionUnionPayload { tag, source_pk: cmd.fee_payer.clone(),
-// receiver_pk, token_id: 1, amount }   }
-// }
+impl From<&UserCommandPayload> for TransactionUnionPayload {
+  fn from(cmd: &UserCommandPayload) -> Self {
+    let (tag, receiver_pk, amount) = match &cmd.body {
+      UserCommandBody::Payment { receiver, amount } => (Tag::Payment, receiver.clone(), *amount as u64),
+      UserCommandBody::Delegation { new_delegate } => (Tag::StakeDelegation, new_delegate.clone(), 0),
+    };
 
-impl UserCommandPayload {
-  pub fn to_random_oracle_input(&self) -> String {
-    // 1. Append three field elements.
-    let roi = ROInput::new()
-    .append_bytes(&self.fee_payer.to_bytes()) // Fee payer
-    .append_bytes(&self.fee_payer.to_bytes()) // Source
-    .append_bytes(&self.body.receiver().to_bytes()) // Receiver
+    TransactionUnionPayload {
+      common: cmd.clone(),
+      fee_payer_token: 1,
+      tag,
+      source_pk: cmd.fee_payer.clone(),
+      receiver_pk,
+      token_id: 1,
+      amount,
+    }
+  }
+}
 
-    // 2. Append numeric and boolean fields.
-    .append_u64(self.fee) // Fee
     .append_u64(1) // fee token
     .append_bool(self.fee_payer.is_odd) // fee payer pk odd
     .append_u32(self.nonce) // Nonce
