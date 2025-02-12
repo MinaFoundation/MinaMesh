@@ -435,6 +435,12 @@ pub struct UserCommandPayload {
   pub body: UserCommandBody,
 }
 
+impl UserCommandPayload {
+  pub fn to_random_oracle_input(&self) -> ROInput {
+    TransactionUnionPayload::from(self).to_random_oracle_input()
+  }
+}
+
 #[derive(Debug, Clone)]
 pub enum UserCommandBody {
   Payment { receiver: CompressedPubKey, amount: u64 },
