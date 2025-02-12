@@ -59,3 +59,8 @@ zkapp
 zkapps
 psql
 regclass
+roinput
+bitslice
+bitstring
+roinputs
+bitvec
