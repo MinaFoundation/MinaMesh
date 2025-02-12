@@ -604,9 +604,9 @@ impl TransactionUnionPayload {
     // 2. Append body part.
     .append_bool(tag_bit_1) // Tag
     .append_bool(tag_bit_2)
-    .append_bool(tag_bit_3) 
+    .append_bool(tag_bit_3)
     .append_field(self.source_pk.x) // Source
-    .append_bool(self.source_pk.is_odd) 
+    .append_bool(self.source_pk.is_odd)
     .append_field(self.receiver_pk.x) // Receiver
     .append_bool(self.receiver_pk.is_odd)
     .append_u64(1) // token id
