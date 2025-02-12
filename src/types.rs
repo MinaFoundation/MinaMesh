@@ -1,6 +1,8 @@
+use bitvec::prelude::*;
 use coinbase_mesh::models::Operation;
 use derive_more::derive::Display;
-use mina_hasher::ROInput;
+
+use crate::ROInput;
 use mina_signer::CompressedPubKey;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -581,23 +583,32 @@ impl From<&UserCommandPayload> for TransactionUnionPayload {
   }
 }
 
+impl TransactionUnionPayload {
+  pub fn to_random_oracle_input(&self) -> ROInput {
+    let [tag_bit_1, tag_bit_2, tag_bit_3] = self.tag.to_bits();
+    // 1. Append common part
+    ROInput::new()
+    .append_u64(self.common.fee)
     .append_u64(1) // fee token
-    .append_bool(self.fee_payer.is_odd) // fee payer pk odd
-    .append_u32(self.nonce) // Nonce
-    .append_u32(self.valid_until.unwrap_or(u32::MAX)) // valid_until
-    .append_bytes(&self.memo.0) // Memo
-    .append_bool(self.body.is_payment()) // Is payment
-    .append_bool(self.body.is_delegation()) // Is delegation
-    .append_bool(false) // reserved(?)
-    .append_bool(self.fee_payer.is_odd) // sender pk odd
-    .append_bool(self.body.receiver_is_odd()) // receiver pk odd
-    .append_u64(1) // token_id
-    .append_u64(self.body.amount()) // Amount
-    .append_bool(false); // token_locked
-
-    // Finally, convert the assembled ROInput to bytes and then hex encode.
-    hex::encode(roi.to_bytes()).to_uppercase()
+    .append_field(self.common.fee_payer.x)
+    .append_bool(self.common.fee_payer.is_odd)
+    .append_u32(self.common.nonce)
+    .append_u32(self.common.valid_until.unwrap_or(u32::MAX))
+    .append_bitstring(self.common.memo.0.view_bits::<Lsb0>())
+    // 2. Append body part.
+    .append_bool(tag_bit_1) // Tag
+    .append_bool(tag_bit_2)
+    .append_bool(tag_bit_3) 
+    .append_field(self.source_pk.x) // Source
+    .append_bool(self.source_pk.is_odd) 
+    .append_field(self.receiver_pk.x) // Receiver
+    .append_bool(self.receiver_pk.is_odd)
+    .append_u64(1) // token id
+    .append_u64(self.amount) // Amount
+    .append_bool(false)
   }
+}
+
 }
 
 #[derive(Serialize, Deserialize)]
