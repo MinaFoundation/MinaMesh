@@ -857,7 +857,8 @@ type mutation {
   """
   Add a wallet - this will create a new keypair and store it in the daemon
   """
-  addWallet(input: AddAccountInput!): AddAccountPayload! @deprecated(reason: "use createAccount instead")
+  addWallet(input: AddAccountInput!): AddAccountPayload!
+  @deprecated(reason: "use createAccount instead")
 
   """
   TESTING ONLY: Start filtering and recording all structured events in memory
@@ -893,7 +894,8 @@ type mutation {
   deleteAccount(input: DeleteAccountInput!): DeleteAccountPayload!
 
   """Delete the private key for an account that you track"""
-  deleteWallet(input: DeleteAccountInput!): DeleteAccountPayload! @deprecated(reason: "use deleteAccount instead")
+  deleteWallet(input: DeleteAccountInput!): DeleteAccountPayload!
+  @deprecated(reason: "use deleteAccount instead")
 
   """Reload tracked account information from disk"""
   reloadAccounts: ReloadAccountsPayload!
@@ -977,7 +979,9 @@ type mutation {
   """
   Set the connection gating config, returning the current config after the application (which may have failed)
   """
-  setConnectionGatingConfig(input: SetConnectionGatingConfigInput!): SetConnectionGatingConfigPayload!
+  setConnectionGatingConfig(
+    input: SetConnectionGatingConfigInput!
+  ): SetConnectionGatingConfigPayload!
 
   """Connect to the given peers"""
   addPeers(seed: Boolean, peers: [NetworkPeer!]!): [Peer!]!
@@ -1315,7 +1319,11 @@ type query {
   Evaluate a vrf for the given public key. This includes a witness which may be
   verified without access to the private key for this vrf evaluation.
   """
-  evaluateVrf(vrfThreshold: VrfThresholdInput, publicKey: PublicKey!, message: VrfMessageInput!): VrfEvaluation!
+  evaluateVrf(
+    vrfThreshold: VrfThresholdInput
+    publicKey: PublicKey!
+    message: VrfMessageInput!
+  ): VrfEvaluation!
 
   """
   Check a vrf evaluation commitment. This can be used to check vrf evaluations
@@ -2143,4 +2151,3 @@ input ZkappFeePayerInput {
 }
 
 scalar ZkappProof
-
