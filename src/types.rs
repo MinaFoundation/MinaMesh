@@ -778,6 +778,7 @@ async fn test_signer_input() {
         valid_until: Some(200000),
         memo: Memo::from_string("hello").unwrap(),
         body: UserCommandBody::Delegation {
+          // cspell: disable-next-line
           new_delegate: CompressedPubKey::from_address("B62qiburnzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzmp7r7UN6X")
             .unwrap(),
         },
