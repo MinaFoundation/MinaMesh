@@ -37,13 +37,12 @@ impl MinaMesh {
 
     // Generate the random oracle input
     let random_oracle_input = user_command_payload.to_random_oracle_input();
-    tracing::debug!("Random oracle input: {:?}", random_oracle_input);
+    let signer_input = (&random_oracle_input).into();
 
     // Construct the unsigned transaction
     let unsigned_transaction = TransactionUnsigned {
       random_oracle_input: hex::encode(random_oracle_input.serialize_mesh_1()).to_uppercase(),
-      command: partial_user_command.clone(),
-      nonce: nonce_u32,
+      signer_input,
     };
 
     // Serialize to JSON

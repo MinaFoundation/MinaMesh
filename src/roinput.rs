@@ -195,7 +195,7 @@ impl ROInput {
 
   // Serialize fields as bytes according to the Rosetta/Mesh schema
   // https://github.com/MinaProtocol/mina/blob/8c440bb55427e366cae5401d0c1239c48119cf5f/src/lib/random_oracle_input/random_oracle_input.ml#L154-L168
-  fn fields_to_bytes_mesh(&self) -> Vec<u8> {
+  pub fn fields_to_bytes_mesh(&self) -> Vec<u8> {
     self.fields.iter().fold(Vec::<u8>::new(), |mut acc: Vec<u8>, fe: &Fp| {
       let mut field_bytes = fe.to_bytes();
       let field_bits = field_bytes.as_mut_bits::<Lsb0>();
@@ -252,6 +252,28 @@ impl ROInput {
     bytes.extend(ROInput::bitstring_to_bytes_mesh(&self.bits));
 
     bytes
+  }
+
+  /// Pack bitstring into 254-bit chunks as field elements for suffix encoding
+  /// https://github.com/MinaProtocol/mina/blob/8c440bb55427e366cae5401d0c1239c48119cf5f/rfcs/0038-rosetta-construction-api.md#unsigned-transaction-encoding
+  pub fn pack_bits_to_254_fields(&self) -> Vec<String> {
+    let mut fields = Vec::new();
+
+    // Pack bits into 254-bit chunks
+    for chunk in self.bits.chunks(254) {
+      let mut bv = BitVec::<u8>::new();
+      bv.extend_from_bitslice(chunk);
+      bv.resize(255_usize, false); // Pad to full field size
+
+      let mut field_bytes = bv.into_vec();
+      let field_bits = field_bytes.as_mut_bits::<Lsb0>();
+      field_bits.shift_right(1); // Fields are 255 bit, so we shift right by 1 before reversing
+      field_bits.reverse();
+      let bytes: Vec<u8> = ROInput::bitstring_to_bytes_mesh(field_bits);
+      fields.push(hex::encode(bytes).to_uppercase());
+    }
+
+    fields
   }
 }
 

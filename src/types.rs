@@ -636,8 +636,91 @@ async fn test_transaction_union_payload() {
 #[derive(Serialize, Deserialize)]
 pub struct TransactionUnsigned {
   pub random_oracle_input: String,
-  pub command: PartialUserCommand,
-  pub nonce: u32,
+  pub signer_input: SignerInput,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SignerInput {
+  pub prefix: Vec<String>,
+  pub suffix: Vec<String>,
+}
+
+impl From<&ROInput> for SignerInput {
+  fn from(roinput: &ROInput) -> Self {
+    let prefix = roinput
+          .fields_to_bytes_mesh()
+          .chunks(32) // Ensure fields are split properly
+          .map(|chunk| hex::encode(chunk).to_uppercase())
+          .collect();
+
+    let suffix = roinput.pack_bits_to_254_fields();
+
+    Self { prefix, suffix }
+  }
+}
+
+#[tokio::test]
+async fn test_signer_input() {
+  let test_cases = vec![
+    (
+      "Payment",
+      UserCommandPayload {
+        fee: 100000,
+        fee_payer: CompressedPubKey::from_address("B62qkUHaJUHERZuCHQhXCQ8xsGBqyYSgjQsKnKN5HhSJecakuJ4pYyk").unwrap(),
+        nonce: 1984,
+        valid_until: None,
+        memo: Memo::from_string("hello").unwrap(),
+        body: UserCommandBody::Payment {
+          receiver: CompressedPubKey::from_address("B62qoDWfBZUxKpaoQCoFqr12wkaY84FrhxXNXzgBkMUi2Tz4K8kBDiv").unwrap(),
+          amount: 5000000000,
+        },
+      },
+      vec![
+        "27EA74CB13D3F1864C2E60C967577C055FD458D5AF93A59371905B8490B65678",
+        "27EA74CB13D3F1864C2E60C967577C055FD458D5AF93A59371905B8490B65678",
+        "5E6737A0AC0A147918437FC8C21EA57CECFB613E711CA2E4FD328401657C291C",
+      ],
+      vec![
+        "01BDB1B195A01407FFFFFFFC00001F0000000000000000020000000000030D40",
+        "0000000003000000000000000000000000000000000000000000000000000000",
+        "00000000000000000000000000000000000000000000000009502F9000000000",
+      ],
+    ),
+    (
+      "Delegation",
+      UserCommandPayload {
+        fee: 10100000,
+        fee_payer: CompressedPubKey::from_address("B62qkXajxfnicuCNtaurdAhQpkFsqjoyPJuw53aeJP848bsa3Ne3RvB").unwrap(),
+        nonce: 3,
+        valid_until: Some(200000),
+        memo: Memo::from_string("hello").unwrap(),
+        body: UserCommandBody::Delegation {
+          new_delegate: CompressedPubKey::from_address("B62qiburnzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzmp7r7UN6X")
+            .unwrap(),
+        },
+      },
+      vec![
+        "34411FBC9BF58536335A3B711494DA6EC9916AFC520F389B66D00796DCD9BA7A",
+        "34411FBC9BF58536335A3B711494DA6EC9916AFC520F389B66D00796DCD9BA7A",
+        "0131D887E9AE69AF4D40469B25411CB7EB94CDAD60E23B71E608B0A58FBCD408",
+      ],
+      vec![
+        "01BDB1B195A01404000C35000000000E00000000000000020000000001343A40",
+        "0000000002C00000000000000000000000000000000000000000000000000000",
+        "0000000000000000000000000000000000000000000000000000000000000000",
+      ],
+    ),
+  ];
+
+  for (label, cmd, expected_prefix, expected_suffix) in test_cases {
+    println!("Testing SignerInput for {}", label);
+
+    let roi: ROInput = cmd.to_random_oracle_input();
+    let signer_input: SignerInput = (&roi).into();
+
+    assert_eq!(signer_input.prefix, expected_prefix, "Prefix mismatch for {}", label);
+    assert_eq!(signer_input.suffix, expected_suffix, "Suffix mismatch for {}", label);
+  }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
