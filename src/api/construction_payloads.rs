@@ -35,37 +35,23 @@ impl MinaMesh {
       .map_err(|_| MinaMeshError::JsonParse(Some(format!("Invalid nonce: {}", metadata.nonce))))?;
     let user_command_payload = partial_user_command.to_user_command_payload(nonce_u32)?;
 
-    // Generate the random oracle input
-    let random_oracle_input = user_command_payload.to_random_oracle_input();
-    let signer_input = (&random_oracle_input).into();
+    // Convert the user command payload to an unsigned transaction
+    let unsigned_transaction: TransactionUnsigned = (&user_command_payload).into();
 
-    // Construct the unsigned transaction
-    let unsigned_transaction = TransactionUnsigned {
-      random_oracle_input: hex::encode(random_oracle_input.serialize_mesh_1()).to_uppercase(),
-      signer_input,
-    };
-
-    // Serialize to JSON
-    let unsigned_transaction_json = serde_json::to_string(&unsigned_transaction).map_err(|e| {
-      MinaMeshError::JsonParse(Some(format!(
-        "Failed to serialize unsigned
-    transaction: {}",
-        e
-      )))
-    })?;
+    // Serialize to JSON string
+    let unsigned_transaction_json = unsigned_transaction.as_json_string()?;
 
     // Construct the signing payload
     let signing_payload = SigningPayload {
       account_identifier: Some(
         AccountIdentifier {
           address: partial_user_command.source.clone(),
-          metadata: Some(json!({ "token_id":
-    partial_user_command.token.clone() })),
+          metadata: Some(json!({ "token_id": partial_user_command.token.clone() })),
           sub_account: None,
         }
         .into(),
       ),
-      hex_bytes: hex::encode(unsigned_transaction_json.clone()),
+      hex_bytes: hex::encode(unsigned_transaction_json.clone()).to_uppercase(),
       signature_type: Some(SignatureType::SchnorrPoseidon),
       address: None,
     };

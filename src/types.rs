@@ -4,6 +4,7 @@ use derive_more::derive::Display;
 use mina_signer::CompressedPubKey;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use serde_with::{serde_as, DisplayFromStr};
 use sqlx::{FromRow, Type};
 use strum::IntoEnumIterator;
 use strum_macros::{Display as StrumDisplay, EnumIter, EnumString};
@@ -635,8 +636,90 @@ async fn test_transaction_union_payload() {
 
 #[derive(Serialize, Deserialize)]
 pub struct TransactionUnsigned {
+  #[serde(rename = "randomOracleInput")]
   pub random_oracle_input: String,
+  #[serde(rename = "signerInput")]
   pub signer_input: SignerInput,
+  pub payment: Option<Payment>,
+  #[serde(rename = "stakeDelegation")]
+  pub stake_delegation: Option<StakeDelegation>,
+}
+
+impl From<&UserCommandPayload> for TransactionUnsigned {
+  fn from(cmd: &UserCommandPayload) -> Self {
+    let random_oracle_input = cmd.to_random_oracle_input();
+    let roi_hex = hex::encode(random_oracle_input.serialize_mesh_1()).to_uppercase();
+    let signer_input: SignerInput = (&random_oracle_input).into();
+
+    match &cmd.body {
+      UserCommandBody::Payment { receiver, amount } => TransactionUnsigned {
+        random_oracle_input: roi_hex,
+        signer_input,
+        payment: Some(Payment {
+          to: receiver.into_address(),
+          from: cmd.fee_payer.into_address(),
+          fee: cmd.fee,
+          token: "1".to_string(),
+          nonce: cmd.nonce,
+          memo: Some(cmd.memo.as_string()),
+          amount: *amount,
+          valid_until: cmd.valid_until,
+        }),
+        stake_delegation: None,
+      },
+      UserCommandBody::Delegation { new_delegate } => TransactionUnsigned {
+        random_oracle_input: roi_hex,
+        signer_input,
+        payment: None,
+        stake_delegation: Some(StakeDelegation {
+          delegator: cmd.fee_payer.into_address(),
+          new_delegate: new_delegate.into_address(),
+          fee: cmd.fee,
+          nonce: cmd.nonce,
+          memo: Some(cmd.memo.as_string()),
+          valid_until: cmd.valid_until,
+        }),
+      },
+    }
+  }
+}
+
+impl TransactionUnsigned {
+  pub fn as_json_string(&self) -> Result<String, MinaMeshError> {
+    serde_json::to_string(self)
+      .map_err(|e| MinaMeshError::JsonParse(Some(format!("Failed to serialize unsigned transaction: {}", e))))
+  }
+}
+
+#[serde_as]
+#[derive(Serialize, Deserialize)]
+pub struct Payment {
+  pub to: String,
+  pub from: String,
+  #[serde_as(as = "DisplayFromStr")]
+  pub fee: u64,
+  pub token: String,
+  #[serde_as(as = "DisplayFromStr")]
+  pub nonce: u32,
+  pub memo: Option<String>,
+  #[serde_as(as = "DisplayFromStr")]
+  pub amount: u64,
+  #[serde_as(as = "Option<DisplayFromStr>")]
+  pub valid_until: Option<u32>,
+}
+
+#[serde_as]
+#[derive(Serialize, Deserialize)]
+pub struct StakeDelegation {
+  pub delegator: String,
+  pub new_delegate: String,
+  #[serde_as(as = "DisplayFromStr")]
+  pub fee: u64,
+  #[serde_as(as = "DisplayFromStr")]
+  pub nonce: u32,
+  pub memo: Option<String>,
+  #[serde_as(as = "Option<DisplayFromStr>")]
+  pub valid_until: Option<u32>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -713,8 +796,6 @@ async fn test_signer_input() {
   ];
 
   for (label, cmd, expected_prefix, expected_suffix) in test_cases {
-    println!("Testing SignerInput for {}", label);
-
     let roi: ROInput = cmd.to_random_oracle_input();
     let signer_input: SignerInput = (&roi).into();
 

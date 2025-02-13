@@ -1806,6 +1806,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "serde_with",
  "sha2",
  "sqlx",
  "strum",
