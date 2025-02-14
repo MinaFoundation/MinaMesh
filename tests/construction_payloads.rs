@@ -63,18 +63,18 @@ async fn construction_payloads_payments() -> Result<()> {
 async fn construction_payloads_delegation() -> Result<()> {
   // cspell:disable
   let delegator = "B62qkXajxfnicuCNtaurdAhQpkFsqjoyPJuw53aeJP848bsa3Ne3RvB";
-  let deleg_target = "B62qiburnzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzmp7r7UN6X";
+  let delegation_target = "B62qiburnzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzmp7r7UN6X";
   // cspell:enable
   let metadata = TransactionMetadata::new(
     delegator,
-    deleg_target,
+    delegation_target,
     "355",
     "11",
     None::<&str>,
     Some("200009999"),
     Some("memo test here for delegation!"),
   );
-  let operations = delegation_operations(delegator, "-1010000000", delegator, deleg_target);
+  let operations = delegation_operations(delegator, "-1010000000", delegator, delegation_target);
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
   let request = ConstructionPayloadsRequest {
     network_identifier: network_id().into(),

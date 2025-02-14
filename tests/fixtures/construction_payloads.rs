@@ -15,9 +15,9 @@ pub fn construction_payloads<'a>() -> CompareGroup<'a> {
 
   // cspell:disable
   let delegator = "B62qkXajxfnicuCNtaurdAhQpkFsqjoyPJuw53aeJP848bsa3Ne3RvB";
-  let deleg_target = "B62qiburnzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzmp7r7UN6X";
+  let delegation_target = "B62qiburnzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzmp7r7UN6X";
   // cspell:enable
-  let delegation_operations = delegation_operations(delegator, "-1010000000", delegator, deleg_target);
+  let delegation_operations = delegation_operations(delegator, "-1010000000", delegator, delegation_target);
 
   let metadata =
     TransactionMetadata::new(sender, receiver, "355", "11", None::<&str>, Some("200009999"), Some("memo test!"));
