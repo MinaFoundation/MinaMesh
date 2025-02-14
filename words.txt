@@ -35,6 +35,7 @@ openai
 openapi
 piotr
 preprocess
+proptest
 qnighy
 querygen
 reqs
@@ -59,3 +60,8 @@ zkapp
 zkapps
 psql
 regclass
+roinput
+bitslice
+bitstring
+roinputs
+bitvec

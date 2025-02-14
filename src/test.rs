@@ -7,13 +7,15 @@ use axum::{
   response::IntoResponse,
   Router,
 };
-use coinbase_mesh::models::{NetworkIdentifier, NetworkRequest};
+use coinbase_mesh::models::{
+  AccountIdentifier, Amount, Currency, NetworkIdentifier, NetworkRequest, Operation, OperationIdentifier,
+};
 use pretty_assertions::assert_eq;
 use reqwest::Client;
-use serde_json::{Map, Value};
+use serde_json::{json, Map, Value};
 use tower::ServiceExt;
 
-use crate::{create_router, MinaMesh};
+use crate::{create_router, MinaMesh, OperationType::*};
 
 pub struct ResponseComparisonContext {
   pub router: Router,
@@ -184,4 +186,92 @@ pub fn network_id() -> NetworkIdentifier {
 
 pub fn network_request() -> NetworkRequest {
   NetworkRequest::new(network_id())
+}
+
+pub fn payment_operations(
+  (fee_act, fee_amt): (&str, &str),
+  (sender_act, sender_amt): (&str, &str),
+  (receiver_act, receiver_amt): (&str, &str),
+) -> Vec<Operation> {
+  vec![
+    Operation {
+      operation_identifier: OperationIdentifier::new(0).into(),
+      related_operations: None,
+      r#type: FeePayment.to_string(),
+      account: Some(
+        AccountIdentifier { address: fee_act.into(), sub_account: None, metadata: json!({ "token_id": "1" }).into() }
+          .into(),
+      ),
+      amount: Some(Box::new(Amount::new(fee_amt.into(), Currency::new("MINA".into(), 9)))),
+      coin_change: None,
+      metadata: None,
+      status: None,
+    },
+    Operation {
+      operation_identifier: OperationIdentifier::new(1).into(),
+      related_operations: None,
+      r#type: PaymentSourceDec.to_string(),
+      account: Some(
+        AccountIdentifier {
+          address: sender_act.into(),
+          sub_account: None,
+          metadata: json!({ "token_id": "1" }).into(),
+        }
+        .into(),
+      ),
+      amount: Some(Box::new(Amount::new(sender_amt.into(), Currency::new("MINA".into(), 9)))),
+      coin_change: None,
+      metadata: None,
+      status: None,
+    },
+    Operation {
+      operation_identifier: OperationIdentifier::new(2).into(),
+      related_operations: vec![OperationIdentifier::new(1)].into(),
+      r#type: PaymentReceiverInc.to_string(),
+      account: Some(
+        AccountIdentifier {
+          address: receiver_act.into(),
+          sub_account: None,
+          metadata: json!({ "token_id": "1" }).into(),
+        }
+        .into(),
+      ),
+      amount: Some(Box::new(Amount::new(receiver_amt.into(), Currency::new("MINA".into(), 9)))),
+      coin_change: None,
+      status: None,
+      metadata: None,
+    },
+  ]
+}
+
+pub fn delegation_operations(
+  fee_act: &str,
+  fee_amt: &str,
+  source_act: &str,
+  delegate_target_act: &str,
+) -> Vec<Operation> {
+  vec![
+    Operation {
+      operation_identifier: OperationIdentifier::new(0).into(),
+      related_operations: None,
+      r#type: FeePayment.to_string(),
+      account: Some(AccountIdentifier::new(fee_act.into()).into()),
+      amount: Some(Box::new(Amount::new(fee_amt.into(), Currency::new("MINA".into(), 9)))),
+      coin_change: None,
+      metadata: None,
+      status: None,
+    },
+    Operation {
+      operation_identifier: OperationIdentifier::new(1).into(),
+      related_operations: None,
+      r#type: DelegateChange.to_string(),
+      account: Some(AccountIdentifier::new(source_act.into()).into()),
+      amount: None,
+      coin_change: None,
+      metadata: Some(json!({
+          "delegate_change_target": delegate_target_act
+      })),
+      status: None,
+    },
+  ]
 }

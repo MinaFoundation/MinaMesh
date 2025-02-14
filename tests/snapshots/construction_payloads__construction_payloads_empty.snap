@@ -1,0 +1,13 @@
+---
+source: tests/construction_payloads.rs
+expression: response
+---
+Err(
+    OperationsNotValid(
+        [
+            LengthMismatch(
+                "Expected 2 operations for delegation or 3 for payment, got 0",
+            ),
+        ],
+    ),
+)

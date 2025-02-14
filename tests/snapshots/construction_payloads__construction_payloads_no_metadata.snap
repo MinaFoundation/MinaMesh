@@ -1,0 +1,11 @@
+---
+source: tests/construction_payloads.rs
+expression: response
+---
+Err(
+    JsonParse(
+        Some(
+            "Metadata is required for payloads request",
+        ),
+    ),
+)
