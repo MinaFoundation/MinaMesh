@@ -110,3 +110,9 @@ async fn construction_metadata() -> Result<()> {
   let (subpath, reqs) = fixtures::construction_metadata();
   assert_responses_eq(subpath, &reqs).await
 }
+
+#[tokio::test]
+async fn construction_payloads() -> Result<()> {
+  let (subpath, reqs) = fixtures::construction_payloads();
+  assert_responses_eq(subpath, &reqs).await
+}
