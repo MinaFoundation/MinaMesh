@@ -11,7 +11,7 @@ use strum_macros::{Display as StrumDisplay, EnumIter, EnumString};
 
 use crate::{
   memo::Memo,
-  signer_utils::address_to_compressed_pub_key,
+  signer_utils::{address_to_compressed_pub_key, validate_base58},
   util::DEFAULT_TOKEN_ID,
   MinaMeshError,
   OperationType::*,
@@ -433,6 +433,7 @@ pub struct UserCommandPayload {
   pub valid_until: Option<u32>,
   pub memo: Memo,
   pub body: UserCommandBody,
+  pub token: String,
 }
 
 impl UserCommandPayload {
@@ -627,6 +628,7 @@ async fn test_transaction_union_payload() {
       receiver: CompressedPubKey::from_address("B62qoDWfBZUxKpaoQCoFqr12wkaY84FrhxXNXzgBkMUi2Tz4K8kBDiv").unwrap(),
       amount: 5000000000,
     },
+    token: "1".to_string(),
   };
 
   let roi: ROInput = cmd.to_random_oracle_input();
@@ -659,7 +661,7 @@ impl From<&UserCommandPayload> for TransactionUnsigned {
           to: receiver.into_address(),
           from: cmd.fee_payer.into_address(),
           fee: cmd.fee,
-          token: "1".to_string(),
+          token: cmd.token.clone(),
           nonce: cmd.nonce,
           memo: Some(cmd.memo.as_string()),
           amount: *amount,
@@ -757,6 +759,7 @@ async fn test_signer_input() {
           receiver: CompressedPubKey::from_address("B62qoDWfBZUxKpaoQCoFqr12wkaY84FrhxXNXzgBkMUi2Tz4K8kBDiv").unwrap(),
           amount: 5000000000,
         },
+        token: "1".to_string(),
       },
       vec![
         "27EA74CB13D3F1864C2E60C967577C055FD458D5AF93A59371905B8490B65678",
@@ -782,6 +785,7 @@ async fn test_signer_input() {
           new_delegate: CompressedPubKey::from_address("B62qiburnzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzmp7r7UN6X")
             .unwrap(),
         },
+        token: "1".to_string(),
       },
       vec![
         "34411FBC9BF58536335A3B711494DA6EC9916AFC520F389B66D00796DCD9BA7A",
@@ -846,6 +850,7 @@ impl PartialUserCommand {
       valid_until: self.valid_until.as_deref().and_then(|v| v.parse::<u32>().ok()),
       memo,
       body,
+      token: self.token.clone(),
     })
   }
 
@@ -908,6 +913,14 @@ impl PartialUserCommand {
 
     let fee_token = Self::token_id_from_operation(fee_payment);
     let token = Self::token_id_from_operation(source_dec);
+
+    // validate token ids
+    let _ = validate_base58(&fee_token).inspect_err(|_e| {
+      errors.push(PartialReason::IncorrectTokenId);
+    });
+    let _ = validate_base58(&token).inspect_err(|_e| {
+      errors.push(PartialReason::IncorrectTokenId);
+    });
 
     if fee_payment.account != source_dec.account {
       errors.push(PartialReason::FeePayerAndSourceMismatch);

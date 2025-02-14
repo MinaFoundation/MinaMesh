@@ -50,6 +50,21 @@ pub fn validate_base58_with_checksum(input: &str, expected_version: Option<u8>) 
   Ok(())
 }
 
+/// Validates a base58-encoded string.
+///
+/// Less strict than `validate_base58_with_checksum`.
+/// It seems that construction/payloads or construction/preprocess
+/// (or other that may use coinbase_mesh::models::Operation ->
+/// PartialUserCommand) validate tokens with this (or similar)
+/// since it allows for tokens like "1" in payload.
+pub fn validate_base58(input: &str) -> Result<(), MinaMeshError> {
+  bs58::decode(input)
+    .with_alphabet(bs58::Alphabet::BITCOIN)
+    .into_vec()
+    .map_err(|_| MinaMeshError::MalformedPublicKey("Input not valid base58".to_string()))?;
+  Ok(())
+}
+
 /// Converts a hex string into a compressed public key
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/lib/rosetta_coding/coding.ml#L128
 pub fn hex_to_compressed_pub_key(hex: &str) -> Result<CompressedPubKey, MinaMeshError> {

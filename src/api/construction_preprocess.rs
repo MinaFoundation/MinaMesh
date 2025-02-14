@@ -46,6 +46,6 @@ fn make_response_options(partial_command: PartialUserCommand) -> Value {
   json!(options)
 }
 
-fn validate_base58_public_key(token_id: &str) -> Result<(), MinaMeshError> {
-  validate_base58_with_checksum(token_id, None).map_err(|e| MinaMeshError::PublicKeyFormatNotValid(e.to_string()))
+fn validate_base58_public_key(pk: &str) -> Result<(), MinaMeshError> {
+  validate_base58_with_checksum(pk, None).map_err(|e| MinaMeshError::PublicKeyFormatNotValid(e.to_string()))
 }
