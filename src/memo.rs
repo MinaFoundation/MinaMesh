@@ -44,6 +44,7 @@ impl Memo {
 #[cfg(test)]
 mod tests {
   use bitvec::prelude::*;
+  use proptest::prelude::*;
 
   use super::*;
 
@@ -54,5 +55,20 @@ mod tests {
       memo.0.view_bits::<Lsb0>(),
       bits![u8, Lsb0; 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     );
+  }
+
+  #[tokio::test]
+  async fn memo_to_long() {
+    let err = Memo::from_string("hello, this is a long memo, definitely too long...").unwrap_err();
+    assert_eq!(err, MinaMeshError::MemoInvalid);
+  }
+
+  proptest! {
+      #[test]
+      fn memo_round_trip_unicode(input in "\\PC{1,32}") { // Unicode printable characters
+          if let Ok(memo) = Memo::from_string(&input) {
+              assert_eq!(memo.as_string(), input);
+          }
+      }
   }
 }
