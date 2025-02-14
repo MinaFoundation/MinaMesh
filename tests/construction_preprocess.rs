@@ -1,13 +1,10 @@
 use anyhow::Result;
 use insta::assert_debug_snapshot;
 use mina_mesh::{
-  models::{AccountIdentifier, Amount, ConstructionPreprocessRequest, Currency, Operation, OperationIdentifier},
-  test::network_id,
-  MinaMeshConfig,
-  OperationType::*,
-  PreprocessMetadata,
+  models::ConstructionPreprocessRequest,
+  test::{delegation_operations, network_id, payment_operations},
+  MinaMeshConfig, PreprocessMetadata,
 };
-use serde_json::json;
 
 #[tokio::test]
 async fn construction_preprocess_empty() -> Result<()> {
@@ -237,87 +234,4 @@ async fn construction_preprocess_delegation_invalid_pk() -> Result<()> {
   assert!(response.is_err());
   assert_debug_snapshot!(response);
   Ok(())
-}
-
-fn payment_operations(
-  (fee_act, fee_amt): (&str, &str),
-  (sender_act, sender_amt): (&str, &str),
-  (receiver_act, receiver_amt): (&str, &str),
-) -> Vec<Operation> {
-  vec![
-    Operation {
-      operation_identifier: OperationIdentifier::new(0).into(),
-      related_operations: None,
-      r#type: FeePayment.to_string(),
-      account: Some(
-        AccountIdentifier { address: fee_act.into(), sub_account: None, metadata: json!({ "token_id": "1" }).into() }
-          .into(),
-      ),
-      amount: Some(Box::new(Amount::new(fee_amt.into(), Currency::new("MINA".into(), 9)))),
-      coin_change: None,
-      metadata: None,
-      status: None,
-    },
-    Operation {
-      operation_identifier: OperationIdentifier::new(1).into(),
-      related_operations: None,
-      r#type: PaymentSourceDec.to_string(),
-      account: Some(
-        AccountIdentifier {
-          address: sender_act.into(),
-          sub_account: None,
-          metadata: json!({ "token_id": "1" }).into(),
-        }
-        .into(),
-      ),
-      amount: Some(Box::new(Amount::new(sender_amt.into(), Currency::new("MINA".into(), 9)))),
-      coin_change: None,
-      metadata: None,
-      status: None,
-    },
-    Operation {
-      operation_identifier: OperationIdentifier::new(2).into(),
-      related_operations: vec![OperationIdentifier::new(1)].into(),
-      r#type: PaymentReceiverInc.to_string(),
-      account: Some(
-        AccountIdentifier {
-          address: receiver_act.into(),
-          sub_account: None,
-          metadata: json!({ "token_id": "1" }).into(),
-        }
-        .into(),
-      ),
-      amount: Some(Box::new(Amount::new(receiver_amt.into(), Currency::new("MINA".into(), 9)))),
-      coin_change: None,
-      status: None,
-      metadata: None,
-    },
-  ]
-}
-
-fn delegation_operations(fee_act: &str, fee_amt: &str, source_act: &str, delegate_target_act: &str) -> Vec<Operation> {
-  vec![
-    Operation {
-      operation_identifier: OperationIdentifier::new(0).into(),
-      related_operations: None,
-      r#type: FeePayment.to_string(),
-      account: Some(AccountIdentifier::new(fee_act.into()).into()),
-      amount: Some(Box::new(Amount::new(fee_amt.into(), Currency::new("MINA".into(), 9)))),
-      coin_change: None,
-      metadata: None,
-      status: None,
-    },
-    Operation {
-      operation_identifier: OperationIdentifier::new(1).into(),
-      related_operations: None,
-      r#type: DelegateChange.to_string(),
-      account: Some(AccountIdentifier::new(source_act.into()).into()),
-      amount: None,
-      coin_change: None,
-      metadata: Some(json!({
-          "delegate_change_target": delegate_target_act
-      })),
-      status: None,
-    },
-  ]
 }
