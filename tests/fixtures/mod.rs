@@ -16,6 +16,7 @@ pub use construction_metadata::*;
 pub use construction_preprocess::*;
 pub use mempool::*;
 pub use network::*;
+#[allow(unused_imports)]
 pub use search_transactions::*;
 
 pub type CompareGroup<'a> = (&'a str, Vec<Box<dyn ErasedSerialize>>);

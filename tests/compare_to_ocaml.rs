@@ -33,11 +33,12 @@ async fn assert_responses_contain<T: Serialize>(subpath: &str, reqs: &[T], fragm
   Ok(())
 }
 
-#[tokio::test]
-async fn search_transactions_test() -> Result<()> {
-  let (subpath, reqs) = fixtures::search_transactions();
-  assert_responses_eq(subpath, &reqs).await
-}
+// NOTE! Temporarily disabled due SQL failure on the legacy Rosetta endpoint:
+// #[tokio::test]
+// async fn search_transactions_test() -> Result<()> {
+//   let (subpath, reqs) = fixtures::search_transactions();
+//   assert_responses_eq(subpath, &reqs).await
+// }
 
 #[tokio::test]
 async fn network_list() -> Result<()> {
