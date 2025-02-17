@@ -5,6 +5,7 @@ use mina_mesh::{
 
 use super::CompareGroup;
 
+#[allow(dead_code)]
 pub fn search_transactions<'a>() -> CompareGroup<'a> {
   ("/search/transactions", vec![
     Box::new(SearchTransactionsRequest {
