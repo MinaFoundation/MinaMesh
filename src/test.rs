@@ -176,7 +176,7 @@ fn sort_transactions(value: &mut Value) {
 }
 
 pub const DEVNET_BLOCKCHAIN_ID: &str = "mina";
-pub const DEVNET_NETWORK_ID: &str = "testnet";
+pub const DEVNET_NETWORK_ID: &str = "devnet";
 
 pub fn network_id() -> NetworkIdentifier {
   NetworkIdentifier::new(DEVNET_BLOCKCHAIN_ID.to_string(), DEVNET_NETWORK_ID.to_string())
