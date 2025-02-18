@@ -108,7 +108,13 @@ async fn test_error_properties() {
       false,
       StatusCode::INTERNAL_SERVER_ERROR,
     ),
-    (SignatureInvalid, 17, "Your request has an invalid signature.", false, StatusCode::BAD_REQUEST),
+    (
+      SignatureInvalid("Invalid signature".to_string()),
+      17,
+      "Your request has an invalid signature.",
+      false,
+      StatusCode::BAD_REQUEST,
+    ),
     (MemoInvalid, 18, "Your request has an invalid memo.", false, StatusCode::BAD_REQUEST),
     (GraphqlUriNotSet, 19, "No GraphQL URI has been set.", false, StatusCode::INTERNAL_SERVER_ERROR),
     (
