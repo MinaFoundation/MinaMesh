@@ -3,7 +3,7 @@
 
 use anyhow::Result;
 use clap::Parser;
-use mina_mesh::{SearchTxOptimizationsCommand, ServeCommand};
+use mina_mesh::{SearchTxOptimizationsCommand, ServeCommand, SignCommand};
 use tokio::{select, signal};
 
 #[derive(Debug, Parser)]
@@ -11,6 +11,7 @@ use tokio::{select, signal};
 enum Command {
   Serve(ServeCommand),
   SearchTxOptimizations(SearchTxOptimizationsCommand),
+  Sign(SignCommand),
 }
 
 #[tokio::main]
@@ -19,6 +20,7 @@ async fn main() -> Result<()> {
   match Command::parse() {
     Command::Serve(cmd) => cmd.run(shutdown_signal()).await,
     Command::SearchTxOptimizations(cmd) => cmd.run().await,
+    Command::Sign(cmd) => cmd.run().await,
   }
 }
 

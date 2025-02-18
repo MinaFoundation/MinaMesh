@@ -1,7 +1,7 @@
 use bitvec::prelude::*;
 use coinbase_mesh::models::Operation;
 use derive_more::derive::Display;
-use mina_signer::CompressedPubKey;
+use mina_signer::{CompressedPubKey, NetworkId};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use serde_with::{serde_as, DisplayFromStr};
@@ -440,6 +440,28 @@ impl UserCommandPayload {
   pub fn to_random_oracle_input(&self) -> ROInput {
     TransactionUnionPayload::from(self).to_random_oracle_input()
   }
+
+  pub fn to_roinput(&self) -> mina_hasher::ROInput {
+    TransactionUnionPayload::from(self).to_roinput()
+  }
+}
+
+impl mina_hasher::Hashable for UserCommandPayload {
+  fn to_roinput(&self) -> mina_hasher::ROInput {
+    self.to_roinput()
+  }
+
+  type D = NetworkId;
+
+  fn domain_string(network_id: NetworkId) -> Option<String> {
+    // Domain strings must have length <= 20
+    match network_id {
+      NetworkId::MAINNET => "MinaSignatureMainnet",
+      NetworkId::TESTNET => "CodaSignature",
+    }
+    .to_string()
+    .into()
+  }
 }
 
 #[derive(Debug, Clone)]
@@ -614,6 +636,30 @@ impl TransactionUnionPayload {
     .append_u64(self.amount) // Amount
     .append_bool(false)
   }
+
+  pub fn to_roinput(&self) -> mina_hasher::ROInput {
+    let [tag_bit_1, tag_bit_2, tag_bit_3] = self.tag.to_bits();
+    // 1. Append common part
+    mina_hasher::ROInput::new()
+    .append_u64(self.common.fee)
+    .append_u64(1) // fee token
+    .append_field(self.common.fee_payer.x)
+    .append_bool(self.common.fee_payer.is_odd)
+    .append_u32(self.common.nonce)
+    .append_u32(self.common.valid_until.unwrap_or(u32::MAX))
+    .append_bytes(&self.common.memo.0)
+    // 2. Append body part.
+    .append_bool(tag_bit_1) // Tag
+    .append_bool(tag_bit_2)
+    .append_bool(tag_bit_3)
+    .append_field(self.source_pk.x) // Source
+    .append_bool(self.source_pk.is_odd)
+    .append_field(self.receiver_pk.x) // Receiver
+    .append_bool(self.receiver_pk.is_odd)
+    .append_u64(1) // token id
+    .append_u64(self.amount) // Amount
+    .append_bool(false)
+  }
 }
 
 #[tokio::test]
@@ -632,6 +678,8 @@ async fn test_transaction_union_payload() {
   };
 
   let roi: ROInput = cmd.to_random_oracle_input();
+  let roi2: mina_hasher::ROInput = cmd.to_roinput();
+  assert_eq!(roi.to_bytes(), roi2.to_bytes(), "ROInput serialization mismatch");
   let roi_hex: String = hex::encode(roi.serialize_mesh_1()).to_uppercase();
   assert_eq!(roi_hex, "0000000327EA74CB13D3F1864C2E60C967577C055FD458D5AF93A59371905B8490B6567827EA74CB13D3F1864C2E60C967577C055FD458D5AF93A59371905B8490B656785E6737A0AC0A147918437FC8C21EA57CECFB613E711CA2E4FD328401657C291C000002570561800000000000800000000000000001F000007FFFFFFFC0500B531B1B7B000000000000000000000000000000000000000000000000000000060000000000000000013E815200000000");
 }
@@ -686,10 +734,39 @@ impl From<&UserCommandPayload> for TransactionUnsigned {
   }
 }
 
+impl From<&TransactionUnsigned> for UserCommandPayload {
+  fn from(tx: &TransactionUnsigned) -> Self {
+    let fee_payer = CompressedPubKey::from_address(&tx.payment.as_ref().unwrap().from).unwrap();
+    let memo = Memo::from_string(tx.payment.as_ref().unwrap().memo.as_deref().unwrap_or("")).unwrap();
+    let nonce = tx.payment.as_ref().unwrap().nonce;
+    let valid_until = tx.payment.as_ref().unwrap().valid_until;
+    let fee = tx.payment.as_ref().unwrap().fee;
+    let token = tx.payment.as_ref().unwrap().token.clone();
+
+    let body = if let Some(payment) = &tx.payment {
+      UserCommandBody::Payment {
+        receiver: CompressedPubKey::from_address(&payment.to).unwrap(),
+        amount: payment.amount,
+      }
+    } else if let Some(delegation) = &tx.stake_delegation {
+      UserCommandBody::Delegation { new_delegate: CompressedPubKey::from_address(&delegation.new_delegate).unwrap() }
+    } else {
+      panic!("Invalid transaction type");
+    };
+
+    UserCommandPayload { fee, fee_payer, nonce, valid_until, memo, body, token }
+  }
+}
+
 impl TransactionUnsigned {
   pub fn as_json_string(&self) -> Result<String, MinaMeshError> {
     serde_json::to_string(self)
       .map_err(|e| MinaMeshError::JsonParse(Some(format!("Failed to serialize unsigned transaction: {}", e))))
+  }
+
+  pub fn from_json_string(json: &str) -> Result<Self, MinaMeshError> {
+    serde_json::from_str(json)
+      .map_err(|e| MinaMeshError::JsonParse(Some(format!("Failed to deserialize unsigned transaction: {}", e))))
   }
 }
 
