@@ -1,5 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
+use mina_hasher::roinput;
 use mina_signer::{Keypair, NetworkId, SecKey, Signer};
 
 use crate::{TransactionUnsigned, UserCommandPayload};
@@ -22,10 +23,17 @@ impl SignCommand {
 
     let unsigned_transaction = TransactionUnsigned::from_json_string(&self.unsigned_transaction)?;
     let user_command_payload: UserCommandPayload = (&unsigned_transaction).into();
+    // let roinput = user_command_payload.to_random_oracle_input();
+    // let roinput2 = user_command_payload.to_roinput();
+    // assert_eq!(roinput.to_bytes(), roinput2.to_bytes());
 
-    let mut ctx = mina_signer::create_legacy::<UserCommandPayload>(NetworkId::MAINNET);
+    // println!("ROInput: {:?}", hex::encode(roinput.serialize_mesh_1()));
+
+    let mut ctx = mina_signer::create_legacy::<UserCommandPayload>(NetworkId::TESTNET);
     let sig = ctx.sign(&keypair, &user_command_payload);
     println!("{}", format!("{}", sig).to_uppercase());
+    use o1_utils::FieldHelpers;
+    println!("{}{}", hex::encode(sig.rx.to_bytes()), hex::encode(sig.s.to_bytes()));
 
     Ok(())
   }

@@ -456,8 +456,8 @@ impl mina_hasher::Hashable for UserCommandPayload {
   fn domain_string(network_id: NetworkId) -> Option<String> {
     // Domain strings must have length <= 20
     match network_id {
-      NetworkId::MAINNET => "MinaSignatureMainnet",
-      NetworkId::TESTNET => "CodaSignature",
+      NetworkId::MAINNET => "Mainnet",
+      NetworkId::TESTNET => "Testnet",
     }
     .to_string()
     .into()
