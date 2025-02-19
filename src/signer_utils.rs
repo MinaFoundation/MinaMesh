@@ -115,10 +115,10 @@ pub fn decode_signature(signature_raw: &str) -> Result<Signature, MinaMeshError>
   let (rx_bytes, s_bytes) = bytes.split_at(32);
 
   let rx = mina_signer::BaseField::from_bytes(rx_bytes)
-    .or_else(|_| Err(MinaMeshError::SignatureInvalid("Failed to parse BaseField".to_string())))?;
+    .map_err(|_| MinaMeshError::SignatureInvalid("Failed to parse BaseField".to_string()))?;
 
   let s = mina_signer::ScalarField::from_bytes(s_bytes)
-    .or_else(|_| Err(MinaMeshError::SignatureInvalid("Failed to parse ScalarField".to_string())))?;
+    .map_err(|_| MinaMeshError::SignatureInvalid("Failed to parse ScalarField".to_string()))?;
 
   Ok(Signature::new(rx, s))
 }

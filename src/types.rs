@@ -651,7 +651,6 @@ pub struct TransactionUnsigned {
 pub struct TransactionSigned {
   pub signature: String,
   pub payment: Option<Payment>,
-  #[serde(rename = "stakeDelegation")]
   pub stake_delegation: Option<StakeDelegation>,
 }
 

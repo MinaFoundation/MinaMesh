@@ -15,7 +15,7 @@ impl MinaMesh {
     if signatures.len() != 1 {
       return Err(MinaMeshError::SignatureInvalid(format!("Expected 1 signature, found {}", signatures.len())));
     }
-    let signature = signatures.first().ok_or_else(|| MinaMeshError::SignatureMissing)?;
+    let signature = signatures.first().ok_or(MinaMeshError::SignatureMissing)?;
     if signature.signature_type != SignatureType::SchnorrPoseidon {
       return Err(MinaMeshError::SignatureInvalid(format!(
         "Expected SchnorrPoseidon, found {:?}",
