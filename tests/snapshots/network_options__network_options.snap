@@ -206,9 +206,7 @@ Allow {
             ),
             retriable: false,
             details: Some(
-                Object {
-                    "error": String("Error message"),
-                },
+                String(""),
             ),
         },
         Error {
@@ -243,7 +241,9 @@ Allow {
             ),
             retriable: false,
             details: Some(
-                String(""),
+                Object {
+                    "error": String("Invalid signature"),
+                },
             ),
         },
         Error {
