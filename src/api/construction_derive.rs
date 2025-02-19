@@ -1,10 +1,12 @@
 use anyhow::Result;
 use coinbase_mesh::models::{AccountIdentifier, ConstructionDeriveRequest, ConstructionDeriveResponse};
-use mina_signer::{BaseField, CompressedPubKey};
-use o1_utils::FieldHelpers;
 use serde_json::{json, Value};
 
-use crate::{base58::validate_base58_with_checksum, util::DEFAULT_TOKEN_ID, MinaMesh, MinaMeshError};
+use crate::{
+  signer_utils::{hex_to_compressed_pub_key, validate_base58_with_checksum},
+  util::DEFAULT_TOKEN_ID,
+  MinaMesh, MinaMeshError,
+};
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/construction.ml#L162
 impl MinaMesh {
@@ -16,7 +18,7 @@ impl MinaMesh {
     self.validate_network(&request.network_identifier).await?;
 
     // Decode the hex_bytes payload into an address
-    let compressed_pk = to_public_key_compressed(&request.public_key.hex_bytes)?;
+    let compressed_pk = hex_to_compressed_pub_key(&request.public_key.hex_bytes)?;
     let address = compressed_pk.into_address();
 
     // Decode the token ID from metadata (if present)
@@ -36,36 +38,6 @@ impl MinaMesh {
       metadata: None,
     })
   }
-}
-
-/// Converts a hex string into a compressed public key
-/// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/lib/rosetta_coding/coding.ml#L128
-fn to_public_key_compressed(hex: &str) -> Result<CompressedPubKey, MinaMeshError> {
-  if hex.len() != 64 {
-    return Err(MinaMeshError::MalformedPublicKey("Invalid length for hex".to_string()));
-  }
-
-  // Decode the hex string
-  let mut bytes =
-    hex::decode(hex).map_err(|_| MinaMeshError::MalformedPublicKey("Invalid hex encoding".to_string()))?;
-  // Reverse the bytes
-  bytes.reverse();
-
-  // Convert bytes to bits
-  let mut bits: Vec<bool> = bytes.iter().flat_map(|byte| (0 .. 8).rev().map(move |i| (byte >> i) & 1 == 1)).collect();
-
-  // Extract the `is_odd` bit
-  let is_odd = bits.remove(0);
-
-  // Reverse the remaining bits
-  bits.reverse();
-
-  // Create the x-coordinate as a BaseField element
-  let x =
-    BaseField::from_bits(&bits).map_err(|_| MinaMeshError::MalformedPublicKey("Invalid x-coordinate".to_string()))?;
-
-  // Construct the compressed public key
-  Ok(CompressedPubKey { x, is_odd })
 }
 
 /// Decodes the token ID from metadata, or returns a default value if not

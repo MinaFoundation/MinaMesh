@@ -1,12 +1,12 @@
 use mina_mesh::{
-  models::ConstructionPreprocessRequest,
+  models::ConstructionPayloadsRequest,
   test::{delegation_operations, network_id, payment_operations},
-  PreprocessMetadata,
+  TransactionMetadata,
 };
 
 use super::CompareGroup;
 
-pub fn construction_preprocess<'a>() -> CompareGroup<'a> {
+pub fn construction_payloads<'a>() -> CompareGroup<'a> {
   // cspell:disable
   let sender = "B62qkUHaJUHERZuCHQhXCQ8xsGBqyYSgjQsKnKN5HhSJecakuJ4pYyk";
   let receiver = "B62qoDWfBZUxKpaoQCoFqr12wkaY84FrhxXNXzgBkMUi2Tz4K8kBDiv";
@@ -19,20 +19,21 @@ pub fn construction_preprocess<'a>() -> CompareGroup<'a> {
   // cspell:enable
   let delegation_operations = delegation_operations(delegator, "-1010000000", delegator, delegation_target);
 
-  let metadata = PreprocessMetadata::new(Some("70000".into()), Some("test memo OK".into()));
+  let metadata =
+    TransactionMetadata::new(sender, receiver, "355", "11", None::<&str>, Some("200009999"), Some("memo test!"));
 
-  ("/construction/preprocess", vec![
-    Box::new(ConstructionPreprocessRequest::new(network_id(), payment_operations.clone())),
-    Box::new(ConstructionPreprocessRequest::new(network_id(), delegation_operations.clone())),
-    Box::new(ConstructionPreprocessRequest {
+  ("/construction/payloads", vec![
+    Box::new(ConstructionPayloadsRequest {
       network_identifier: network_id().into(),
-      operations: payment_operations,
-      metadata: Some(metadata.to_json()),
+      operations: payment_operations.clone(),
+      metadata: metadata.to_json().into(),
+      public_keys: None,
     }),
-    Box::new(ConstructionPreprocessRequest {
+    Box::new(ConstructionPayloadsRequest {
       network_identifier: network_id().into(),
-      operations: delegation_operations,
-      metadata: Some(metadata.to_json()),
+      operations: delegation_operations.clone(),
+      metadata: metadata.to_json().into(),
+      public_keys: None,
     }),
   ])
 }

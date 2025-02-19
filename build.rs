@@ -11,7 +11,7 @@ fn main() -> Result<()> {
     .filter_map(|entry_result| match entry_result {
       Ok(entry) => {
         let entry_path = entry.path();
-        if entry_path.is_file() && entry_path.extension().map_or(false, |ext| ext == "graphql") {
+        if entry_path.is_file() && entry_path.extension().is_some_and(|ext| ext == "graphql") {
           Some(entry_path)
         } else {
           None
