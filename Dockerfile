@@ -1,61 +1,45 @@
-# syntax = docker/dockerfile:1.4
+ARG DEBIAN_CODENAME=bullseye
 
-ARG MINA_ROSETTA_IMAGE
+FROM debian:$DEBIAN_CODENAME AS builder
 
-FROM ubuntu:20.04 AS builder
+# Set environment variables
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:$PATH
 
-RUN set -eux; \
-		apt update; \
-		apt install -y --no-install-recommends curl ca-certificates gcc pkg-config libssl-dev libc6-dev;
-
-# Install rustup
-RUN --mount=type=cache,target=/root/.rustup \
-    set -eux; \
-		curl --location --fail \
-			"https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init" \
-			--output rustup-init; \
-		chmod +x rustup-init; \
-		./rustup-init -y --no-modify-path --default-toolchain stable; \
-		rm rustup-init;
-
-# Add rustup to path, check that it works
-ENV PATH=${PATH}:/root/.cargo/bin
-RUN set -eux; \
-		rustup --version;
+# Install required dependencies and Rust in one step to minimize layers
+RUN apt-get update && apt-get install -y \
+    curl \
+    build-essential \
+    pkg-config \
+    libssl-dev \
+    && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-RUN mkdir -p ./sql ./src ./static ./.sqlx
-COPY .sqlx .sqlx
-COPY sql sql
-COPY src src
-COPY static static
-COPY build.rs Cargo.lock Cargo.toml ./
+COPY . .
+RUN cargo build --release
 
-RUN --mount=type=cache,target=/root/.rustup \
-    --mount=type=cache,target=/root/.cargo/registry \
-    --mount=type=cache,target=/root/.cargo/git \
-		--mount=type=cache,target=/app/target \
-		set -eux; \
-		cargo build --release; \
-		cp /app/target/release/mina-mesh /app
+FROM debian:$DEBIAN_CODENAME-slim AS app
 
-FROM ${MINA_ROSETTA_IMAGE} as app
+ARG MINA_BASE_TAG=3.0.3.1-cc59a03
+ARG MINA_NETWORK=mainnet
 
-SHELL ["/bin/bash", "-c"]
+# Set environment variables
+ENV MINA_NETWORK=$MINA_NETWORK
+ENV MINA_BASE_TAG=$MINA_BASE_TAG
 
-RUN set -eux; \
-		apt update; \
-		apt install -y --no-install-recommends \
-			ca-certificates \
-			; \
-		apt clean autoclean; \
-		apt autoremove --yes; \
-		rm -rf /var/lib/{apt,cache,log}/
+COPY --from=builder /app/target/release/mina-mesh /usr/local/bin
+COPY scripts /scripts
 
-COPY --from=builder /app/mina-mesh /usr/local/bin
-
-WORKDIR /etc/mina/rosetta/scripts
-
-COPY scripts/mina-mesh-standalone.sh .
-
-ENTRYPOINT ["bash", "./mina-mesh-standalone.sh"]
+# Install dependencies and Mina daemon in one step
+RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg \
+    lsb-release \
+    postgresql \
+    && echo "deb [trusted=yes] http://packages.o1test.net $(grep VERSION_CODENAME /etc/os-release | cut -d= -f2) stable" | tee /etc/apt/sources.list.d/mina.list \
+    && echo "Installing mina-${MINA_NETWORK}=${MINA_BASE_TAG}" \
+    && apt-get update && \
+    apt-get install --allow-downgrades -y mina-${MINA_NETWORK}=${MINA_BASE_TAG} mina-archive=${MINA_BASE_TAG} \
+    && rm -rf /var/lib/apt/lists/*
