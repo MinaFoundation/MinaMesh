@@ -21,7 +21,7 @@ start_mina_daemon() {
       -insecure-rest-server \
       --log-level "${MINA_DAEMON_LOG_LEVEL}" \
       --log-json \
-      "${MINA_EXTRA_FLAGS}" &
+      "$@" &
     export MINA_DAEMON_PID=$!  # Storing the PID of the daemon process
 }
 
@@ -52,5 +52,5 @@ wait_for_graphql() {
 
 # Main execution
 log_environment
-start_mina_daemon
+start_mina_daemon "${MINA_EXTRA_FLAGS[@]}"
 wait_for_graphql
