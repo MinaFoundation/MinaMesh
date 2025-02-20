@@ -18,12 +18,12 @@ pub fn construction_combine<'a>() -> CompareGroup<'a> {
     Box::new(ConstructionCombineRequest {
       network_identifier: network_id().into(),
       signatures: vec![signature(signature_hex_1, SignatureType::SchnorrPoseidon)],
-      unsigned_transaction: unsigned_transaction_payment().into(),
+      unsigned_transaction: unsigned_transaction_payment(),
     }),
     Box::new(ConstructionCombineRequest {
       network_identifier: network_id().into(),
       signatures: vec![signature(signature_hex_2, SignatureType::SchnorrPoseidon)],
-      unsigned_transaction: unsigned_transaction_delegation().into(),
+      unsigned_transaction: unsigned_transaction_delegation(),
     }),
   ])
 }
