@@ -19,7 +19,9 @@
     "tests/snapshots",
     "flake.*",
     "nix",
-    ".gitignore"
+    ".gitignore",
+    "Dockerfile",
+    "scripts"
   ],
   "useGitignore": true,
   "enabled": true
