@@ -13,8 +13,11 @@ log_environment() {
 
 # Function to define and start Mina Archive with the necessary flags
 start_mina_archive() {
-    local MINA_ARCHIVE_FLAGS="--postgres-uri $POSTGRES_CONNECTION_STRING --log-level $MINA_ARCHIVE_LOG_LEVEL --log-json --server-port $MINA_ARCHIVE_PORT"
-    mina-archive run "$MINA_ARCHIVE_FLAGS" &
+    mina-archive run \
+        --postgres-uri "$POSTGRES_CONNECTION_STRING" \
+        --log-level "$MINA_ARCHIVE_LOG_LEVEL" \
+        --log-json \
+        --server-port "$MINA_ARCHIVE_PORT" &
     sleep 10
 }
 
