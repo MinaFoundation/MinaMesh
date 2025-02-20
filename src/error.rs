@@ -63,7 +63,7 @@ pub enum MinaMeshError {
   Exception(String),
 
   #[error("Invalid signature")]
-  SignatureInvalid,
+  SignatureInvalid(String),
 
   #[error("Invalid memo")]
   MemoInvalid,
@@ -127,7 +127,7 @@ impl MinaMeshError {
       MinaMeshError::PublicKeyFormatNotValid("Error message".to_string()),
       MinaMeshError::NoOptionsProvided,
       MinaMeshError::Exception("Unexpected error".to_string()),
-      MinaMeshError::SignatureInvalid,
+      MinaMeshError::SignatureInvalid("Invalid signature".to_string()),
       MinaMeshError::MemoInvalid,
       MinaMeshError::GraphqlUriNotSet,
       MinaMeshError::TransactionSubmitNoSender,
@@ -159,7 +159,7 @@ impl MinaMeshError {
       MinaMeshError::PublicKeyFormatNotValid(_) => 14,
       MinaMeshError::NoOptionsProvided => 15,
       MinaMeshError::Exception(_) => 16,
-      MinaMeshError::SignatureInvalid => 17,
+      MinaMeshError::SignatureInvalid(_) => 17,
       MinaMeshError::MemoInvalid => 18,
       MinaMeshError::GraphqlUriNotSet => 19,
       MinaMeshError::TransactionSubmitNoSender => 20,
@@ -223,7 +223,7 @@ impl MinaMeshError {
       MinaMeshError::MalformedPublicKey(err) => json!({
         "error": err,
       }),
-      MinaMeshError::PublicKeyFormatNotValid(err) => json!({
+      MinaMeshError::SignatureInvalid(err) => json!({
         "error": err,
       }),
       MinaMeshError::OperationsNotValid(reasons) => json!({
@@ -287,7 +287,7 @@ impl MinaMeshError {
       MinaMeshError::PublicKeyFormatNotValid(_) => "The public key you provided had an invalid format.".to_string(),
       MinaMeshError::NoOptionsProvided => "Your request is missing options.".to_string(),
       MinaMeshError::Exception(_) => "An internal exception occurred.".to_string(),
-      MinaMeshError::SignatureInvalid => "Your request has an invalid signature.".to_string(),
+      MinaMeshError::SignatureInvalid(_) => "Your request has an invalid signature.".to_string(),
       MinaMeshError::MemoInvalid => "Your request has an invalid memo.".to_string(),
       MinaMeshError::GraphqlUriNotSet => "No GraphQL URI has been set.".to_string(),
       MinaMeshError::TransactionSubmitNoSender => {
@@ -329,7 +329,7 @@ impl IntoResponse for MinaMeshError {
       MinaMeshError::PublicKeyFormatNotValid(_) => StatusCode::BAD_REQUEST,
       MinaMeshError::NoOptionsProvided => StatusCode::BAD_REQUEST,
       MinaMeshError::Exception(_) => StatusCode::INTERNAL_SERVER_ERROR,
-      MinaMeshError::SignatureInvalid => StatusCode::BAD_REQUEST,
+      MinaMeshError::SignatureInvalid(_) => StatusCode::BAD_REQUEST,
       MinaMeshError::MemoInvalid => StatusCode::BAD_REQUEST,
       MinaMeshError::GraphqlUriNotSet => StatusCode::INTERNAL_SERVER_ERROR,
       MinaMeshError::TransactionSubmitNoSender => StatusCode::BAD_REQUEST,

@@ -647,6 +647,25 @@ pub struct TransactionUnsigned {
   pub stake_delegation: Option<StakeDelegation>,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct TransactionSigned {
+  pub signature: String,
+  pub payment: Option<Payment>,
+  pub stake_delegation: Option<StakeDelegation>,
+}
+
+impl TransactionSigned {
+  pub fn as_json_string(&self) -> Result<String, MinaMeshError> {
+    serde_json::to_string(self)
+      .map_err(|e| MinaMeshError::JsonParse(Some(format!("Failed to serialize signed transaction: {}", e))))
+  }
+
+  pub fn from_json_string(json: &str) -> Result<Self, MinaMeshError> {
+    serde_json::from_str(json)
+      .map_err(|e| MinaMeshError::JsonParse(Some(format!("Failed to deserialize signed transaction: {}", e))))
+  }
+}
+
 impl From<&UserCommandPayload> for TransactionUnsigned {
   fn from(cmd: &UserCommandPayload) -> Self {
     let random_oracle_input = cmd.to_random_oracle_input();
@@ -690,6 +709,11 @@ impl TransactionUnsigned {
   pub fn as_json_string(&self) -> Result<String, MinaMeshError> {
     serde_json::to_string(self)
       .map_err(|e| MinaMeshError::JsonParse(Some(format!("Failed to serialize unsigned transaction: {}", e))))
+  }
+
+  pub fn from_json_string(json: &str) -> Result<Self, MinaMeshError> {
+    serde_json::from_str(json)
+      .map_err(|e| MinaMeshError::JsonParse(Some(format!("Failed to deserialize unsigned transaction: {}", e))))
   }
 }
 

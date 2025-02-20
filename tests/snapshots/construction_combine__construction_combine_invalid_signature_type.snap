@@ -1,0 +1,9 @@
+---
+source: tests/construction_combine.rs
+expression: response
+---
+Err(
+    SignatureInvalid(
+        "Expected SchnorrPoseidon, found Ecdsa",
+    ),
+)
