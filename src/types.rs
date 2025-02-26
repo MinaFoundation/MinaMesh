@@ -1,3 +1,5 @@
+use std::fmt;
+
 use bitvec::prelude::*;
 use coinbase_mesh::models::Operation;
 use derive_more::derive::Display;
@@ -393,9 +395,19 @@ impl InternalCommandOperationsData for InternalCommandMetadata {
   }
 }
 
-#[derive(Debug, Display, Hash, PartialEq, Eq)]
+#[derive(Debug, Hash, PartialEq, Eq)]
 pub enum CacheKey {
-  NetworkId,
+  NetworkId,           // Network
+  Transaction(String), // Caching submitted transactions
+}
+
+impl fmt::Display for CacheKey {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match self {
+      CacheKey::NetworkId => write!(f, "network_id"),
+      CacheKey::Transaction(signed_tx_str) => write!(f, "txn_{}", signed_tx_str),
+    }
+  }
 }
 
 // Construction types

@@ -22,15 +22,22 @@ impl MinaMesh {
       )));
     }
 
+    // tracing::debug!("CACHE: {:?}", self.cache);
+
     if signed_transaction.payment.is_some() {
-      tracing::debug!("Payment transaction");
+      tracing::info!("Payment transaction");
       let payment = signed_transaction.payment.unwrap();
       let hash = self.send_payment(payment, &signed_transaction.signature).await?;
+      self.cache_transaction(&signed_transaction.signature);
+      tracing::info!("Success! Transaction hash: {}", hash);
       Ok(TransactionIdentifier::new(hash))
     } else if signed_transaction.stake_delegation.is_some() {
-      tracing::debug!("Stake delegation transaction");
+      tracing::info!("Stake delegation transaction");
       let delegation = signed_transaction.stake_delegation.unwrap();
       let hash = self.send_delegation(delegation, &signed_transaction.signature).await?;
+      self.cache_transaction(&signed_transaction.signature);
+      tracing::info!("Success! Transaction hash: {}", hash);
+
       Ok(TransactionIdentifier::new(hash.to_string()))
     } else {
       tracing::debug!("Signed transaction missing payment or stake delegation");
@@ -54,7 +61,7 @@ impl MinaMesh {
 
     match response {
       Ok(response) => Ok(response.send_payment.payment.hash.0),
-      Err(err) => Err(self.map_error(err).await),
+      Err(err) => Err(self.map_error(err, signature).await),
     }
   }
 
@@ -73,11 +80,11 @@ impl MinaMesh {
 
     match response {
       Ok(response) => Ok(response.send_delegation.delegation.hash.0),
-      Err(err) => Err(self.map_error(err).await),
+      Err(err) => Err(self.map_error(err, signature).await),
     }
   }
 
-  async fn map_error(&self, err: MinaMeshError) -> MinaMeshError {
+  async fn map_error(&self, err: MinaMeshError, signed_tx_str: &str) -> MinaMeshError {
     match err {
       MinaMeshError::GraphqlMinaQuery(err) => {
         if err.contains("Couldn't infer nonce") {
@@ -87,6 +94,9 @@ impl MinaMesh {
         } else if err.contains("Invalid_signature") {
           MinaMeshError::TransactionSubmitInvalidSignature(err)
         } else if err.contains("below minimum_nonce") {
+          if self.is_transaction_cached(signed_tx_str) {
+            return MinaMeshError::TransactionSubmitDuplicate(err);
+          }
           MinaMeshError::TransactionSubmitBadNonce(err)
         } else {
           MinaMeshError::GraphqlMinaQuery(err)
