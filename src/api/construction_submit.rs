@@ -98,6 +98,8 @@ impl MinaMesh {
             return MinaMeshError::TransactionSubmitDuplicate(err);
           }
           MinaMeshError::TransactionSubmitBadNonce(err)
+        } else if err.contains("Insufficient_funds") {
+          MinaMeshError::TransactionSubmitInsufficientBalance(err)
         } else {
           MinaMeshError::GraphqlMinaQuery(err)
         }
