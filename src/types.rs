@@ -730,7 +730,7 @@ impl TransactionUnsigned {
 }
 
 #[serde_as]
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Payment {
   pub to: String,
   pub from: String,

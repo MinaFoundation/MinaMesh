@@ -23,7 +23,6 @@ impl MinaMesh {
     }
 
     // tracing::debug!("CACHE: {:?}", self.cache);
-
     if signed_transaction.payment.is_some() {
       tracing::info!("Payment transaction");
       let payment = signed_transaction.payment.unwrap();
@@ -46,6 +45,7 @@ impl MinaMesh {
   }
 
   async fn send_payment(&self, payment: Payment, signature: &str) -> Result<String, MinaMeshError> {
+    let payment_clone = payment.clone();
     let variables = SendPaymentVariables {
       amount: payment.amount.into(),
       fee: payment.fee.into(),
@@ -61,7 +61,7 @@ impl MinaMesh {
 
     match response {
       Ok(response) => Ok(response.send_payment.payment.hash.0),
-      Err(err) => Err(self.map_error(err, signature).await),
+      Err(err) => Err(self.map_error(err, signature, Some(payment_clone)).await),
     }
   }
 
@@ -80,11 +80,11 @@ impl MinaMesh {
 
     match response {
       Ok(response) => Ok(response.send_delegation.delegation.hash.0),
-      Err(err) => Err(self.map_error(err, signature).await),
+      Err(err) => Err(self.map_error(err, signature, None).await),
     }
   }
 
-  async fn map_error(&self, err: MinaMeshError, signed_tx_str: &str) -> MinaMeshError {
+  async fn map_error(&self, err: MinaMeshError, signed_tx_str: &str, payment: Option<Payment>) -> MinaMeshError {
     match err {
       MinaMeshError::GraphqlMinaQuery(err) => {
         if err.contains("Couldn't infer nonce") {
@@ -97,6 +97,13 @@ impl MinaMesh {
           if self.is_transaction_cached(signed_tx_str) {
             return MinaMeshError::TransactionSubmitDuplicate(err);
           }
+
+          if let Some(payment) = payment {
+            if self.is_transaction_in_db(payment).await.unwrap_or(false) {
+              return MinaMeshError::TransactionSubmitDuplicate("Transaction already in database".to_string());
+            }
+          }
+
           MinaMeshError::TransactionSubmitBadNonce(err)
         } else if err.contains("Insufficient_funds") {
           MinaMeshError::TransactionSubmitInsufficientBalance(err)
@@ -106,5 +113,18 @@ impl MinaMesh {
       }
       _ => err,
     }
+  }
+
+  async fn is_transaction_in_db(&self, payment: Payment) -> Result<bool, MinaMeshError> {
+    let sender = &payment.from;
+    let receiver = &payment.to;
+    let nonce = payment.nonce as i64;
+    let amount = &payment.amount.to_string();
+    let fee = &payment.fee.to_string();
+    let row = sqlx::query_file!("sql/queries/query_payment.sql", nonce, sender, receiver, amount, fee)
+      .fetch_optional(&self.pg_pool)
+      .await?;
+
+    Ok(row.is_some())
   }
 }
