@@ -615,7 +615,9 @@ Ok(
                 ),
             },
         ],
-        total_count: 5,
-        next_offset: None,
+        total_count: 6,
+        next_offset: Some(
+            5,
+        ),
     },
 )

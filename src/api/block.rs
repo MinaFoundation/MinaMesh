@@ -101,10 +101,11 @@ impl MinaMesh {
   }
 
   pub async fn zkapp_commands(&self, metadata: &BlockMetadata) -> Result<Vec<Transaction>, MinaMeshError> {
-    let metadata = sqlx::query_file_as!(ZkAppCommand, "sql/queries/zkapp_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
-      .fetch_all(&self.pg_pool)
-      .await?;
-    let transactions = zkapp_commands_to_transactions(metadata);
+    let zkapp_commands =
+      sqlx::query_file_as!(ZkAppCommand, "sql/queries/zkapp_commands.sql", metadata.id, DEFAULT_TOKEN_ID)
+        .fetch_all(&self.pg_pool)
+        .await?;
+    let transactions = zkapp_commands_to_transactions(zkapp_commands);
     Ok(transactions)
   }
 

@@ -321,7 +321,7 @@ pub fn generate_operations_zkapp_command(commands: Vec<ZkAppCommand>) -> BlockMa
     // Add fee operation (zkapp_fee_payer_dec)
     if operations.is_empty() {
       operations.push(operation(
-        0,
+        operations.len() as i64,
         Some(&format!("-{}", command.fee)),
         &AccountIdentifier {
           address: command.fee_payer.clone(),
@@ -339,7 +339,7 @@ pub fn generate_operations_zkapp_command(commands: Vec<ZkAppCommand>) -> BlockMa
     if let Some(balance_change) = &command.balance_change {
       // Add zkapp balance update operation
       operations.push(operation(
-        0,
+        operations.len() as i64,
         Some(balance_change),
         &AccountIdentifier {
           address: command.pk_update_body.unwrap_or_default().clone(),
@@ -352,15 +352,6 @@ pub fn generate_operations_zkapp_command(commands: Vec<ZkAppCommand>) -> BlockMa
         None,
         command.token.as_ref(),
       ));
-    }
-  }
-
-  // Re-index operations within each transaction
-  for (_, tx_map) in block_map.iter_mut() {
-    for (_, operations) in tx_map.iter_mut() {
-      for (i, operation) in operations.iter_mut().enumerate() {
-        operation.operation_identifier.index = i as i64;
-      }
     }
   }
 

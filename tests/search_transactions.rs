@@ -188,8 +188,8 @@ async fn search_transactions_zkapp_tokens_tx_hash() -> Result<()> {
 async fn search_transactions_offset_limit() -> Result<()> {
   let mina_mesh = MinaMeshConfig::from_env().to_mina_mesh().await?;
   // cspell:disable-next-line
-  let address = "B62qrHd4Wg8z6N6tCC9pVtRtxEuBXLWPH61gbcgotURdiU1rSURMdFB";
-  let max_block = 370_000;
+  let address = "B62qnFh3toTxk1gP1bvoo5v4L4GwbSwL4MBWV24R1xMntsKt1WRUbWd";
+  let max_block = 400_178;
   let request = SearchTransactionsRequest {
     network_identifier: Box::new(network_id()),
     address: Some(address.to_string()),
