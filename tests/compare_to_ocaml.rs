@@ -116,3 +116,9 @@ async fn construction_payloads() -> Result<()> {
   let (subpath, reqs) = fixtures::construction_payloads();
   assert_responses_eq(subpath, &reqs).await
 }
+
+#[tokio::test]
+async fn construction_combine() -> Result<()> {
+  let (subpath, reqs) = fixtures::construction_combine();
+  assert_responses_eq(subpath, &reqs).await
+}

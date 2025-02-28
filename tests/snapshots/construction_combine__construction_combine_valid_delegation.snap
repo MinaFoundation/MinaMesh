@@ -1,0 +1,9 @@
+---
+source: tests/construction_combine.rs
+expression: response
+---
+Ok(
+    ConstructionCombineResponse {
+        signed_transaction: "{\"signature\":\"CA5B636101409503297B02AB94DE28FACBD53C91919A77E57CCBEDBF9D6C2D1893FDE9B63BF44618270F6D404B7C4B783BB322B05C9347BEF238FDB841BF3320\",\"payment\":null,\"stake_delegation\":{\"delegator\":\"B62qkXajxfnicuCNtaurdAhQpkFsqjoyPJuw53aeJP848bsa3Ne3RvB\",\"new_delegate\":\"B62qiburnzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzmp7r7UN6X\",\"fee\":\"10100000\",\"nonce\":\"3\",\"memo\":\"hello\",\"valid_until\":\"200000\"}}",
+    },
+)

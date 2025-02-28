@@ -2,6 +2,7 @@ use erased_serde::Serialize as ErasedSerialize;
 
 mod account_balance;
 mod block;
+mod construction_combine;
 mod construction_derive;
 mod construction_metadata;
 mod construction_payloads;
@@ -12,6 +13,7 @@ mod search_transactions;
 
 pub use account_balance::*;
 pub use block::*;
+pub use construction_combine::*;
 pub use construction_derive::*;
 pub use construction_metadata::*;
 pub use construction_payloads::*;
