@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-set -euxo pipefail
-
-echo "Initializing database with Postgres $POSTGRES_VERSION..."
-POSTGRES_CONNECTION_STRING=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DBNAME}
+set -e
+set -o pipefail
 
 # Function to ensure PostgreSQL data directory exists and has correct ownership
 initialize_data_dir() {
@@ -13,14 +11,15 @@ initialize_data_dir() {
 
 # Function to initialize and start PostgreSQL
 initialize_postgres() {
+    echo "Initializing database with Postgres $POSTGRES_VERSION..."
     sudo -u postgres "/usr/lib/postgresql/${POSTGRES_VERSION}/bin/initdb" -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1
     sudo -u postgres "/usr/lib/postgresql/$POSTGRES_VERSION/bin/pg_ctl" -D "$POSTGRES_DATA_DIR" -l "${POSTGRES_DATA_DIR}/postgresql.log" start > /dev/null 2>&1
 }
 
 # Function to create PostgreSQL user and database
 create_postgres_user_and_db() {
-    sudo -u postgres psql --command "CREATE USER ${POSTGRES_USER} WITH SUPERUSER PASSWORD '${POSTGRES_PASSWORD}';" > /dev/null 2>&1
-    sudo -u postgres createdb -O "${POSTGRES_USER}" "${POSTGRES_DBNAME}" > /dev/null 2>&1
+    sudo -u postgres psql --command "CREATE USER ${POSTGRES_USERNAME} WITH SUPERUSER PASSWORD '${POSTGRES_PASSWORD}';" > /dev/null 2>&1
+    sudo -u postgres createdb -O "${POSTGRES_USERNAME}" "${POSTGRES_DBNAME}" > /dev/null 2>&1
 }
 
 # Function to find and download the latest available archive dump
@@ -69,6 +68,7 @@ show_top_blocks() {
 }
 
 # Main execution
+
 initialize_data_dir
 initialize_postgres
 create_postgres_user_and_db

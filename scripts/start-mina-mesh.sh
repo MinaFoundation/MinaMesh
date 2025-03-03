@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 set -euxo pipefail
-POSTGRES_CONNECTION_STRING=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DBNAME}
 
 # Function to log environment variables
 log_environment() {
@@ -36,6 +35,7 @@ apply_search_tx_optimizations() {
 }
 
 # Main execution
+
 log_environment
 
 # Apply search transaction optimizations if enabled
