@@ -4,6 +4,8 @@
 
 set -euxo pipefail
 
+POSTGRES_CONNECTION_STRING=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DBNAME}
+
 restore_missing_blocks() {
   info "Starting missing block restoration job"
 

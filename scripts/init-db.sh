@@ -3,8 +3,7 @@
 set -euxo pipefail
 
 echo "Initializing database with Postgres $POSTGRES_VERSION..."
-
-echo "env" && env
+POSTGRES_CONNECTION_STRING=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DBNAME}
 
 # Function to ensure PostgreSQL data directory exists and has correct ownership
 initialize_data_dir() {
