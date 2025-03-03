@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
-set -o pipefail
+set -euxo pipefail
 
 # Function to ensure PostgreSQL data directory exists and has correct ownership
 initialize_data_dir() {
