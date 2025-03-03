@@ -37,7 +37,6 @@ ENV MINA_NETWORK=$MINA_NETWORK
 ENV MINA_BASE_TAG=$MINA_BASE_TAG
 ENV DEBIAN_RELEASE_CHANNEL=$DEBIAN_RELEASE_CHANNEL
 ENV POSTGRES_VERSION=$POSTGRES_VERSION
-ENV PGDATA=/var/lib/postgresql/data
 
 # Install dependencies and Mina daemon in one step
 RUN apt-get update && apt-get install -y \

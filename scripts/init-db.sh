@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
-set -o pipefail
+set -euxo pipefail
 
 echo "Initializing database with Postgres $POSTGRES_VERSION..."
 
@@ -19,8 +18,8 @@ initialize_postgres() {
 
 # Function to create PostgreSQL user and database
 create_postgres_user_and_db() {
-    sudo -u postgres psql --command "CREATE USER ${POSTGRES_USERNAME} WITH SUPERUSER PASSWORD '${POSTGRES_PASSWORD}';" > /dev/null 2>&1
-    sudo -u postgres createdb -O "${POSTGRES_USERNAME}" "${POSTGRES_DBNAME}" > /dev/null 2>&1
+    sudo -u postgres psql --command "CREATE USER ${POSTGRES_USER} WITH SUPERUSER PASSWORD '${POSTGRES_PASSWORD}';" > /dev/null 2>&1
+    sudo -u postgres createdb -O "${POSTGRES_USER}" "${POSTGRES_DBNAME}" > /dev/null 2>&1
 }
 
 # Function to find and download the latest available archive dump

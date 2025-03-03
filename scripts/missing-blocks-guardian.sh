@@ -2,8 +2,7 @@
 
 # This script is used to populate a postgres database with missing precomputed archiveDB blocks
 
-set -e
-set -o pipefail
+set -euxo pipefail
 
 restore_missing_blocks() {
   info "Starting missing block restoration job"

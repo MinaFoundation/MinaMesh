@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
-set -o pipefail
+set -euxo pipefail
 
 # Function to download Genesis Ledger
 download_genesis_ledger() {
