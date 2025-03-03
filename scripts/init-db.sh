@@ -4,6 +4,8 @@ set -euxo pipefail
 
 echo "Initializing database with Postgres $POSTGRES_VERSION..."
 
+echo "env" && env
+
 # Function to ensure PostgreSQL data directory exists and has correct ownership
 initialize_data_dir() {
     mkdir -p "$POSTGRES_DATA_DIR"
@@ -51,7 +53,6 @@ download_archive_dump() {
 restore_dump() {
     if [ -f archive-dump.tar.gz ]; then
         tar -xvf archive-dump.tar.gz
-        echo "$POSTGRES_CONNECTION_STRING"
         psql -f "${MINA_NETWORK}-archive-dump-${DATE}.sql" "$POSTGRES_CONNECTION_STRING"
         rm -f archive-dump.tar.gz
     fi
