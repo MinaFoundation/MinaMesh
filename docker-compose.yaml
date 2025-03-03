@@ -11,53 +11,55 @@ services:
       timeout: 10s
       retries: 10
     volumes:
-      - './postgresql/data:/var/lib/postgresql/data'
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - '5432:5432'
-  missing_blocks_guardian:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: "/scripts/missing-blocks-guardian.sh"
-    entrypoint: []
-    depends_on:
-      bootstrap_db:
-        condition: service_completed_successfully
-  mina_archive:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
-    command: "/scripts/start-mina-archive.sh"
-    volumes:
-      - './archive/data:/data'
-    entrypoint: []
-    depends_on:
-      bootstrap_db:
-        condition: service_completed_successfully
-  mina_node:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
-    environment:
-      MINA_LIBP2P_PASS: PssW0rD
-      MINA_CLIENT_TRUSTLIST: "0.0.0.0/0"
-    entrypoint: []
-    command: "/scripts/start-mina-daemon.sh"
-    ports:
-      - '3085:3085'
-      - '8302:8302'
-    depends_on:
-      bootstrap_db:
-        condition: service_completed_successfully
-  mina_mesh:
-    image: 'minaprotocol/mina-rosetta:3.0.3-d800da8-bullseye-mainnet'
-    restart: always
-    entrypoint: []
-    command: "/scripts/start-mina-mesh.sh"
-    ports:
-      - '3087:3087'
-    depends_on:
-      bootstrap_db:
-        condition: service_completed_successfully
+  # missing_blocks_guardian:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   command: "/scripts/missing-blocks-guardian.sh"
+  #   entrypoint: []
+  #   depends_on:
+  #     bootstrap_db:
+  #       condition: service_completed_successfully
+  # mina_archive:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   command: "/scripts/start-mina-archive.sh"
+  #   volumes:
+  #     - './archive/data:/data'
+  #   entrypoint: []
+  #   depends_on:
+  #     bootstrap_db:
+  #       condition: service_completed_successfully
+  # mina_node:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   environment:
+  #     MINA_LIBP2P_PASS: PssW0rD
+  #     MINA_CLIENT_TRUSTLIST: "0.0.0.0/0"
+  #   entrypoint: []
+  #   command: "/scripts/start-mina-daemon.sh"
+  #   ports:
+  #     - '3085:3085'
+  #     - '8302:8302'
+  #   depends_on:
+  #     bootstrap_db:
+  #       condition: service_completed_successfully
+  # mina_mesh:
+  #   image: 'minaprotocol/mina-rosetta:3.0.3-d800da8-bullseye-mainnet'
+  #   restart: always
+  #   entrypoint: []
+  #   command: "/scripts/start-mina-mesh.sh"
+  #   ports:
+  #     - '3087:3087'
+  #   depends_on:
+  #     bootstrap_db:
+  #       condition: service_completed_successfully
+volumes:
+  postgres_data:
