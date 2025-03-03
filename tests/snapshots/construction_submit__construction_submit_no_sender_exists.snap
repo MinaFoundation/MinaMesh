@@ -1,0 +1,9 @@
+---
+source: tests/construction_submit.rs
+expression: response
+---
+Err(
+    TransactionSubmitNoSender(
+        "Couldn't send user command: Error creating user command: {\"payload\":{\"common\":{\"fee\":\"0.1\",\"fee_payer_pk\":\"B62qjJhLursd9rcpo1vEV2CxRc29fQNP79K3KNHjhmUJCEtBcwvtbpz\",\"nonce\":\"61\",\"valid_until\":\"4294967295\",\"memo\":\"E4YXYczkh3RDn4ayEo5fLXQf3U1mZyAVtadozsT41ftMqkqsJxvdM\"},\"body\":[\"Payment\",{\"receiver_pk\":\"B62qj7nR7j5GiQLJEBrMq49nX8fKcLJKK57kDdja7w9YPJQMdsshtcL\",\"amount\":\"1\"}]},\"signer\":\"B62qjJhLursd9rcpo1vEV2CxRc29fQNP79K3KNHjhmUJCEtBcwvtbpz\",\"signature\":[\"Signature\",\"7mXEMFBfaaeVgeLvdg9kLVMNEzALpwE14duEAoC7B4LBxKbc8rw7ceqpZPMz7VUQQuxhPFtsxW9A3RXF2Bx7VD21PwN9ALP5\"]} Error: Couldn't infer nonce for transaction from specified `sender` since `sender` is not in the ledger or sent a transaction in transaction pool.",
+    ),
+)
