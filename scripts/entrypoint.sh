@@ -2,6 +2,8 @@
 
 set -euxo pipefail
 
+export POSTGRES_CONNECTION_STRING=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DBNAME}
+
 # Fetch Genesis Ledger
 /scripts/get-genesis-ledger.sh
 
