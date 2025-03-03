@@ -20,8 +20,12 @@
     "flake.*",
     "nix",
     ".gitignore",
+<<<<<<< HEAD
     "Dockerfile",
     "scripts"
+=======
+    "scripts/*.py"
+>>>>>>> 9627465 (cspell)
   ],
   "useGitignore": true,
   "enabled": true
