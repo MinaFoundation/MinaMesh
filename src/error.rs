@@ -244,6 +244,9 @@ impl MinaMeshError {
       MinaMeshError::TransactionSubmitInsufficientBalance(err) => json!({
         "error": err,
       }),
+      MinaMeshError::TransactionSubmitExpired(err) => json!({
+        "error": err,
+      }),
       MinaMeshError::OperationsNotValid(reasons) => json!({
         "error": "We could not convert those operations to a valid transaction.",
         "reasons": reasons,

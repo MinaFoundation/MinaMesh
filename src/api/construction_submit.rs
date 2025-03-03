@@ -107,6 +107,8 @@ impl MinaMesh {
           MinaMeshError::TransactionSubmitBadNonce(err)
         } else if err.contains("Insufficient_funds") {
           MinaMeshError::TransactionSubmitInsufficientBalance(err)
+        } else if err.contains("Expired") {
+          MinaMeshError::TransactionSubmitExpired(err)
         } else {
           MinaMeshError::GraphqlMinaQuery(err)
         }
