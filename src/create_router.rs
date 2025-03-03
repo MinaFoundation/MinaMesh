@@ -81,8 +81,11 @@ async fn handle_available_endpoints() -> impl IntoResponse {
   Json([
     "/account/balance",
     "/construction/derive",
+    "/construction/combine",
+    "/construction/payloads",
     "/construction/preprocess",
     "/construction/metadata",
+    "/construction/submit",
     "/block",
     "/mempool",
     "/mempool/transaction",
