@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     command: "/scripts/init-db.sh"
     entrypoint: []
+    environment:
+      POSTGRES_DATA_DIR: /data/postgresql
     healthcheck:
       test: ["CMD-SHELL", "psql -U postgres -d archive -tAc \"SELECT COUNT(*) FROM pg_database WHERE datname='archive';\" | grep -q '^1$'"]
       interval: 5s
