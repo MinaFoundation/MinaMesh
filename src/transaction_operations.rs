@@ -80,7 +80,7 @@ pub fn generate_transaction_metadata<T: UserCommandOperationsData>(data: &T) -> 
 }
 
 pub fn generate_operations_user_command<T: UserCommandOperationsData>(data: &T) -> Vec<Operation> {
-  let amt = data.amount().unwrap_or("0").to_string();
+  let amt = data.amount().unwrap_or("0".to_string());
   let receiver_account_id = &AccountIdentifier {
     address: data.receiver().to_string(),
     metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
@@ -126,10 +126,10 @@ pub fn generate_operations_user_command<T: UserCommandOperationsData>(data: &T) 
     let negated_creation_fee = format!("-{}", creation_fee);
     operations.push(operation(
       operation_index,
-      if data.status() == &TransactionStatus::Applied { Some(&negated_creation_fee) } else { None },
+      if data.status() == Some(&TransactionStatus::Applied) { Some(&negated_creation_fee) } else { None },
       receiver_account_id,
       OperationType::AccountCreationFeeViaPayment,
-      Some(data.status()),
+      data.status(),
       None,
       operations_metadata_value.as_ref(),
       None,
@@ -143,10 +143,10 @@ pub fn generate_operations_user_command<T: UserCommandOperationsData>(data: &T) 
       let negated_amt = format!("-{}", amt);
       operations.push(operation(
         operation_index,
-        if data.status() == &TransactionStatus::Applied { Some(&negated_amt) } else { None },
+        if data.status() == Some(&TransactionStatus::Applied) { Some(&negated_amt) } else { None },
         source_account_id,
         OperationType::PaymentSourceDec,
-        Some(data.status()),
+        data.status(),
         None,
         operations_metadata_value.as_ref(),
         None,
@@ -155,10 +155,10 @@ pub fn generate_operations_user_command<T: UserCommandOperationsData>(data: &T) 
 
       operations.push(operation(
         operation_index,
-        if data.status() == &TransactionStatus::Applied { Some(&amt) } else { None },
+        if data.status() == Some(&TransactionStatus::Applied) { Some(&amt) } else { None },
         receiver_account_id,
         OperationType::PaymentReceiverInc,
-        Some(data.status()),
+        data.status(),
         Some(vec![operation_index - 1]),
         operations_metadata_value.as_ref(),
         None,
@@ -170,7 +170,7 @@ pub fn generate_operations_user_command<T: UserCommandOperationsData>(data: &T) 
         None,
         source_account_id,
         OperationType::DelegateChange,
-        Some(data.status()),
+        data.status(),
         None,
         Some(&json!({ "delegate_change_target": data.receiver() })),
         None,
