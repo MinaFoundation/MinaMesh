@@ -1,5 +1,6 @@
 use anyhow::Result;
 use coinbase_mesh::models::{ConstructionParseRequest, ConstructionParseResponse};
+use serde_json::{json, Value};
 
 use crate::{
   generate_operations_user_command, signer_utils::decode_signature, util::MINIMUM_USER_COMMAND_FEE, MinaMesh,
@@ -14,7 +15,7 @@ impl MinaMesh {
   ) -> Result<ConstructionParseResponse, MinaMeshError> {
     self.validate_network(&request.network_identifier).await?;
 
-    let mut operations = if request.signed {
+    let (mut operations, metadata) = if request.signed {
       let tx = TransactionSigned::from_json_string(&request.transaction)?;
       if tx.payment.is_some() && tx.stake_delegation.is_some() {
         return Err(MinaMeshError::JsonParse(Some(
@@ -26,10 +27,16 @@ impl MinaMesh {
 
       if tx.payment.is_some() {
         self.check_fee(tx.payment.as_ref().unwrap().fee)?;
-        generate_operations_user_command(&tx.payment.unwrap())
+        let metadata =
+          self.make_metadata(tx.payment.as_ref().unwrap().memo.clone(), tx.payment.as_ref().unwrap().valid_until);
+        (generate_operations_user_command(&tx.payment.unwrap()), metadata)
       } else {
         self.check_fee(tx.stake_delegation.as_ref().unwrap().fee)?;
-        generate_operations_user_command(&tx.stake_delegation.unwrap())
+        let metadata = self.make_metadata(
+          tx.stake_delegation.as_ref().unwrap().memo.clone(),
+          tx.stake_delegation.as_ref().unwrap().valid_until,
+        );
+        (generate_operations_user_command(&tx.stake_delegation.unwrap()), metadata)
       }
     } else {
       let tx = TransactionUnsigned::from_json_string(&request.transaction)?;
@@ -40,10 +47,16 @@ impl MinaMesh {
       }
       if tx.payment.is_some() {
         self.check_fee(tx.payment.as_ref().unwrap().fee)?;
-        generate_operations_user_command(&tx.payment.unwrap())
+        let metadata =
+          self.make_metadata(tx.payment.as_ref().unwrap().memo.clone(), tx.payment.as_ref().unwrap().valid_until);
+        (generate_operations_user_command(&tx.payment.unwrap()), metadata)
       } else {
         self.check_fee(tx.stake_delegation.as_ref().unwrap().fee)?;
-        generate_operations_user_command(&tx.stake_delegation.unwrap())
+        let metadata = self.make_metadata(
+          tx.stake_delegation.as_ref().unwrap().memo.clone(),
+          tx.stake_delegation.as_ref().unwrap().valid_until,
+        );
+        (generate_operations_user_command(&tx.stake_delegation.unwrap()), metadata)
       }
     };
 
@@ -52,7 +65,7 @@ impl MinaMesh {
       operation.status = None;
     }
 
-    Ok(ConstructionParseResponse::new(operations))
+    Ok(ConstructionParseResponse { operations, signers: None, account_identifier_signers: None, metadata })
   }
 
   fn check_fee(&self, fee: u64) -> Result<(), MinaMeshError> {
@@ -60,5 +73,20 @@ impl MinaMesh {
       return Err(MinaMeshError::TransactionSubmitFeeSmall("Fee must be at least 0.001".to_string()));
     }
     Ok(())
+  }
+
+  fn make_metadata(&self, memo: Option<String>, valid_until: Option<u32>) -> Option<Value> {
+    if memo.is_none() && valid_until.is_none() {
+      return None;
+    }
+
+    let mut metadata = json!({});
+    if let Some(memo) = memo {
+      metadata["memo"] = json!(memo);
+    }
+    if let Some(valid_until) = valid_until {
+      metadata["valid_until"] = json!(valid_until.to_string());
+    }
+    Some(metadata)
   }
 }
