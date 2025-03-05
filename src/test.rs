@@ -144,7 +144,11 @@ fn remove_empty_tx_fields(value: &mut Value) {
   match value {
     Value::Object(map) => {
       map.retain(|key, v| {
-        if key == "related_transactions" || key == "other_transactions" {
+        if key == "related_transactions"
+          || key == "other_transactions"
+          || key == "signers"
+          || key == "account_identifier_signers"
+        {
           !matches!(v, Value::Array(arr) if arr.is_empty())
         } else {
           true
