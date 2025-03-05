@@ -119,7 +119,7 @@ def send_payment(sender, sender_pvk, amount, receiver):
     preprocess_data = {
         "network_identifier": {"blockchain": "mina", "network": NETWORK},
         "operations": operations(sender, amount, receiver),
-        "metadata": {"memo": "hello"},
+        "metadata": {"memo": "hello", "valid_until": "200000000"},
     }
     preprocess_response = post_request("preprocess", preprocess_data)
     print("✅ Preprocess done")
@@ -127,12 +127,7 @@ def send_payment(sender, sender_pvk, amount, receiver):
     # 2️⃣ **Metadata**
     metadata_data = {
         "network_identifier": {"blockchain": "mina", "network": NETWORK},
-        "options": {
-            "memo": "hello",
-            "receiver": receiver,
-            "sender": sender,
-            "token_id": "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf",
-        },
+        "options": preprocess_response["options"],
     }
     metadata_response = post_request("metadata", metadata_data)
     nonce = metadata_response["metadata"]["nonce"]
