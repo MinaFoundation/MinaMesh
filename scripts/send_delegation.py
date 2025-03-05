@@ -36,6 +36,7 @@ It follows these steps:
 
 """
 
+
 import requests
 import json
 import subprocess
@@ -116,12 +117,7 @@ def send_delegation(sender, sender_pvk, delegatee):
     # 2️⃣ **Metadata**
     metadata_data = {
         "network_identifier": {"blockchain": "mina", "network": NETWORK},
-        "options": {
-            "memo": "hello",
-            "sender": sender,
-            "receiver": delegatee,
-            "token_id": "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf",
-        },
+        "options": preprocess_response["options"],
     }
     metadata_response = post_request("metadata", metadata_data)
     nonce = metadata_response["metadata"]["nonce"]
