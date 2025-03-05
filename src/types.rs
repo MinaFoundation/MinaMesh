@@ -648,7 +648,7 @@ async fn test_transaction_union_payload() {
   assert_eq!(roi_hex, "0000000327EA74CB13D3F1864C2E60C967577C055FD458D5AF93A59371905B8490B6567827EA74CB13D3F1864C2E60C967577C055FD458D5AF93A59371905B8490B656785E6737A0AC0A147918437FC8C21EA57CECFB613E711CA2E4FD328401657C291C000002570561800000000000800000000000000001F000007FFFFFFFC0500B531B1B7B000000000000000000000000000000000000000000000000000000060000000000000000013E815200000000");
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Debug)]
 pub struct TransactionUnsigned {
   #[serde(rename = "randomOracleInput")]
   pub random_oracle_input: String,
@@ -664,6 +664,31 @@ pub struct TransactionSigned {
   pub signature: String,
   pub payment: Option<Payment>,
   pub stake_delegation: Option<StakeDelegation>,
+}
+
+pub trait HasPaymentAndDelegation {
+  fn payment(&self) -> Option<&Payment>;
+  fn stake_delegation(&self) -> Option<&StakeDelegation>;
+}
+
+impl HasPaymentAndDelegation for TransactionSigned {
+  fn payment(&self) -> Option<&Payment> {
+    self.payment.as_ref()
+  }
+
+  fn stake_delegation(&self) -> Option<&StakeDelegation> {
+    self.stake_delegation.as_ref()
+  }
+}
+
+impl HasPaymentAndDelegation for TransactionUnsigned {
+  fn payment(&self) -> Option<&Payment> {
+    self.payment.as_ref()
+  }
+
+  fn stake_delegation(&self) -> Option<&StakeDelegation> {
+    self.stake_delegation.as_ref()
+  }
 }
 
 impl TransactionSigned {
@@ -730,7 +755,7 @@ impl TransactionUnsigned {
 }
 
 #[serde_as]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug)]
 pub struct Payment {
   pub to: String,
   pub from: String,
@@ -780,7 +805,7 @@ impl UserCommandOperationsData for Payment {
   }
 
   fn status(&self) -> Option<&TransactionStatus> {
-    None
+    Some(&TransactionStatus::Applied)
   }
 
   fn failure_reason(&self) -> Option<&str> {
@@ -793,7 +818,7 @@ impl UserCommandOperationsData for Payment {
 }
 
 #[serde_as]
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Debug)]
 pub struct StakeDelegation {
   pub delegator: String,
   pub new_delegate: String,
@@ -840,7 +865,7 @@ impl UserCommandOperationsData for StakeDelegation {
   }
 
   fn status(&self) -> Option<&TransactionStatus> {
-    None
+    Some(&TransactionStatus::Applied)
   }
 
   fn failure_reason(&self) -> Option<&str> {
@@ -852,7 +877,7 @@ impl UserCommandOperationsData for StakeDelegation {
   }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Debug)]
 pub struct SignerInput {
   pub prefix: Vec<String>,
   pub suffix: Vec<String>,
