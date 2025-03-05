@@ -1,0 +1,9 @@
+---
+source: tests/construction_parse.rs
+expression: response
+---
+Err(
+    TransactionSubmitFeeSmall(
+        "Fee must be at least 0.001",
+    ),
+)

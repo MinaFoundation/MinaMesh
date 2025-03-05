@@ -1,0 +1,78 @@
+---
+source: tests/construction_parse.rs
+expression: response
+---
+Ok(
+    ConstructionParseResponse {
+        operations: [
+            Operation {
+                operation_identifier: OperationIdentifier {
+                    index: 0,
+                    network_index: None,
+                },
+                related_operations: None,
+                type: "fee_payment",
+                status: None,
+                account: Some(
+                    AccountIdentifier {
+                        address: "B62qkXajxfnicuCNtaurdAhQpkFsqjoyPJuw53aeJP848bsa3Ne3RvB",
+                        sub_account: None,
+                        metadata: Some(
+                            Object {
+                                "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                            },
+                        ),
+                    },
+                ),
+                amount: Some(
+                    Amount {
+                        value: "-10100000",
+                        currency: Currency {
+                            symbol: "MINA",
+                            decimals: 9,
+                            metadata: None,
+                        },
+                        metadata: None,
+                    },
+                ),
+                coin_change: None,
+                metadata: None,
+            },
+            Operation {
+                operation_identifier: OperationIdentifier {
+                    index: 1,
+                    network_index: None,
+                },
+                related_operations: None,
+                type: "delegate_change",
+                status: None,
+                account: Some(
+                    AccountIdentifier {
+                        address: "B62qkXajxfnicuCNtaurdAhQpkFsqjoyPJuw53aeJP848bsa3Ne3RvB",
+                        sub_account: None,
+                        metadata: Some(
+                            Object {
+                                "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                            },
+                        ),
+                    },
+                ),
+                amount: None,
+                coin_change: None,
+                metadata: Some(
+                    Object {
+                        "delegate_change_target": String("B62qiburnzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzmp7r7UN6X"),
+                    },
+                ),
+            },
+        ],
+        signers: None,
+        account_identifier_signers: None,
+        metadata: Some(
+            Object {
+                "memo": String("hello"),
+                "valid_until": String("200000"),
+            },
+        ),
+    },
+)

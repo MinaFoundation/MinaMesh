@@ -21,7 +21,8 @@ impl MinaMesh {
     let (mut operations, metadata, account_identifier) = if request.signed {
       // Parse signed transaction
       let tx = TransactionSigned::from_json_string(&request.transaction)?;
-      if tx.payment.is_some() && tx.stake_delegation.is_some() {
+      if tx.payment.is_some() && tx.stake_delegation.is_some() || tx.payment.is_none() && tx.stake_delegation.is_none()
+      {
         return Err(MinaMeshError::JsonParse(Some(
           "Signed transaction must have one of: payment, stake_delegation".to_string(),
         )));
@@ -57,9 +58,10 @@ impl MinaMesh {
     } else {
       // Parse unsigned transaction
       let tx = TransactionUnsigned::from_json_string(&request.transaction)?;
-      if tx.payment.is_some() && tx.stake_delegation.is_some() {
+      if tx.payment.is_some() && tx.stake_delegation.is_some() || tx.payment.is_none() && tx.stake_delegation.is_none()
+      {
         return Err(MinaMeshError::JsonParse(Some(
-          "Unsigned transaction must have one of: payment, stake_delegation".to_string(),
+          "Signed transaction must have one of: payment, stake_delegation".to_string(),
         )));
       }
       if tx.payment.is_some() {

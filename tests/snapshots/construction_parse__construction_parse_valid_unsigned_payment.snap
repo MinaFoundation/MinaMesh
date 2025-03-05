@@ -1,0 +1,124 @@
+---
+source: tests/construction_parse.rs
+expression: response
+---
+Ok(
+    ConstructionParseResponse {
+        operations: [
+            Operation {
+                operation_identifier: OperationIdentifier {
+                    index: 0,
+                    network_index: None,
+                },
+                related_operations: None,
+                type: "fee_payment",
+                status: None,
+                account: Some(
+                    AccountIdentifier {
+                        address: "B62qqEMfUYCW4ePTDE9ZGVfn42ugxQ6CSe8PdTCrRpZAnCRezAGsVp7",
+                        sub_account: None,
+                        metadata: Some(
+                            Object {
+                                "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                            },
+                        ),
+                    },
+                ),
+                amount: Some(
+                    Amount {
+                        value: "-1000000",
+                        currency: Currency {
+                            symbol: "MINA",
+                            decimals: 9,
+                            metadata: None,
+                        },
+                        metadata: None,
+                    },
+                ),
+                coin_change: None,
+                metadata: None,
+            },
+            Operation {
+                operation_identifier: OperationIdentifier {
+                    index: 1,
+                    network_index: None,
+                },
+                related_operations: None,
+                type: "payment_source_dec",
+                status: None,
+                account: Some(
+                    AccountIdentifier {
+                        address: "B62qqEMfUYCW4ePTDE9ZGVfn42ugxQ6CSe8PdTCrRpZAnCRezAGsVp7",
+                        sub_account: None,
+                        metadata: Some(
+                            Object {
+                                "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                            },
+                        ),
+                    },
+                ),
+                amount: Some(
+                    Amount {
+                        value: "-10000000",
+                        currency: Currency {
+                            symbol: "MINA",
+                            decimals: 9,
+                            metadata: None,
+                        },
+                        metadata: None,
+                    },
+                ),
+                coin_change: None,
+                metadata: None,
+            },
+            Operation {
+                operation_identifier: OperationIdentifier {
+                    index: 2,
+                    network_index: None,
+                },
+                related_operations: Some(
+                    [
+                        OperationIdentifier {
+                            index: 1,
+                            network_index: None,
+                        },
+                    ],
+                ),
+                type: "payment_receiver_inc",
+                status: None,
+                account: Some(
+                    AccountIdentifier {
+                        address: "B62qj7nR7j5GiQLJEBrMq49nX8fKcLJKK57kDdja7w9YPJQMdsshtcL",
+                        sub_account: None,
+                        metadata: Some(
+                            Object {
+                                "token_id": String("wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"),
+                            },
+                        ),
+                    },
+                ),
+                amount: Some(
+                    Amount {
+                        value: "10000000",
+                        currency: Currency {
+                            symbol: "MINA",
+                            decimals: 9,
+                            metadata: None,
+                        },
+                        metadata: None,
+                    },
+                ),
+                coin_change: None,
+                metadata: None,
+            },
+        ],
+        signers: None,
+        account_identifier_signers: None,
+        metadata: Some(
+            Object {
+                "memo": String("hello"),
+                "valid_until": String("200000000"),
+            },
+        ),
+    },
+)
