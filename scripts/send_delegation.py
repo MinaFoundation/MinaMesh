@@ -7,9 +7,11 @@ It follows these steps:
 1️⃣ **Preprocess** - Prepares the transaction structure.
 2️⃣ **Metadata** - Retrieves the nonce and suggested fee.
 3️⃣ **Payloads** - Generates the unsigned transaction.
-4️⃣ **Sign** - Uses `signer.exe` (offline OCaml binary) to sign the transaction.
-5️⃣ **Combine** - Merges the signature with the unsigned transaction.
-6️⃣ **Submit** - Sends the signed delegation transaction to the Mina network.
+4️⃣ **Parse** - Parses the unsigned transaction. (optional)
+5️⃣ **Sign** - Uses `signer.exe` (offline OCaml binary) to sign the transaction.
+6️⃣ **Parse** - Parse the signed transaction. (optional)
+7️⃣ **Combine** - Merges the signature with the unsigned transaction.
+8️⃣ **Submit** - Sends the signed transaction to the Mina network.
 
 ⚠️ **Prerequisites:**
 - `signer.exe` (the Mina Rosetta OCaml signer) must be installed and available on the system `PATH`.  
@@ -25,8 +27,10 @@ It follows these steps:
     ✅ Preprocess done
     ✅ Metadata done | Nonce: 3 | Suggested Fee: 100000000
     ✅ Payloads done
+    ✅ Parse Unsigned Transaction done
     ✅ Signed Transaction | Signature: C8103A85D...
     ✅ Combine done
+    ✅ Parse Signed Transaction done
     ✅ Transaction Submitted! Hash: 5Jv8CPtFpypbcpfGy5WczpTzLG...
     🔗 Transaction URL: https://minascan.io/devnet/tx/5Jv8CPtFpypbcpfGy5WczpTzLG...
 
@@ -116,7 +120,7 @@ def send_delegation(sender, sender_pvk, delegatee):
             "memo": "hello",
             "sender": sender,
             "receiver": delegatee,
-            "token_id": "1",
+            "token_id": "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf",
         },
     }
     metadata_response = post_request("metadata", metadata_data)
@@ -135,11 +139,20 @@ def send_delegation(sender, sender_pvk, delegatee):
     payload_hex = payloads_response["payloads"][0]["hex_bytes"]
     print("✅ Payloads done")
 
-    # 4️⃣ **Sign Transaction**
+    # 4️⃣ **Parse**
+    parse_data = {
+        "network_identifier": {"blockchain": "mina", "network": NETWORK},
+        "signed": False,
+        "transaction": unsigned_tx,
+    }
+    parse_response = post_request("parse", parse_data)
+    print(f"✅ Parse Unsigned Transaction done")
+
+    # 5️⃣ **Sign Transaction**
     signature = sign_transaction(unsigned_tx, sender_pvk)
     print(f"✅ Signed Transaction | Signature: {signature}")
 
-    # 5️⃣ **Combine**
+    # 6️⃣ **Combine**
     combine_data = {
         "network_identifier": {"blockchain": "mina", "network": NETWORK},
         "signatures": [
@@ -154,9 +167,19 @@ def send_delegation(sender, sender_pvk, delegatee):
     }
     combine_response = post_request("combine", combine_data)
     signed_transaction = combine_response["signed_transaction"]
+    
     print("✅ Combine done")
 
-    # 6️⃣ **Submit**
+    # 7️⃣ **Parse**
+    parse_data = {
+        "network_identifier": {"blockchain": "mina", "network": NETWORK},
+        "signed": True,
+        "transaction": signed_transaction,
+    }
+    parse_response = post_request("parse", parse_data)
+    print(f"✅ Parse Signed Transaction done")
+
+    # 8️⃣ **Submit**
     submit_data = {
         "network_identifier": {"blockchain": "mina", "network": NETWORK},
         "signed_transaction": signed_transaction,

@@ -7,9 +7,11 @@ It follows these steps:
 1️⃣ **Preprocess** - Prepares the transaction structure.
 2️⃣ **Metadata** - Retrieves the nonce and suggested fee.
 3️⃣ **Payloads** - Generates the unsigned transaction.
-4️⃣ **Sign** - Uses `signer.exe` (offline OCaml binary) to sign the transaction.
-5️⃣ **Combine** - Merges the signature with the unsigned transaction.
-6️⃣ **Submit** - Sends the signed transaction to the Mina network.
+4️⃣ **Parse** - Parses the unsigned transaction. (optional)
+5️⃣ **Sign** - Uses `signer.exe` (offline OCaml binary) to sign the transaction.
+6️⃣ **Parse** - Parse the signed transaction. (optional)
+7️⃣ **Combine** - Merges the signature with the unsigned transaction.
+8️⃣ **Submit** - Sends the signed transaction to the Mina network.
 
 ⚠️ **Prerequisites:**
 - `signer.exe` (the Mina Rosetta OCaml signer) must be installed and available on the system `PATH`.  
@@ -25,8 +27,10 @@ It follows these steps:
     ✅ Preprocess done
     ✅ Metadata done | Nonce: 3 | Suggested Fee: 100000000
     ✅ Payloads done
+    ✅ Parse Unsigned Transaction done
     ✅ Signed Transaction | Signature: C8103A85D...
     ✅ Combine done
+    ✅ Parse Signed Transaction done
     ✅ Transaction Submitted! Hash: 5Jv8CPtFpypbcpfGy5WczpTzLG...
     🔗 Transaction URL: https://minascan.io/devnet/tx/5Jv8CPtFpypbcpfGy5WczpTzLG...
 
@@ -78,7 +82,7 @@ def operations(sender, amount, receiver, fee="100000000"):
             "operation_identifier": {"index": 0},
             "related_operations": [],
             "type": "fee_payment",
-            "account": {"address": sender, "metadata": {"token_id": "1"}},
+            "account": {"address": sender, "metadata": {"token_id": "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"}},
             "amount": {
                 "value": "-" + fee,
                 "currency": {"symbol": "MINA", "decimals": 9},
@@ -88,7 +92,7 @@ def operations(sender, amount, receiver, fee="100000000"):
             "operation_identifier": {"index": 1},
             "related_operations": [],
             "type": "payment_source_dec",
-            "account": {"address": sender, "metadata": {"token_id": "1"}},
+            "account": {"address": sender, "metadata": {"token_id": "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"}},
             "amount": {
                 "value": "-" + amount,
                 "currency": {"symbol": "MINA", "decimals": 9},
@@ -98,7 +102,7 @@ def operations(sender, amount, receiver, fee="100000000"):
             "operation_identifier": {"index": 2},
             "related_operations": [{"index": 1}],
             "type": "payment_receiver_inc",
-            "account": {"address": receiver, "metadata": {"token_id": "1"}},
+            "account": {"address": receiver, "metadata": {"token_id": "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf"}},
             "amount": {
                 "value": amount,
                 "currency": {"symbol": "MINA", "decimals": 9},
@@ -125,7 +129,7 @@ def send_payment(sender, sender_pvk, amount, receiver):
             "memo": "hello",
             "receiver": receiver,
             "sender": sender,
-            "token_id": "1",
+            "token_id": "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf",
         },
     }
     metadata_response = post_request("metadata", metadata_data)
@@ -144,11 +148,20 @@ def send_payment(sender, sender_pvk, amount, receiver):
     payload_hex = payloads_response["payloads"][0]["hex_bytes"]
     print("✅ Payloads done")
 
-    # 4️⃣ **Sign Transaction**
+    # 4️⃣ **Parse** 
+    parse_data = {
+        "network_identifier": {"blockchain": "mina", "network": NETWORK},
+        "signed": False,
+        "transaction": unsigned_tx,
+    }
+    parse_response = post_request("parse", parse_data)
+    print(f"✅ Parse Unsigned Transaction done")
+
+    # 5️⃣ **Sign Transaction**
     signature = sign_transaction(unsigned_tx, sender_pvk)
     print(f"✅ Signed Transaction | Signature: {signature}")
 
-    # 5️⃣ **Combine**
+    # 6️⃣ **Combine**
     combine_data = {
         "network_identifier": {"blockchain": "mina", "network": NETWORK},
         "signatures": [
@@ -165,7 +178,16 @@ def send_payment(sender, sender_pvk, amount, receiver):
     signed_transaction = combine_response["signed_transaction"]
     print("✅ Combine done")
 
-    # 6️⃣ **Submit**
+    # 7️⃣ **Parse**
+    parse_data = {
+        "network_identifier": {"blockchain": "mina", "network": NETWORK},
+        "signed": True,
+        "transaction": signed_transaction,
+    }
+    parse_response = post_request("parse", parse_data)
+    print(f"✅ Parse Signed Transaction done")
+
+    # 8️⃣ **Submit**
     submit_data = {
         "network_identifier": {"blockchain": "mina", "network": NETWORK},
         "signed_transaction": signed_transaction,
