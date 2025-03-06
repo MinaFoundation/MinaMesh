@@ -6,8 +6,8 @@ use crate::{
   generate_operations_user_command,
   signer_utils::decode_signature,
   util::{DEFAULT_TOKEN_ID, MINIMUM_USER_COMMAND_FEE},
-  HasPaymentAndDelegation, MinaMesh, MinaMeshError, PartialUserCommand, TransactionSigned, TransactionUnsigned,
-  UserCommandPayload,
+  HasPaymentAndDelegation, MinaMesh, MinaMeshError, PartialUserCommand, Payment, StakeDelegation, TransactionSigned,
+  TransactionUnsigned, UserCommandPayload,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/construction.ml#L615
@@ -21,13 +21,7 @@ impl MinaMesh {
     let (mut operations, metadata, account_identifier) = if request.signed {
       // Parse signed transaction
       let tx = TransactionSigned::from_json_string(&request.transaction)?;
-      if tx.payment.is_some() && tx.stake_delegation.is_some() || tx.payment.is_none() && tx.stake_delegation.is_none()
-      {
-        return Err(MinaMeshError::JsonParse(Some(
-          "Signed transaction must have one of: payment, stake_delegation".to_string(),
-        )));
-      }
-
+      self.check_transaction(&tx.payment, &tx.stake_delegation)?;
       decode_signature(&tx.signature)?;
 
       if tx.payment.is_some() {
@@ -58,12 +52,8 @@ impl MinaMesh {
     } else {
       // Parse unsigned transaction
       let tx = TransactionUnsigned::from_json_string(&request.transaction)?;
-      if tx.payment.is_some() && tx.stake_delegation.is_some() || tx.payment.is_none() && tx.stake_delegation.is_none()
-      {
-        return Err(MinaMeshError::JsonParse(Some(
-          "Signed transaction must have one of: payment, stake_delegation".to_string(),
-        )));
-      }
+      self.check_transaction(&tx.payment, &tx.stake_delegation)?;
+
       if tx.payment.is_some() {
         self.check_fee(tx.payment.as_ref().unwrap().fee)?;
         let metadata =
@@ -98,6 +88,19 @@ impl MinaMesh {
       },
       metadata,
     })
+  }
+
+  fn check_transaction(
+    &self,
+    payment: &Option<Payment>,
+    stake_delegation: &Option<StakeDelegation>,
+  ) -> Result<(), MinaMeshError> {
+    if payment.is_some() && stake_delegation.is_some() || payment.is_none() && stake_delegation.is_none() {
+      return Err(MinaMeshError::JsonParse(Some(
+        "Signed transaction must have one of: payment, stake_delegation".to_string(),
+      )));
+    }
+    Ok(())
   }
 
   fn check_fee(&self, fee: u64) -> Result<(), MinaMeshError> {
