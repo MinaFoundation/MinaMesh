@@ -24,52 +24,47 @@ impl MinaMesh {
       self.check_transaction(&tx.payment, &tx.stake_delegation)?;
       decode_signature(&tx.signature)?;
 
-      if tx.payment.is_some() {
-        self.check_fee(tx.payment.as_ref().unwrap().fee)?;
-        let metadata =
-          self.make_metadata(tx.payment.as_ref().unwrap().memo.clone(), tx.payment.as_ref().unwrap().valid_until);
-        let account_identifier = self.make_account_identifier(
-          tx.payment.as_ref().unwrap().from.clone(),
-          tx.payment.as_ref().unwrap().token.clone(),
-        );
-        let operations = generate_operations_user_command(tx.payment.as_ref().unwrap());
+      if let Some(payment) = &tx.payment {
+        self.check_fee(payment.fee)?;
+        let metadata = self.make_metadata(payment.memo.clone(), payment.valid_until);
+        let account_identifier = self.make_account_identifier(payment.from.clone(), payment.token.clone());
+        let operations = generate_operations_user_command(payment);
+        self.validate_operations(&tx, &operations, &metadata)?;
+        (operations, metadata, Some(account_identifier))
+      } else if let Some(stake_delegation) = &tx.stake_delegation {
+        self.check_fee(stake_delegation.fee)?;
+        let metadata = self.make_metadata(stake_delegation.memo.clone(), stake_delegation.valid_until);
+        let account_identifier =
+          self.make_account_identifier(stake_delegation.delegator.clone(), DEFAULT_TOKEN_ID.to_string());
+        let operations = generate_operations_user_command(stake_delegation);
         self.validate_operations(&tx, &operations, &metadata)?;
         (operations, metadata, Some(account_identifier))
       } else {
-        self.check_fee(tx.stake_delegation.as_ref().unwrap().fee)?;
-        let metadata = self.make_metadata(
-          tx.stake_delegation.as_ref().unwrap().memo.clone(),
-          tx.stake_delegation.as_ref().unwrap().valid_until,
-        );
-        let account_identifier = self.make_account_identifier(
-          tx.stake_delegation.as_ref().unwrap().delegator.clone(),
-          DEFAULT_TOKEN_ID.to_string(),
-        );
-        let operations = generate_operations_user_command(tx.stake_delegation.as_ref().unwrap());
-        self.validate_operations(&tx, &operations, &metadata)?;
-        (operations, metadata, Some(account_identifier))
+        return Err(MinaMeshError::JsonParse(Some(
+          "Signed transaction must have one of: payment, stake_delegation".to_string(),
+        )));
       }
     } else {
       // Parse unsigned transaction
       let tx = TransactionUnsigned::from_json_string(&request.transaction)?;
       self.check_transaction(&tx.payment, &tx.stake_delegation)?;
 
-      if tx.payment.is_some() {
-        self.check_fee(tx.payment.as_ref().unwrap().fee)?;
-        let metadata =
-          self.make_metadata(tx.payment.as_ref().unwrap().memo.clone(), tx.payment.as_ref().unwrap().valid_until);
-        let operations = generate_operations_user_command(tx.payment.as_ref().unwrap());
+      if let Some(payment) = &tx.payment {
+        self.check_fee(payment.fee)?;
+        let metadata = self.make_metadata(payment.memo.clone(), payment.valid_until);
+        let operations = generate_operations_user_command(payment);
+        self.validate_unsigned_transaction(&tx, &operations, &metadata)?;
+        (operations, metadata, None)
+      } else if let Some(stake_delegation) = &tx.stake_delegation {
+        self.check_fee(stake_delegation.fee)?;
+        let metadata = self.make_metadata(stake_delegation.memo.clone(), stake_delegation.valid_until);
+        let operations = generate_operations_user_command(stake_delegation);
         self.validate_unsigned_transaction(&tx, &operations, &metadata)?;
         (operations, metadata, None)
       } else {
-        self.check_fee(tx.stake_delegation.as_ref().unwrap().fee)?;
-        let metadata = self.make_metadata(
-          tx.stake_delegation.as_ref().unwrap().memo.clone(),
-          tx.stake_delegation.as_ref().unwrap().valid_until,
-        );
-        let operations = generate_operations_user_command(tx.stake_delegation.as_ref().unwrap());
-        self.validate_unsigned_transaction(&tx, &operations, &metadata)?;
-        (operations, metadata, None)
+        return Err(MinaMeshError::JsonParse(Some(
+          "Signed transaction must have one of: payment, stake_delegation".to_string(),
+        )));
       }
     };
 
