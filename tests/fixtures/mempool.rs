@@ -5,6 +5,7 @@ use mina_mesh::{
 
 use super::CompareGroup;
 
+#[allow(dead_code)]
 pub fn mempool<'a>() -> CompareGroup<'a> {
   ("/mempool", vec![Box::new(NetworkRequest::new(network_id()))])
 }
