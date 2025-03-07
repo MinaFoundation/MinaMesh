@@ -162,12 +162,12 @@ impl MinaMesh {
   }
 
   fn get_nonce<T: HasPaymentAndDelegation>(&self, tx: &T) -> Result<u32, MinaMeshError> {
-    if tx.payment().is_some() {
-      return Ok(tx.payment().as_ref().unwrap().nonce);
-    } else if tx.stake_delegation().is_some() {
-      return Ok(tx.stake_delegation().as_ref().unwrap().nonce);
+    if let Some(payment) = tx.payment() {
+      Ok(payment.nonce)
+    } else if let Some(stake_delegation) = tx.stake_delegation() {
+      Ok(stake_delegation.nonce)
     } else {
-      return Err(MinaMeshError::TransactionSubmitBadNonce("Nonce is invalid or missing".to_string()));
+      Err(MinaMeshError::TransactionSubmitBadNonce("Nonce is invalid or missing".to_string()))
     }
   }
 }
