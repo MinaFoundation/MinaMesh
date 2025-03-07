@@ -1,0 +1,11 @@
+---
+source: tests/construction_submit.rs
+expression: response
+---
+Err(
+    JsonParse(
+        Some(
+            "Failed to deserialize signed transaction: missing field `signature` at line 1 column 2",
+        ),
+    ),
+)

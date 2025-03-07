@@ -76,6 +76,7 @@ impl MinaMeshConfig {
       search_tx_optimized: self.use_search_tx_optimizations,
       cache: DashMap::new(),
       cache_ttl: Duration::from_secs(300),
+      cache_tx_size: 100, // Cache limit for last n transactions submitted
     })
   }
 }

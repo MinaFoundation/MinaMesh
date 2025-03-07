@@ -1,0 +1,9 @@
+---
+source: tests/construction_submit.rs
+expression: response
+---
+Err(
+    TransactionSubmitInvalidSignature(
+        "Couldn't send user command: Error creating user command: {\"payload\":{\"common\":{\"fee\":\"0.1\",\"fee_payer_pk\":\"B62qnuDyj65AQfcZt3MvcwSX7ohLcP1ayNQwu9Zi6YH7JQddJnc8mkz\",\"nonce\":\"61\",\"valid_until\":\"4294967295\",\"memo\":\"E4YXYczkh3RDn4ayEo5fLXQf3U1mZyAVtadozsT41ftMqkqsJxvdM\"},\"body\":[\"Stake_delegation\",[\"Set_delegate\",{\"new_delegate\":\"B62qj7nR7j5GiQLJEBrMq49nX8fKcLJKK57kDdja7w9YPJQMdsshtcL\"}]]},\"signer\":\"B62qnuDyj65AQfcZt3MvcwSX7ohLcP1ayNQwu9Zi6YH7JQddJnc8mkz\",\"signature\":[\"Signature\",\"7mXGcoNGzqmGJWsgVsjwFu6eNUawzBnKP6PAU7juwVSfp1ifctbwoRHRhMPvYvxDgZ2vBSY3J2gHYMa7qmtFenQB1F6mvN1v\"]} Error: Invalid_signature",
+    ),
+)

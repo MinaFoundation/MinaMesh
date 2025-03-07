@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n  uc.id\nFROM\n  user_commands uc\n  INNER JOIN public_keys AS pks ON pks.id=uc.source_id\n  INNER JOIN public_keys AS pkr ON pkr.id=uc.receiver_id\nWHERE\n  uc.nonce=$1\n  AND pks.value=$2\n  AND pkr.value=$3\n  AND uc.amount=$4\n  AND uc.fee=$5\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "77ad197acc9e4c005bda6720176507c218cccd83edc279f9826731a301005596"
+}

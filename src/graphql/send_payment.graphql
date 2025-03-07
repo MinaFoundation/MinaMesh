@@ -1,0 +1,27 @@
+mutation SendPayment(
+  $from: PublicKey!
+  $to: PublicKey!
+  $amount: UInt64!
+  $fee: UInt64!
+  $validUntil: UInt32
+  $memo: String
+  $nonce: UInt32!
+  $signature: String!
+) {
+  sendPayment(
+    signature: { rawSignature: $signature }
+    input: {
+      from: $from
+      to: $to
+      amount: $amount
+      fee: $fee
+      validUntil: $validUntil
+      memo: $memo
+      nonce: $nonce
+    }
+  ) {
+    payment {
+      hash
+    }
+  }
+}

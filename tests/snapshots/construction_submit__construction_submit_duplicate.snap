@@ -1,0 +1,9 @@
+---
+source: tests/construction_submit.rs
+expression: response
+---
+Err(
+    TransactionSubmitDuplicate(
+        "Transaction already in database",
+    ),
+)

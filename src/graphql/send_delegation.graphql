@@ -1,0 +1,25 @@
+mutation SendDelegation(
+  $from: PublicKey!
+  $to: PublicKey!
+  $fee: UInt64!
+  $validUntil: UInt32
+  $memo: String
+  $nonce: UInt32!
+  $signature: String!
+) {
+  sendDelegation(
+    signature: { rawSignature: $signature }
+    input: {
+      from: $from
+      to: $to
+      fee: $fee
+      validUntil: $validUntil
+      memo: $memo
+      nonce: $nonce
+    }
+  ) {
+    delegation {
+      hash
+    }
+  }
+}

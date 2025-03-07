@@ -34,5 +34,6 @@ pub struct MinaMesh {
   pub genesis_block_identifier: BlockIdentifier,
   pub search_tx_optimized: bool,
   pub cache: DashMap<String, (String, Instant)>, // Cache for network_id or other reusable data
-  pub cache_ttl: Duration,
+  pub cache_ttl: Duration,                       /* Cache time-to-live (network_id is refreshed after this time) */
+  pub cache_tx_size: usize,                      // Cache limit for last n transactions submitted
 }
