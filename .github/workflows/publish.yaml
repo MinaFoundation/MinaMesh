@@ -1,37 +1,72 @@
-name: Publish
+name: Release
 on:
   release:
     types: [created]
+  workflow_dispatch:
+
+env:
+  ECR_REPOSITORY_URL: docker.io
+  ECR_REPOSITORY_NAME: minafoundation/mina-mesh
+
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: minafoundation-default-runners
     steps:
-      - uses: actions/checkout@v4
-      - uses: dsherret/rust-toolchain-file@v1
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
 
-      # Cache cargo-edit to avoid reinstalling
-      - name: Cache Cargo Binaries
+      - name: 🦀 Setup Rust toolchain
+        uses: dsherret/rust-toolchain-file@v1
+
+      - name: 📦 Cache Cargo binaries
         uses: actions/cache@v4
         with:
           path: ~/.cargo/bin
           key: cargo-bin-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            cargo-bin-${{ runner.os }}-
+          restore-keys: cargo-bin-${{ runner.os }}-
 
-      # Install cargo-edit if not cached
-      - name: Install cargo-edit
+      - name: 🔧 Install cargo-edit if missing
         run: |
-          if ! command -v cargo-set-version &> /dev/null; then
-            cargo install cargo-edit
-          fi
+          command -v cargo-set-version &>/dev/null || cargo install cargo-edit
 
-      - name: Set Version of the crate
+      - name: 🏷️ Set Version of the crate
+        if: github.event_name == 'release'
         run: |
-          VERSION=${GITHUB_REF_NAME#?}
+          echo "VERSION=${GITHUB_REF_NAME#?}" >> $GITHUB_ENV
           cargo set-version $VERSION
 
-      - name: Publish to crates.io
+      - name: 📦 Publish to crates.io
+        if: github.event_name == 'release'
         uses: katyo/publish-crates@v2
         with:
           registry-token: ${{ secrets.CRATES_IO_TOKEN }}
           args: --allow-dirty --no-verify
+
+      - name: 🔍 Extract build args from mina.yaml
+        if: github.event_name == 'release'
+        run: |
+          for network in mainnet devnet; do
+            echo "MINA_BASE_TAG_${network^^}=$(yq ".supported_releases.$network.mina_base_tag" mina.yaml)" >> $GITHUB_ENV
+            echo "DEBIAN_RELEASE_CHANNEL_${network^^}=$(yq ".supported_releases.$network.debian_release_channel" mina.yaml)" >> $GITHUB_ENV
+          done
+
+      - name: 🐳 Login to Docker Hub
+        if: github.event_name == 'release'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_IO_USERNAME }}
+          password: ${{ secrets.DOCKER_IO_TOKEN }}
+
+      - name: 🛠️ Build and 🚀 Push Docker Images
+        if: github.event_name == 'release'
+        run: |
+          for network in mainnet devnet; do
+            docker build --build-arg MINA_BASE_TAG=${{ env["MINA_BASE_TAG_${network^^}"] }} \
+                         --build-arg MINA_NETWORK=$network \
+                         --build-arg DEBIAN_RELEASE_CHANNEL=${{ env["DEBIAN_RELEASE_CHANNEL_${network^^}"] }} \
+                         -t ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME }}:$network-${{ env.VERSION }} \
+                         -t ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME }}:$network-latest \
+                         $( [[ "$network" == "mainnet" ]] && echo "-t ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME }}:${{ env.VERSION }} -t ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME }}:latest" ) .
+          done
+
+          docker push --all-tags ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME }}
