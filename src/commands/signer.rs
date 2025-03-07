@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use clap::Parser;
-use mina_hasher::roinput;
+use mina_hasher::{roinput, Hasher};
 use mina_signer::{Keypair, NetworkId, SecKey, Signer};
 use o1_utils::FieldHelpers;
 
@@ -31,9 +31,21 @@ impl SignCommand {
     // println!("ROInput: {:?}", hex::encode(roinput.serialize_mesh_1()));
 
     let mut ctx = mina_signer::create_legacy::<UserCommandPayload>(NetworkId::TESTNET);
+
     let sig = ctx.sign(&keypair, &user_command_payload);
     // println!("{}", format!("{}", sig).to_uppercase());
     println!("{}", format!("{}{}", hex::encode(sig.rx.to_bytes()), hex::encode(sig.s.to_bytes())).to_uppercase());
+
+    // hashing
+    let mut hasher = mina_hasher::create_legacy::<UserCommandPayload>(NetworkId::TESTNET);
+    let hash = hasher.hash(&user_command_payload);
+    let hash_bytes = hash.to_bytes();
+
+    use bs58;
+
+    // Base58Check encode the hash bytes
+    let base58_encoded_hash = bs58::encode(hash_bytes).into_string();
+    println!("Base58Check encoded hash: {}", base58_encoded_hash);
 
     Ok(())
   }
