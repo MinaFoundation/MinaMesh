@@ -225,6 +225,7 @@ pub trait UserCommandOperationsData {
   fn status(&self) -> Option<&TransactionStatus>;
   fn failure_reason(&self) -> Option<&str>;
   fn creation_fee(&self) -> Option<&str>;
+  fn token(&self) -> Option<&str>;
 }
 
 impl UserCommandOperationsData for UserCommand {
@@ -271,6 +272,10 @@ impl UserCommandOperationsData for UserCommand {
   fn creation_fee(&self) -> Option<&str> {
     self.creation_fee.as_deref()
   }
+
+  fn token(&self) -> Option<&str> {
+    None
+  }
 }
 
 impl UserCommandOperationsData for UserCommandMetadata {
@@ -316,6 +321,10 @@ impl UserCommandOperationsData for UserCommandMetadata {
 
   fn creation_fee(&self) -> Option<&str> {
     self.creation_fee.as_deref()
+  }
+
+  fn token(&self) -> Option<&str> {
+    None
   }
 }
 
@@ -815,6 +824,10 @@ impl UserCommandOperationsData for Payment {
   fn creation_fee(&self) -> Option<&str> {
     None
   }
+
+  fn token(&self) -> Option<&str> {
+    Some(&self.token)
+  }
 }
 
 #[serde_as]
@@ -873,6 +886,10 @@ impl UserCommandOperationsData for StakeDelegation {
   }
 
   fn creation_fee(&self) -> Option<&str> {
+    None
+  }
+
+  fn token(&self) -> Option<&str> {
     None
   }
 }
