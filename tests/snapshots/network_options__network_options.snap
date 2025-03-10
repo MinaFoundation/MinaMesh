@@ -276,7 +276,9 @@ Allow {
             ),
             retriable: true,
             details: Some(
-                String(""),
+                Object {
+                    "error": String("No sender"),
+                },
             ),
         },
         Error {
@@ -287,7 +289,9 @@ Allow {
             ),
             retriable: false,
             details: Some(
-                String(""),
+                Object {
+                    "error": String("Duplicate transaction"),
+                },
             ),
         },
         Error {
@@ -298,7 +302,9 @@ Allow {
             ),
             retriable: false,
             details: Some(
-                String(""),
+                Object {
+                    "error": String("Bad nonce"),
+                },
             ),
         },
         Error {
@@ -309,7 +315,9 @@ Allow {
             ),
             retriable: false,
             details: Some(
-                String(""),
+                Object {
+                    "error": String("Fee too small"),
+                },
             ),
         },
         Error {
@@ -320,7 +328,9 @@ Allow {
             ),
             retriable: false,
             details: Some(
-                String(""),
+                Object {
+                    "error": String("Invalid signature"),
+                },
             ),
         },
         Error {
@@ -331,7 +341,9 @@ Allow {
             ),
             retriable: false,
             details: Some(
-                String(""),
+                Object {
+                    "error": String("Insufficient balance"),
+                },
             ),
         },
         Error {
@@ -342,7 +354,9 @@ Allow {
             ),
             retriable: false,
             details: Some(
-                String(""),
+                Object {
+                    "error": String("Expired transaction"),
+                },
             ),
         },
     ],

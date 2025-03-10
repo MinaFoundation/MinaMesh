@@ -1,0 +1,9 @@
+---
+source: tests/construction_submit.rs
+expression: response
+---
+Err(
+    TransactionSubmitInsufficientBalance(
+        "Couldn't send user command: [\"Insufficient_funds\"]",
+    ),
+)

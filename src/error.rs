@@ -72,25 +72,25 @@ pub enum MinaMeshError {
   GraphqlUriNotSet,
 
   #[error("Can't send transaction: No sender found in ledger")]
-  TransactionSubmitNoSender,
+  TransactionSubmitNoSender(String),
 
   #[error("Can't send transaction: A duplicate is detected")]
-  TransactionSubmitDuplicate,
+  TransactionSubmitDuplicate(String),
 
   #[error("Can't send transaction: Nonce invalid")]
-  TransactionSubmitBadNonce,
+  TransactionSubmitBadNonce(String),
 
   #[error("Can't send transaction: Fee too small")]
-  TransactionSubmitFeeSmall,
+  TransactionSubmitFeeSmall(String),
 
   #[error("Can't send transaction: Invalid signature")]
-  TransactionSubmitInvalidSignature,
+  TransactionSubmitInvalidSignature(String),
 
   #[error("Can't send transaction: Insufficient balance")]
-  TransactionSubmitInsufficientBalance,
+  TransactionSubmitInsufficientBalance(String),
 
   #[error("Can't send transaction: Expired")]
-  TransactionSubmitExpired,
+  TransactionSubmitExpired(String),
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
@@ -130,13 +130,13 @@ impl MinaMeshError {
       MinaMeshError::SignatureInvalid("Invalid signature".to_string()),
       MinaMeshError::MemoInvalid,
       MinaMeshError::GraphqlUriNotSet,
-      MinaMeshError::TransactionSubmitNoSender,
-      MinaMeshError::TransactionSubmitDuplicate,
-      MinaMeshError::TransactionSubmitBadNonce,
-      MinaMeshError::TransactionSubmitFeeSmall,
-      MinaMeshError::TransactionSubmitInvalidSignature,
-      MinaMeshError::TransactionSubmitInsufficientBalance,
-      MinaMeshError::TransactionSubmitExpired,
+      MinaMeshError::TransactionSubmitNoSender("No sender".to_string()),
+      MinaMeshError::TransactionSubmitDuplicate("Duplicate transaction".to_string()),
+      MinaMeshError::TransactionSubmitBadNonce("Bad nonce".to_string()),
+      MinaMeshError::TransactionSubmitFeeSmall("Fee too small".to_string()),
+      MinaMeshError::TransactionSubmitInvalidSignature("Invalid signature".to_string()),
+      MinaMeshError::TransactionSubmitInsufficientBalance("Insufficient balance".to_string()),
+      MinaMeshError::TransactionSubmitExpired("Expired transaction".to_string()),
     ]
   }
 
@@ -162,13 +162,13 @@ impl MinaMeshError {
       MinaMeshError::SignatureInvalid(_) => 17,
       MinaMeshError::MemoInvalid => 18,
       MinaMeshError::GraphqlUriNotSet => 19,
-      MinaMeshError::TransactionSubmitNoSender => 20,
-      MinaMeshError::TransactionSubmitDuplicate => 21,
-      MinaMeshError::TransactionSubmitBadNonce => 22,
-      MinaMeshError::TransactionSubmitFeeSmall => 23,
-      MinaMeshError::TransactionSubmitInvalidSignature => 24,
-      MinaMeshError::TransactionSubmitInsufficientBalance => 25,
-      MinaMeshError::TransactionSubmitExpired => 26,
+      MinaMeshError::TransactionSubmitNoSender(_) => 20,
+      MinaMeshError::TransactionSubmitDuplicate(_) => 21,
+      MinaMeshError::TransactionSubmitBadNonce(_) => 22,
+      MinaMeshError::TransactionSubmitFeeSmall(_) => 23,
+      MinaMeshError::TransactionSubmitInvalidSignature(_) => 24,
+      MinaMeshError::TransactionSubmitInsufficientBalance(_) => 25,
+      MinaMeshError::TransactionSubmitExpired(_) => 26,
     }
   }
 
@@ -177,7 +177,7 @@ impl MinaMeshError {
     matches!(
       self,
       MinaMeshError::GraphqlMinaQuery(_)
-        | MinaMeshError::TransactionSubmitNoSender
+        | MinaMeshError::TransactionSubmitNoSender(_)
         | MinaMeshError::AccountNotFound(_)
         | MinaMeshError::TransactionNotFound(_)
         | MinaMeshError::BlockMissing(_, _)
@@ -224,6 +224,27 @@ impl MinaMeshError {
         "error": err,
       }),
       MinaMeshError::SignatureInvalid(err) => json!({
+        "error": err,
+      }),
+      MinaMeshError::TransactionSubmitInvalidSignature(err) => json!({
+        "error": err,
+      }),
+      MinaMeshError::TransactionSubmitNoSender(err) => json!({
+        "error": err,
+      }),
+      MinaMeshError::TransactionSubmitFeeSmall(err) => json!({
+        "error": err,
+      }),
+      MinaMeshError::TransactionSubmitBadNonce(err) => json!({
+        "error": err,
+      }),
+      MinaMeshError::TransactionSubmitDuplicate(err) => json!({
+        "error": err,
+      }),
+      MinaMeshError::TransactionSubmitInsufficientBalance(err) => json!({
+        "error": err,
+      }),
+      MinaMeshError::TransactionSubmitExpired(err) => json!({
         "error": err,
       }),
       MinaMeshError::OperationsNotValid(reasons) => json!({
@@ -290,20 +311,20 @@ impl MinaMeshError {
       MinaMeshError::SignatureInvalid(_) => "Your request has an invalid signature.".to_string(),
       MinaMeshError::MemoInvalid => "Your request has an invalid memo.".to_string(),
       MinaMeshError::GraphqlUriNotSet => "No GraphQL URI has been set.".to_string(),
-      MinaMeshError::TransactionSubmitNoSender => {
+      MinaMeshError::TransactionSubmitNoSender(_) => {
         "This could occur because the node isn't fully synced or the account doesn't actually exist in the ledger yet."
           .to_string()
       }
-      MinaMeshError::TransactionSubmitDuplicate => "A duplicate transaction was detected.".to_string(),
-      MinaMeshError::TransactionSubmitBadNonce => "The nonce is invalid.".to_string(),
-      MinaMeshError::TransactionSubmitFeeSmall => "The transaction fee is too small.".to_string(),
-      MinaMeshError::TransactionSubmitInvalidSignature => {
+      MinaMeshError::TransactionSubmitDuplicate(_) => "A duplicate transaction was detected.".to_string(),
+      MinaMeshError::TransactionSubmitBadNonce(_) => "The nonce is invalid.".to_string(),
+      MinaMeshError::TransactionSubmitFeeSmall(_) => "The transaction fee is too small.".to_string(),
+      MinaMeshError::TransactionSubmitInvalidSignature(_) => {
         "An invalid signature is attached to this transaction.".to_string()
       }
-      MinaMeshError::TransactionSubmitInsufficientBalance => {
+      MinaMeshError::TransactionSubmitInsufficientBalance(_) => {
         "This account do not have sufficient balance perform the requested transaction.".to_string()
       }
-      MinaMeshError::TransactionSubmitExpired => {
+      MinaMeshError::TransactionSubmitExpired(_) => {
         "This transaction is expired. Please try again with a larger valid_until.".to_string()
       }
     }
@@ -332,13 +353,13 @@ impl IntoResponse for MinaMeshError {
       MinaMeshError::SignatureInvalid(_) => StatusCode::BAD_REQUEST,
       MinaMeshError::MemoInvalid => StatusCode::BAD_REQUEST,
       MinaMeshError::GraphqlUriNotSet => StatusCode::INTERNAL_SERVER_ERROR,
-      MinaMeshError::TransactionSubmitNoSender => StatusCode::BAD_REQUEST,
-      MinaMeshError::TransactionSubmitDuplicate => StatusCode::CONFLICT,
-      MinaMeshError::TransactionSubmitBadNonce => StatusCode::BAD_REQUEST,
-      MinaMeshError::TransactionSubmitFeeSmall => StatusCode::BAD_REQUEST,
-      MinaMeshError::TransactionSubmitInvalidSignature => StatusCode::BAD_REQUEST,
-      MinaMeshError::TransactionSubmitInsufficientBalance => StatusCode::BAD_REQUEST,
-      MinaMeshError::TransactionSubmitExpired => StatusCode::BAD_REQUEST,
+      MinaMeshError::TransactionSubmitNoSender(_) => StatusCode::BAD_REQUEST,
+      MinaMeshError::TransactionSubmitDuplicate(_) => StatusCode::CONFLICT,
+      MinaMeshError::TransactionSubmitBadNonce(_) => StatusCode::BAD_REQUEST,
+      MinaMeshError::TransactionSubmitFeeSmall(_) => StatusCode::BAD_REQUEST,
+      MinaMeshError::TransactionSubmitInvalidSignature(_) => StatusCode::BAD_REQUEST,
+      MinaMeshError::TransactionSubmitInsufficientBalance(_) => StatusCode::BAD_REQUEST,
+      MinaMeshError::TransactionSubmitExpired(_) => StatusCode::BAD_REQUEST,
     };
 
     let body = json!({
