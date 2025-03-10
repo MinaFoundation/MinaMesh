@@ -9,7 +9,7 @@ pub fn construction_metadata<'a>() -> CompareGroup<'a> {
       network_identifier: network_id().into(),
       options: Some(serde_json::json!({
         // cspell:disable
-        "sender": "B62qpfgnUm7zVqi8MJHNB2m37rtgMNDbFNhC2DpMmmVpQt8x6gKv9Ww",
+        "sender": "B62qnuDyj65AQfcZt3MvcwSX7ohLcP1ayNQwu9Zi6YH7JQddJnc8mkz",
         "receiver": "B62qnXy1f75qq8c6HS2Am88Gk6UyvTHK3iSYh4Hb3nD6DS2eS6wZ4or", // receiver is a dummy address
         "token_id": "weihj2SSP7Z96acs56ygP64Te6wauzvWWfAPHKb1gzqem9J4Ne",
         // cspell:enable
@@ -23,7 +23,7 @@ pub fn construction_metadata<'a>() -> CompareGroup<'a> {
       network_identifier: network_id().into(),
       options: Some(serde_json::json!({
         // cspell:disable
-        "sender": "B62qpfgnUm7zVqi8MJHNB2m37rtgMNDbFNhC2DpMmmVpQt8x6gKv9Ww",
+        "sender": "B62qnuDyj65AQfcZt3MvcwSX7ohLcP1ayNQwu9Zi6YH7JQddJnc8mkz",
         "receiver": "B62qjwDWxjf4LtJ4YWJQDdTNPqZ69ZyeCzbpAFKN7EoZzYig5ZRz8JE", // receiver exists
         "token_id": "weihj2SSP7Z96acs56ygP64Te6wauzvWWfAPHKb1gzqem9J4Ne",
         // cspell:enable
