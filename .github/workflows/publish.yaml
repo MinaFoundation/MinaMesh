@@ -2,7 +2,6 @@ name: Release
 on:
   release:
     types: [created]
-  workflow_dispatch:
 
 env:
   ECR_REPOSITORY_URL: docker.io
@@ -61,9 +60,12 @@ jobs:
         if: github.event_name == 'release'
         run: |
           for network in mainnet devnet; do
-            docker build --build-arg MINA_BASE_TAG=${{ env["MINA_BASE_TAG_${network^^}"] }} \
+            MINA_BASE_TAG_VAR="MINA_BASE_TAG_${network^^}"
+            DEBIAN_RELEASE_CHANNEL_VAR="DEBIAN_RELEASE_CHANNEL_${network^^}"
+
+            docker build --build-arg MINA_BASE_TAG=${!MINA_BASE_TAG_VAR} \
                          --build-arg MINA_NETWORK=$network \
-                         --build-arg DEBIAN_RELEASE_CHANNEL=${{ env["DEBIAN_RELEASE_CHANNEL_${network^^}"] }} \
+                         --build-arg DEBIAN_RELEASE_CHANNEL=${!DEBIAN_RELEASE_CHANNEL_VAR} \
                          -t ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME }}:$network-${{ env.VERSION }} \
                          -t ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME }}:$network-latest \
                          $( [[ "$network" == "mainnet" ]] && echo "-t ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME }}:${{ env.VERSION }} -t ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME }}:latest" ) .
