@@ -81,21 +81,17 @@ pub fn generate_transaction_metadata<T: UserCommandOperationsData>(data: &T) -> 
 
 pub fn generate_operations_user_command<T: UserCommandOperationsData>(data: &T) -> Vec<Operation> {
   let amt = data.amount().unwrap_or("0".to_string());
-  let receiver_account_id = &AccountIdentifier {
-    address: data.receiver().to_string(),
-    metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-    sub_account: None,
+  let metadata = if let Some(token) = data.token() {
+    Some(json!({ "token_id": token }))
+  } else {
+    Some(json!({ "token_id": DEFAULT_TOKEN_ID }))
   };
-  let source_account_id = &AccountIdentifier {
-    address: data.source().to_string(),
-    metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-    sub_account: None,
-  };
-  let fee_payer_account_id = &AccountIdentifier {
-    address: data.fee_payer().to_string(),
-    metadata: Some(json!({ "token_id": DEFAULT_TOKEN_ID })),
-    sub_account: None,
-  };
+
+  let receiver_account_id =
+    &AccountIdentifier { address: data.receiver().to_string(), metadata: metadata.clone(), sub_account: None };
+  let source_account_id =
+    &AccountIdentifier { address: data.source().to_string(), metadata: metadata.clone(), sub_account: None };
+  let fee_payer_account_id = &AccountIdentifier { address: data.fee_payer().to_string(), metadata, sub_account: None };
 
   // Construct operations_metadata
   let mut operations_metadata = Map::new();
