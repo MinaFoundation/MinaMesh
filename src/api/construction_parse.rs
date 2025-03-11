@@ -29,7 +29,7 @@ impl MinaMesh {
         let metadata = self.make_metadata(payment.memo.clone(), payment.valid_until);
         let account_identifier = self.make_account_identifier(payment.from.clone(), payment.token.clone());
         let operations = generate_operations_user_command(payment);
-        self.validate_operations(&tx, &operations, &metadata)?;
+        self.validate_operations(&tx, &operations, payment.valid_until, payment.memo.clone())?;
         (operations, metadata, Some(account_identifier))
       } else if let Some(stake_delegation) = &tx.stake_delegation {
         self.check_fee(stake_delegation.fee)?;
@@ -37,7 +37,7 @@ impl MinaMesh {
         let account_identifier =
           self.make_account_identifier(stake_delegation.delegator.clone(), DEFAULT_TOKEN_ID.to_string());
         let operations = generate_operations_user_command(stake_delegation);
-        self.validate_operations(&tx, &operations, &metadata)?;
+        self.validate_operations(&tx, &operations, stake_delegation.valid_until, stake_delegation.memo.clone())?;
         (operations, metadata, Some(account_identifier))
       } else {
         return Err(MinaMeshError::JsonParse(Some(
@@ -53,13 +53,18 @@ impl MinaMesh {
         self.check_fee(payment.fee)?;
         let metadata = self.make_metadata(payment.memo.clone(), payment.valid_until);
         let operations = generate_operations_user_command(payment);
-        self.validate_unsigned_transaction(&tx, &operations, &metadata)?;
+        self.validate_unsigned_transaction(&tx, &operations, payment.valid_until, payment.memo.clone())?;
         (operations, metadata, None)
       } else if let Some(stake_delegation) = &tx.stake_delegation {
         self.check_fee(stake_delegation.fee)?;
         let metadata = self.make_metadata(stake_delegation.memo.clone(), stake_delegation.valid_until);
         let operations = generate_operations_user_command(stake_delegation);
-        self.validate_unsigned_transaction(&tx, &operations, &metadata)?;
+        self.validate_unsigned_transaction(
+          &tx,
+          &operations,
+          stake_delegation.valid_until,
+          stake_delegation.memo.clone(),
+        )?;
         (operations, metadata, None)
       } else {
         return Err(MinaMeshError::JsonParse(Some(
@@ -124,15 +129,16 @@ impl MinaMesh {
     AccountIdentifier { address, sub_account: None, metadata: Some(json!({ "token_id": token_id })) }
   }
 
-  fn validate_unsigned_transaction(
+  pub fn validate_unsigned_transaction(
     &self,
     tx: &TransactionUnsigned,
     operations: &[Operation],
-    metadata: &Option<Value>,
+    valid_until: Option<u32>,
+    memo: Option<String>,
   ) -> Result<(), MinaMeshError> {
     let request_tx = tx.clone();
 
-    let user_command_payload = self.validate_operations(tx, operations, metadata)?;
+    let user_command_payload = self.validate_operations(tx, operations, valid_until, memo)?;
     let unsigned_transaction: TransactionUnsigned = (&user_command_payload).into();
     if request_tx != unsigned_transaction {
       return Err(MinaMeshError::JsonParse(Some(
@@ -142,20 +148,14 @@ impl MinaMesh {
     Ok(())
   }
 
-  fn validate_operations<T: HasPaymentAndDelegation>(
+  pub fn validate_operations<T: HasPaymentAndDelegation>(
     &self,
     tx: &T,
     operations: &[Operation],
-    metadata: &Option<Value>,
+    valid_until: Option<u32>,
+    memo: Option<String>,
   ) -> Result<UserCommandPayload, MinaMeshError> {
-    let (valid_until, memo) = match metadata {
-      Some(metadata) => {
-        let valid_until = metadata.get("valid_until").and_then(|v| v.as_str()).map(|s| s.to_string());
-        let memo = metadata.get("memo").and_then(|v| v.as_str()).map(|s| s.to_string());
-        (valid_until, memo)
-      }
-      None => (None, None),
-    };
+    let valid_until = valid_until.map(|v| v.to_string());
     let partial_user_command = PartialUserCommand::from_operations(operations, valid_until, memo)?;
     let nonce = self.get_nonce(tx)?;
     partial_user_command.to_user_command_payload(nonce)
