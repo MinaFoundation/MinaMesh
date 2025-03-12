@@ -12,7 +12,7 @@ It follows these steps:
 6️⃣ **Submit** - Sends the signed transaction to the Mina network.
 
 ⚠️ **Prerequisites:**
-- `signer.exe` (the Mina Rosetta OCaml signer) must be installed and available on the system `PATH`.  
+- `signer.exe` (the Mina Rosetta OCaml signer) must be installed and available on the system `PATH`.
   - See: [Mina Docs](https://docs.minaprotocol.com/exchange-operators/rosetta/samples/using-signer)
 
 🔹 **Usage:**
@@ -36,10 +36,12 @@ import requests
 import json
 import subprocess
 import sys
+import os
 
 # 🌍 Mina Mesh Construction API URL
-API_URL = "http://localhost:3000/construction"
-NETWORK = "devnet"
+API_URL = os.getenv("API_URL", "http://localhost:3000/construction")
+NETWORK = os.getenv("NETWORK", "devnet")
+MINA_SIGNER = os.getenv("MINA_SIGNER", "signer.exe")
 
 
 # 📝 Function to send POST requests
@@ -56,7 +58,7 @@ def post_request(endpoint, data):
 # ✍️ Function to sign the transaction using signer.exe
 def sign_transaction(unsigned_tx, private_key):
     command = [
-        "signer.exe",
+        MINA_SIGNER,
         "sign",
         "-private-key",
         private_key,
