@@ -1,0 +1,9 @@
+---
+source: tests/construction_parse.rs
+expression: response
+---
+Err(
+    MalformedPublicKey(
+        "receiver",
+    ),
+)

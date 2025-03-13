@@ -220,11 +220,12 @@ pub trait UserCommandOperationsData {
   fn receiver(&self) -> &str;
   fn nonce(&self) -> i64;
   fn memo(&self) -> Option<String>;
-  fn amount(&self) -> Option<&str>;
-  fn fee(&self) -> &str;
-  fn status(&self) -> &TransactionStatus;
+  fn amount(&self) -> Option<String>;
+  fn fee(&self) -> String;
+  fn status(&self) -> Option<&TransactionStatus>;
   fn failure_reason(&self) -> Option<&str>;
   fn creation_fee(&self) -> Option<&str>;
+  fn token(&self) -> Option<&str>;
 }
 
 impl UserCommandOperationsData for UserCommand {
@@ -252,16 +253,16 @@ impl UserCommandOperationsData for UserCommand {
     self.memo.clone()
   }
 
-  fn amount(&self) -> Option<&str> {
-    self.amount.as_deref()
+  fn amount(&self) -> Option<String> {
+    self.amount.clone()
   }
 
-  fn fee(&self) -> &str {
-    self.fee.as_deref().unwrap_or("0")
+  fn fee(&self) -> String {
+    self.fee.clone().unwrap_or("0".to_string())
   }
 
-  fn status(&self) -> &TransactionStatus {
-    &self.status
+  fn status(&self) -> Option<&TransactionStatus> {
+    Some(&self.status)
   }
 
   fn failure_reason(&self) -> Option<&str> {
@@ -270,6 +271,10 @@ impl UserCommandOperationsData for UserCommand {
 
   fn creation_fee(&self) -> Option<&str> {
     self.creation_fee.as_deref()
+  }
+
+  fn token(&self) -> Option<&str> {
+    None
   }
 }
 
@@ -298,16 +303,16 @@ impl UserCommandOperationsData for UserCommandMetadata {
     self.memo.clone()
   }
 
-  fn amount(&self) -> Option<&str> {
-    self.amount.as_deref()
+  fn amount(&self) -> Option<String> {
+    self.amount.clone()
   }
 
-  fn fee(&self) -> &str {
-    self.fee.as_deref().unwrap_or("0")
+  fn fee(&self) -> String {
+    self.fee.clone().unwrap_or("0".to_string())
   }
 
-  fn status(&self) -> &TransactionStatus {
-    &self.status
+  fn status(&self) -> Option<&TransactionStatus> {
+    Some(&self.status)
   }
 
   fn failure_reason(&self) -> Option<&str> {
@@ -316,6 +321,10 @@ impl UserCommandOperationsData for UserCommandMetadata {
 
   fn creation_fee(&self) -> Option<&str> {
     self.creation_fee.as_deref()
+  }
+
+  fn token(&self) -> Option<&str> {
+    None
   }
 }
 
@@ -648,7 +657,7 @@ async fn test_transaction_union_payload() {
   assert_eq!(roi_hex, "0000000327EA74CB13D3F1864C2E60C967577C055FD458D5AF93A59371905B8490B6567827EA74CB13D3F1864C2E60C967577C055FD458D5AF93A59371905B8490B656785E6737A0AC0A147918437FC8C21EA57CECFB613E711CA2E4FD328401657C291C000002570561800000000000800000000000000001F000007FFFFFFFC0500B531B1B7B000000000000000000000000000000000000000000000000000000060000000000000000013E815200000000");
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Debug)]
 pub struct TransactionUnsigned {
   #[serde(rename = "randomOracleInput")]
   pub random_oracle_input: String,
@@ -664,6 +673,31 @@ pub struct TransactionSigned {
   pub signature: String,
   pub payment: Option<Payment>,
   pub stake_delegation: Option<StakeDelegation>,
+}
+
+pub trait HasPaymentAndDelegation {
+  fn payment(&self) -> Option<&Payment>;
+  fn stake_delegation(&self) -> Option<&StakeDelegation>;
+}
+
+impl HasPaymentAndDelegation for TransactionSigned {
+  fn payment(&self) -> Option<&Payment> {
+    self.payment.as_ref()
+  }
+
+  fn stake_delegation(&self) -> Option<&StakeDelegation> {
+    self.stake_delegation.as_ref()
+  }
+}
+
+impl HasPaymentAndDelegation for TransactionUnsigned {
+  fn payment(&self) -> Option<&Payment> {
+    self.payment.as_ref()
+  }
+
+  fn stake_delegation(&self) -> Option<&StakeDelegation> {
+    self.stake_delegation.as_ref()
+  }
 }
 
 impl TransactionSigned {
@@ -730,7 +764,7 @@ impl TransactionUnsigned {
 }
 
 #[serde_as]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug)]
 pub struct Payment {
   pub to: String,
   pub from: String,
@@ -746,8 +780,58 @@ pub struct Payment {
   pub valid_until: Option<u32>,
 }
 
+impl UserCommandOperationsData for Payment {
+  fn command_type(&self) -> &UserCommandType {
+    &UserCommandType::Payment
+  }
+
+  fn fee_payer(&self) -> &str {
+    &self.from
+  }
+
+  fn source(&self) -> &str {
+    &self.from
+  }
+
+  fn receiver(&self) -> &str {
+    &self.to
+  }
+
+  fn nonce(&self) -> i64 {
+    self.nonce as i64
+  }
+
+  fn memo(&self) -> Option<String> {
+    self.memo.clone()
+  }
+
+  fn amount(&self) -> Option<String> {
+    Some(self.amount.to_string())
+  }
+
+  fn fee(&self) -> String {
+    self.fee.to_string()
+  }
+
+  fn status(&self) -> Option<&TransactionStatus> {
+    Some(&TransactionStatus::Applied)
+  }
+
+  fn failure_reason(&self) -> Option<&str> {
+    None
+  }
+
+  fn creation_fee(&self) -> Option<&str> {
+    None
+  }
+
+  fn token(&self) -> Option<&str> {
+    Some(&self.token)
+  }
+}
+
 #[serde_as]
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Debug)]
 pub struct StakeDelegation {
   pub delegator: String,
   pub new_delegate: String,
@@ -760,7 +844,57 @@ pub struct StakeDelegation {
   pub valid_until: Option<u32>,
 }
 
-#[derive(Serialize, Deserialize)]
+impl UserCommandOperationsData for StakeDelegation {
+  fn command_type(&self) -> &UserCommandType {
+    &UserCommandType::Delegation
+  }
+
+  fn fee_payer(&self) -> &str {
+    &self.delegator
+  }
+
+  fn source(&self) -> &str {
+    &self.delegator
+  }
+
+  fn receiver(&self) -> &str {
+    &self.new_delegate
+  }
+
+  fn nonce(&self) -> i64 {
+    self.nonce as i64
+  }
+
+  fn memo(&self) -> Option<String> {
+    self.memo.clone()
+  }
+
+  fn amount(&self) -> Option<String> {
+    None
+  }
+
+  fn fee(&self) -> String {
+    self.fee.to_string()
+  }
+
+  fn status(&self) -> Option<&TransactionStatus> {
+    Some(&TransactionStatus::Applied)
+  }
+
+  fn failure_reason(&self) -> Option<&str> {
+    None
+  }
+
+  fn creation_fee(&self) -> Option<&str> {
+    None
+  }
+
+  fn token(&self) -> Option<&str> {
+    None
+  }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Debug)]
 pub struct SignerInput {
   pub prefix: Vec<String>,
   pub suffix: Vec<String>,
