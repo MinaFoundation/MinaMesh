@@ -1,4 +1,5 @@
 ARG DEBIAN_CODENAME=bullseye
+ARG MINA_SIGNER_SHA256=966863de43c72c294e14762ae567404005f99654c54338a9a89b999476a36d1f
 
 FROM debian:$DEBIAN_CODENAME AS builder
 
@@ -25,6 +26,12 @@ COPY build.rs Cargo.lock Cargo.toml ./
 
 RUN cargo build --release
 
+# Build Mina Signer
+FROM gcr.io/o1labs-192920/mina-toolchain@sha256:$MINA_SIGNER_SHA256 AS signer
+RUN eval $(opam config env) && \
+    make build_all_sigs
+RUN mv /home/opam/mina/_build/default/src/app/cli/src/mina_testnet_signatures.exe /home/opam/mina/_build/default/src/app/cli/src/mina_devnet_signatures.exe
+
 FROM debian:$DEBIAN_CODENAME-slim AS app
 
 ARG MINA_BASE_TAG=3.0.3.1-cc59a03
@@ -33,11 +40,12 @@ ARG POSTGRES_VERSION=15
 ARG DEBIAN_RELEASE_CHANNEL=stable
 
 # Set environment variables
-ENV MINA_NETWORK=$MINA_NETWORK
-ENV MINA_BASE_TAG=$MINA_BASE_TAG
 ENV DEBIAN_RELEASE_CHANNEL=$DEBIAN_RELEASE_CHANNEL
-ENV POSTGRES_VERSION=$POSTGRES_VERSION
+ENV MINA_BASE_TAG=$MINA_BASE_TAG
+ENV MINA_NETWORK=$MINA_NETWORK
+ENV MINA_SIGNER=mina-signer
 ENV PGDATA=/var/lib/postgresql/data
+ENV POSTGRES_VERSION=$POSTGRES_VERSION
 
 # Install dependencies and Mina daemon in one step
 RUN apt-get update && apt-get install -y \
@@ -57,5 +65,6 @@ RUN apt-get update && apt-get install -y \
 
 EXPOSE 3087
 COPY --from=builder /app/target/release/mina-mesh /usr/local/bin
+COPY --from=signer /home/opam/mina/_build/default/src/app/cli/src/mina_${MINA_NETWORK}_signatures.exe /usr/local/bin/mina-signer
 COPY scripts /scripts
 ENTRYPOINT ["/scripts/entrypoint.sh"]
