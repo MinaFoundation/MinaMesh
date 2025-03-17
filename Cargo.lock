@@ -4650,8 +4650,3 @@ dependencies = [
  "quote 1.0.40",
  "syn 2.0.100",
 ]
-
-[[patch.unused]]
-name = "num-rational"
-version = "0.4.2"
-source = "git+https://github.com/openmina/num-rational?rev=336f11d#336f11da2ba1b65fb9472bad29ff3f58b566266f"

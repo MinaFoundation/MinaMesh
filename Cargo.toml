@@ -14,7 +14,7 @@ indoc = "2.0.5"
 
 [dependencies]
 anyhow = "1.0.86"
-ark-ff = { version = "0.3.0", features = ["parallel", "asm", "std"] }
+ark-ff = { version = "=0.3.0", features = ["parallel", "asm", "std"] }
 axum = { version = "0.7.5", features = ["macros"] }
 bitvec = "1.0.1"
 bs58 = "0.5.1"
@@ -59,7 +59,6 @@ ark-poly = { git = "https://github.com/openmina/algebra", rev = "150ab8d" }
 ark-serialize = { git = "https://github.com/openmina/algebra", rev = "150ab8d" }
 
 num-bigint = { git = "https://github.com/openmina/num-bigint", rev = "8bb5ee4" }
-num-rational = { git = "https://github.com/openmina/num-rational", rev = "336f11d" }
 
 [dev-dependencies]
 insta = "1.39.0"
