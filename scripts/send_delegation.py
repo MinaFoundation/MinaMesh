@@ -43,10 +43,12 @@ import requests
 import json
 import subprocess
 import sys
+import os
 
 # 🌍 Mina Mesh Construction API URL
-API_URL = "http://localhost:3000/construction"
-NETWORK = "devnet"
+API_URL = os.getenv("API_URL", "http://localhost:3000/construction")
+NETWORK = os.getenv("NETWORK", "devnet")
+MINA_SIGNER = os.getenv("MINA_SIGNER", "signer.exe")
 
 
 # 📝 Function to send POST requests
