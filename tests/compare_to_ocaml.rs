@@ -129,3 +129,9 @@ async fn construction_parse() -> Result<()> {
   let (subpath, reqs) = fixtures::construction_parse();
   assert_responses_eq(subpath, &reqs).await
 }
+
+#[tokio::test]
+async fn construction_hash() -> Result<()> {
+  let (subpath, reqs) = fixtures::construction_hash();
+  assert_responses_eq(subpath, &reqs).await
+}

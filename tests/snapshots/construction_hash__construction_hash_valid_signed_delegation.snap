@@ -1,0 +1,12 @@
+---
+source: tests/construction_hash.rs
+expression: response
+---
+Ok(
+    TransactionIdentifierResponse {
+        transaction_identifier: TransactionIdentifier {
+            hash: "5JtokakbwjsWKpgvrh3BcwnepjmrfL81SoDuUDbPK9N8sDEEbBMN",
+        },
+        metadata: None,
+    },
+)
