@@ -32,7 +32,7 @@ It follows these steps:
     ✅ Signed Transaction | Signature: C8103A85D...
     ✅ Combine done
     ✅ Parse Signed Transaction done
-    ✅ Future Transaction Hash: 5Jv8CPtFpypbcpfGy5WczpTzLG...
+    ✅ Hash Transaction done: 5Jv8CPtFpypbcpfGy5WczpTzLG...
     ✅ Transaction Submitted! Hash: 5Jv8CPtFpypbcpfGy5WczpTzLG...
     🔗 Transaction URL: https://minascan.io/devnet/tx/5Jv8CPtFpypbcpfGy5WczpTzLG...
 
@@ -186,7 +186,7 @@ def send_delegation(sender, sender_pvk, delegatee):
     }
     hash_response = post_request("hash", hash_data)
     transaction_hash = hash_response["transaction_identifier"]["hash"]
-    print(f"✅ Future Transaction Hash: {transaction_hash}")
+    print(f"✅ Hash Transaction done: {transaction_hash}")
 
     # 9️⃣ **Submit**
     submit_data = {
