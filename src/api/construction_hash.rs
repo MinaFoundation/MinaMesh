@@ -15,8 +15,8 @@ use mina_p2p_messages::{
 use mina_signer::{pubkey::PubKeyError, CompressedPubKey, PubKey};
 
 use crate::{
-  generate_operations_user_command, memo::Memo, MinaMesh, MinaMeshError, TransactionSigned, UserCommandBody,
-  UserCommandPayload,
+  generate_operations_user_command, memo::Memo, signer_utils::decode_signature, MinaMesh, MinaMeshError,
+  TransactionSigned, UserCommandBody, UserCommandPayload,
 };
 
 /// https://github.com/MinaProtocol/mina/blob/985eda49bdfabc046ef9001d3c406e688bc7ec45/src/app/rosetta/lib/construction.ml#L786
@@ -27,8 +27,9 @@ impl MinaMesh {
   ) -> Result<TransactionIdentifierResponse, MinaMeshError> {
     self.validate_network(&request.network_identifier).await?;
 
-    let tx: TransactionSigned = TransactionSigned::from_json_string(&request.signed_transaction)
-      .map_err(|_| MinaMeshError::JsonParse(Some("Failed to parse signed transaction".to_string())))?;
+    let tx: TransactionSigned = TransactionSigned::from_json_string(&request.signed_transaction)?;
+    self.check_transaction(&tx)?;
+    decode_signature(&tx.signature)?;
 
     let signer_pk = self.extract_signer(&tx)?;
     let signer = non_zero_curve_point_from_compressed(signer_pk.into_compressed());
