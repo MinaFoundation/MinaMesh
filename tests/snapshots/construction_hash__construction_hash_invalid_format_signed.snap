@@ -1,0 +1,11 @@
+---
+source: tests/construction_hash.rs
+expression: response
+---
+Err(
+    JsonParse(
+        Some(
+            "Signed transaction must have one of: payment, stake_delegation",
+        ),
+    ),
+)

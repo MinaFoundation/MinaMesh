@@ -9,9 +9,10 @@ It follows these steps:
 3️⃣ **Payloads** - Generates the unsigned transaction.
 4️⃣ **Parse** - Parses the unsigned transaction. (optional)
 5️⃣ **Sign** - Uses `signer.exe` (offline OCaml binary) to sign the transaction.
-6️⃣ **Parse** - Parse the signed transaction. (optional)
-7️⃣ **Combine** - Merges the signature with the unsigned transaction.
-8️⃣ **Submit** - Sends the signed transaction to the Mina network.
+6️⃣ **Combine** - Merges the signature with the unsigned transaction.
+7️⃣ **Parse** - Parse the signed transaction. (optional)
+8️⃣ **Hash** - Generates the transaction hash. (optional)
+9️⃣ **Submit** - Sends the signed transaction to the Mina network.
 
 ⚠️ **Prerequisites:**
 - `signer.exe` (the Mina Rosetta OCaml signer) must be installed and available on the system `PATH`.  
@@ -31,6 +32,7 @@ It follows these steps:
     ✅ Signed Transaction | Signature: C8103A85D...
     ✅ Combine done
     ✅ Parse Signed Transaction done
+    ✅ Hash Transaction done: 5Jv8CPtFpypbcpfGy5WczpTzLG...
     ✅ Transaction Submitted! Hash: 5Jv8CPtFpypbcpfGy5WczpTzLG...
     🔗 Transaction URL: https://minascan.io/devnet/tx/5Jv8CPtFpypbcpfGy5WczpTzLG...
 
@@ -41,10 +43,12 @@ import requests
 import json
 import subprocess
 import sys
+import os
 
 # 🌍 Mina Mesh Construction API URL
-API_URL = "http://localhost:3000/construction"
-NETWORK = "devnet"
+API_URL = os.getenv("API_URL", "http://localhost:3000/construction")
+NETWORK = os.getenv("NETWORK", "devnet")
+MINA_SIGNER = os.getenv("MINA_SIGNER", "signer.exe")
 
 
 # 📝 Function to send POST requests
@@ -175,7 +179,16 @@ def send_delegation(sender, sender_pvk, delegatee):
     parse_response = post_request("parse", parse_data)
     print(f"✅ Parse Signed Transaction done")
 
-    # 8️⃣ **Submit**
+    # 8️⃣ **Hash**
+    hash_data = {
+        "network_identifier": {"blockchain": "mina", "network": NETWORK},
+        "signed_transaction": signed_transaction,
+    }
+    hash_response = post_request("hash", hash_data)
+    transaction_hash = hash_response["transaction_identifier"]["hash"]
+    print(f"✅ Hash Transaction done: {transaction_hash}")
+
+    # 9️⃣ **Submit**
     submit_data = {
         "network_identifier": {"blockchain": "mina", "network": NETWORK},
         "signed_transaction": signed_transaction,

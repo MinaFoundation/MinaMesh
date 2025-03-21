@@ -710,6 +710,16 @@ impl TransactionSigned {
     serde_json::from_str(json)
       .map_err(|e| MinaMeshError::JsonParse(Some(format!("Failed to deserialize signed transaction: {}", e))))
   }
+
+  pub fn get_source_address(&self) -> Result<String, MinaMeshError> {
+    if let Some(payment) = &self.payment {
+      Ok(payment.from.clone())
+    } else if let Some(stake_delegation) = &self.stake_delegation {
+      Ok(stake_delegation.delegator.clone())
+    } else {
+      Err(MinaMeshError::Exception("No payment or delegation found".to_string()))
+    }
+  }
 }
 
 impl From<&UserCommandPayload> for TransactionUnsigned {

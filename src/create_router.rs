@@ -82,6 +82,8 @@ async fn handle_available_endpoints() -> impl IntoResponse {
     "/account/balance",
     "/construction/derive",
     "/construction/combine",
+    "/construction/hash",
+    "/construction/parse",
     "/construction/payloads",
     "/construction/preprocess",
     "/construction/metadata",

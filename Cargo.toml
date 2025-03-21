@@ -14,7 +14,7 @@ indoc = "2.0.5"
 
 [dependencies]
 anyhow = "1.0.86"
-ark-ff = { version = "0.4.2", features = ["parallel", "asm"] }
+ark-ff = { version = "=0.3.0", features = ["parallel", "asm", "std"] }
 axum = { version = "0.7.5", features = ["macros"] }
 bitvec = "1.0.1"
 bs58 = "0.5.1"
@@ -31,10 +31,11 @@ hex = "0.4.3"
 http = "1.1.0"
 http-body-util = "0.1.2"
 mime = "0.3.17"
-mina-curves = { git = "https://github.com/o1-labs/proof-systems", rev = "872c8f2" }
-mina-hasher = { git = "https://github.com/o1-labs/proof-systems", rev = "872c8f2" }
-mina-signer = { git = "https://github.com/o1-labs/proof-systems", rev = "872c8f2" }
-o1-utils = { git = "https://github.com/o1-labs/proof-systems", rev = "872c8f2" }
+mina-curves = { git = "https://github.com/o1-labs/proof-systems", rev = "f461b4b" }
+mina-hasher = { git = "https://github.com/o1-labs/proof-systems", rev = "f461b4b" }
+mina-p2p-messages = { git = "https://github.com/openmina/openmina", rev = "056deae" }
+mina-signer = { git = "https://github.com/o1-labs/proof-systems", rev = "f461b4b" }
+o1-utils = { git = "https://github.com/o1-labs/proof-systems", rev = "f461b4b" }
 paste = "1.0.15"
 pretty_assertions = "1.4.1"
 reqwest = { version = "0.12.5", features = ["json", "blocking"] }
@@ -50,6 +51,14 @@ tokio = { version = "1.39.2", features = ["full"] }
 tower = "0.5.1"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
+
+[patch.crates-io]
+ark-ff = { git = "https://github.com/openmina/algebra", rev = "150ab8d" }
+ark-ec = { git = "https://github.com/openmina/algebra", rev = "150ab8d" }
+ark-poly = { git = "https://github.com/openmina/algebra", rev = "150ab8d" }
+ark-serialize = { git = "https://github.com/openmina/algebra", rev = "150ab8d" }
+
+num-bigint = { git = "https://github.com/openmina/num-bigint", rev = "8bb5ee4" }
 
 [dev-dependencies]
 insta = "1.39.0"
