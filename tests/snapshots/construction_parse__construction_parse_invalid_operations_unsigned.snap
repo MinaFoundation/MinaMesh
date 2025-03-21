@@ -1,0 +1,11 @@
+---
+source: tests/construction_parse.rs
+expression: response
+---
+Err(
+    JsonParse(
+        Some(
+            "Unsigned transaction does not match operations, randomOracleInput or signerInput",
+        ),
+    ),
+)
