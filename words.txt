@@ -38,6 +38,7 @@ preprocess
 proptest
 qnighy
 querygen
+repr
 reqs
 reqwest
 retriable
