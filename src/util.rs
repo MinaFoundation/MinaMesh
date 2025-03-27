@@ -25,11 +25,11 @@ where
 }
 
 impl Wrapper<Option<serde_json::Value>> {
-  pub fn to_token_id(&self) -> Result<String, MinaMeshError> {
+  pub fn token_id_or_default(&self) -> Result<String, MinaMeshError> {
     match &self.0 {
       None => Ok(DEFAULT_TOKEN_ID.to_string()),
       Some(serde_json::Value::Object(map)) => {
-        Ok(map.get("token_id").map(|v| v.to_string()).ok_or(MinaMeshError::JsonParse(None))?)
+        Ok(map.get("token_id").map(|v| v.to_string()).unwrap_or(DEFAULT_TOKEN_ID.to_string()))
       }
       _ => Err(MinaMeshError::JsonParse(None))?,
     }
