@@ -141,7 +141,7 @@ Allow {
             retriable: true,
             details: Some(
                 Object {
-                    "block": Object {
+                    "block_identifier": Object {
                         "hash": String("test_hash"),
                         "index": Number(-1),
                     },
