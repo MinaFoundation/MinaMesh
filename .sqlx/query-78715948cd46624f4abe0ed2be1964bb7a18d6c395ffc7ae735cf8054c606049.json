@@ -1,0 +1,54 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "WITH\n  blocks AS (\n    SELECT\n      id,\n      height,\n      global_slot_since_genesis\n    FROM\n      blocks\n    WHERE\n      chain_status='canonical'\n    UNION ALL\n    SELECT\n      id,\n      height,\n      global_slot_since_genesis\n    FROM\n      blocks AS b\n    WHERE\n      b.chain_status='pending'\n      AND b.height>(\n        SELECT\n          max(height)\n        FROM\n          blocks\n        WHERE\n          chain_status='canonical'\n      )\n  )\nSELECT\n  b.height,\n  b.global_slot_since_genesis AS block_global_slot_since_genesis,\n  balance,\n  nonce,\n  timing_id,\n  t.value AS token_id\nFROM\n  blocks b\n  INNER JOIN accounts_accessed ac ON ac.block_id=b.id\n  INNER JOIN account_identifiers ai ON ai.id=ac.account_identifier_id\n  INNER JOIN public_keys pks ON ai.public_key_id=pks.id\n  INNER JOIN tokens t ON ai.token_id=t.id\nWHERE\n  pks.value=$1\n  AND b.height<=$2\n  AND t.value=$3\nORDER BY\n  (b.height) DESC\nLIMIT\n  1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "height",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "block_global_slot_since_genesis",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "balance",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "nonce",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "timing_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "token_id",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int8",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "78715948cd46624f4abe0ed2be1964bb7a18d6c395ffc7ae735cf8054c606049"
+}
