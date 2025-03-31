@@ -34,18 +34,27 @@ impl MinaMesh {
     let block = sqlx::query_file!("sql/queries/maybe_block.sql", index, hash)
       .fetch_optional(&self.pg_pool)
       .await?
-      .ok_or(MinaMeshError::BlockMissing(index, hash))?;
+      .ok_or(MinaMeshError::BlockMissing(index, hash.clone()))?;
     let maybe_account_balance_info = sqlx::query_file!(
       "sql/queries/maybe_account_balance_info.sql",
       public_key,
-      block.height.unwrap(),
+      block.height.ok_or(MinaMeshError::ChainInfoMissing)?,
       Wrapper(metadata).token_id_or_default()?
     )
     .fetch_optional(&self.pg_pool)
     .await?;
     match maybe_account_balance_info {
       None => Ok(AccountBalanceResponse {
-        block_identifier: Box::new(BlockIdentifier { hash: block.state_hash.unwrap(), index: block.height.unwrap() }),
+        block_identifier: Box::new(BlockIdentifier {
+          hash: match block.state_hash {
+            Some(state_hash) => state_hash,
+            None => return Err(MinaMeshError::BlockMissing(index, hash.clone())),
+          },
+          index: match block.height {
+            Some(height) => height,
+            None => return Err(MinaMeshError::BlockMissing(index, hash)),
+          },
+        }),
         balances: vec![Amount {
           currency: Box::new(create_currency(None)),
           value: "0".to_string(),
@@ -70,8 +79,8 @@ impl MinaMesh {
         let liquid_balance = match timing_info {
           Some(timing_info) => {
             let incremental_balance = incremental_balance_between_slots(
-              account_balance_info.block_global_slot_since_genesis.unwrap() as u32,
-              block.global_slot_since_genesis.unwrap() as u32,
+              account_balance_info.block_global_slot_since_genesis.ok_or(MinaMeshError::ChainInfoMissing)? as u32,
+              block.global_slot_since_genesis.ok_or(MinaMeshError::ChainInfoMissing)? as u32,
               timing_info.cliff_time as u32,
               timing_info.cliff_amount.parse::<u64>()?,
               timing_info.vesting_period as u32,
@@ -85,7 +94,16 @@ impl MinaMesh {
         let total_balance = last_relevant_command_balance;
         let locked_balance = total_balance - liquid_balance;
         Ok(AccountBalanceResponse {
-          block_identifier: Box::new(BlockIdentifier { hash: block.state_hash.unwrap(), index: block.height.unwrap() }),
+          block_identifier: Box::new(BlockIdentifier {
+            hash: match block.state_hash {
+              Some(state_hash) => state_hash,
+              None => return Err(MinaMeshError::BlockMissing(index, hash.clone())),
+            },
+            index: match block.height {
+              Some(height) => height,
+              None => return Err(MinaMeshError::BlockMissing(index, hash)),
+            },
+          }),
           balances: vec![Amount {
             currency: Box::new(create_currency(Some(&token_id))),
             value: liquid_balance.to_string(),
