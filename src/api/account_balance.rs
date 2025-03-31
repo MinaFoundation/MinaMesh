@@ -45,16 +45,7 @@ impl MinaMesh {
     .await?;
     match maybe_account_balance_info {
       None => Ok(AccountBalanceResponse {
-        block_identifier: Box::new(BlockIdentifier {
-          hash: match block.state_hash {
-            Some(state_hash) => state_hash,
-            None => return Err(MinaMeshError::BlockMissing(index, hash.clone())),
-          },
-          index: match block.height {
-            Some(height) => height,
-            None => return Err(MinaMeshError::BlockMissing(index, hash)),
-          },
-        }),
+        block_identifier: Box::new(build_block_identifier(block.height, block.state_hash, index, hash)?),
         balances: vec![Amount {
           currency: Box::new(create_currency(None)),
           value: "0".to_string(),
@@ -94,16 +85,7 @@ impl MinaMesh {
         let total_balance = last_relevant_command_balance;
         let locked_balance = total_balance - liquid_balance;
         Ok(AccountBalanceResponse {
-          block_identifier: Box::new(BlockIdentifier {
-            hash: match block.state_hash {
-              Some(state_hash) => state_hash,
-              None => return Err(MinaMeshError::BlockMissing(index, hash.clone())),
-            },
-            index: match block.height {
-              Some(height) => height,
-              None => return Err(MinaMeshError::BlockMissing(index, hash)),
-            },
-          }),
+          block_identifier: Box::new(build_block_identifier(block.height, block.state_hash, index, hash)?),
           balances: vec![Amount {
             currency: Box::new(create_currency(Some(&token_id))),
             value: liquid_balance.to_string(),
@@ -223,3 +205,15 @@ fn incremental_balance_between_slots(
 // Note: The `min_balance_at_slot` function is not provided in the original
 // OCaml code, so we'll declare it here as a separate function that needs to be
 // implemented.
+
+fn build_block_identifier(
+  db_height: Option<i64>,
+  db_hash: Option<String>,
+  index: Option<i64>,
+  hash: Option<String>,
+) -> Result<BlockIdentifier, MinaMeshError> {
+  Ok(BlockIdentifier {
+    hash: db_hash.clone().ok_or(MinaMeshError::BlockMissing(index, hash.clone()))?,
+    index: db_height.ok_or(MinaMeshError::BlockMissing(index, hash))?,
+  })
+}
