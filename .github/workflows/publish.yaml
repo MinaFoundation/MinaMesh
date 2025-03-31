@@ -24,22 +24,22 @@ jobs:
           key: cargo-bin-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: cargo-bin-${{ runner.os }}-
 
-      - name: 🔧 Install cargo-edit if missing
-        run: |
-          command -v cargo-set-version &>/dev/null || cargo install cargo-edit
+      # - name: 🔧 Install cargo-edit if missing
+      #   run: |
+      #     command -v cargo-set-version &>/dev/null || cargo install cargo-edit
 
-      - name: 🏷️ Set Version of the crate
-        if: github.event_name == 'release'
-        run: |
-          echo "VERSION=${GITHUB_REF_NAME#?}" >> $GITHUB_ENV
-          cargo set-version $VERSION
+      # - name: 🏷️ Set Version of the crate
+      #   if: github.event_name == 'release'
+      #   run: |
+      #     echo "VERSION=${GITHUB_REF_NAME#?}" >> $GITHUB_ENV
+      #     cargo set-version $VERSION
 
-      - name: 📦 Publish to crates.io
-        if: github.event_name == 'release'
-        uses: katyo/publish-crates@v2
-        with:
-          registry-token: ${{ secrets.CRATES_IO_TOKEN }}
-          args: --allow-dirty --no-verify
+      # - name: 📦 Publish to crates.io
+      #   if: github.event_name == 'release'
+      #   uses: katyo/publish-crates@v2
+      #   with:
+      #     registry-token: ${{ secrets.CRATES_IO_TOKEN }}
+      #     args: --allow-dirty --no-verify
 
       - name: 🔍 Extract build args from mina.yaml
         if: github.event_name == 'release'
