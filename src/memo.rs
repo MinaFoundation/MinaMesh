@@ -24,7 +24,7 @@ impl Memo {
     let mut memo_bytes = [0u8; MEMO_LENGTH];
     memo_bytes[TAG_INDEX] = BYTES_TAG;
     memo_bytes[LENGTH_INDEX] = input_len as u8;
-    memo_bytes[2 .. 2 + input_len].copy_from_slice(input_bytes);
+    memo_bytes[2..2 + input_len].copy_from_slice(input_bytes);
 
     Ok(Self(memo_bytes))
   }
@@ -37,7 +37,7 @@ impl Memo {
   /// Converts the memo to a string (ignoring trailing zeros)
   pub fn as_string(&self) -> String {
     let len = self.0[LENGTH_INDEX] as usize;
-    String::from_utf8_lossy(&self.0[2 .. 2 + len]).into_owned()
+    String::from_utf8_lossy(&self.0[2..2 + len]).into_owned()
   }
 }
 

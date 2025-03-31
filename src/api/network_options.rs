@@ -11,20 +11,23 @@ impl MinaMesh {
     self.validate_network(&req.network_identifier).await?;
     let errors: Vec<Error> = MinaMeshError::all_errors().into_iter().map(Error::from).collect();
 
-    Ok(NetworkOptionsResponse::new(Version::new("1.4.9".to_string(), "1.0.0".to_string()), Allow {
-      operation_statuses: vec![
-        OperationStatus::new("Success".to_string(), true),
-        OperationStatus::new("Failed".to_string(), false),
-      ],
-      operation_types: operation_types(),
-      errors,
-      historical_balance_lookup: true,
-      timestamp_start_index: None,
-      call_methods: vec![],
-      balance_exemptions: vec![],
-      mempool_coins: false,
-      block_hash_case: Some(Some(Case::CaseSensitive)),
-      transaction_hash_case: Some(Some(Case::CaseSensitive)),
-    }))
+    Ok(NetworkOptionsResponse::new(
+      Version::new("1.4.9".to_string(), "1.0.0".to_string()),
+      Allow {
+        operation_statuses: vec![
+          OperationStatus::new("Success".to_string(), true),
+          OperationStatus::new("Failed".to_string(), false),
+        ],
+        operation_types: operation_types(),
+        errors,
+        historical_balance_lookup: true,
+        timestamp_start_index: None,
+        call_methods: vec![],
+        balance_exemptions: vec![],
+        mempool_coins: false,
+        block_hash_case: Some(Some(Case::CaseSensitive)),
+        transaction_hash_case: Some(Some(Case::CaseSensitive)),
+      },
+    ))
   }
 }

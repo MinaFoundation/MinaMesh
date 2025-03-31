@@ -54,7 +54,7 @@ pub fn decode_memo(memo: &Option<String>) -> Option<String> {
   if let Some(memo) = memo {
     match bs58::decode(memo).into_vec() {
       Ok(decoded_bytes) => {
-        let cleaned = &decoded_bytes[3 .. decoded_bytes[2] as usize + 3];
+        let cleaned = &decoded_bytes[3..decoded_bytes[2] as usize + 3];
         Some(String::from_utf8_lossy(cleaned).to_string())
       }
       Err(_) => None,

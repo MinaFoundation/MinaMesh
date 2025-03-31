@@ -43,7 +43,7 @@ pub fn validate_base58_with_checksum(input: &str, expected_version: Option<u8>) 
 
   // Recompute checksum
   let computed_checksum = sha2::Sha256::digest(sha2::Sha256::digest([version, payload].concat()));
-  if &computed_checksum[.. 4] != checksum {
+  if &computed_checksum[..4] != checksum {
     return Err(MinaMeshError::MalformedPublicKey("Checksum mismatch".to_string()));
   }
 
@@ -79,7 +79,7 @@ pub fn hex_to_compressed_pub_key(hex: &str) -> Result<CompressedPubKey, MinaMesh
   bytes.reverse();
 
   // Convert bytes to bits
-  let mut bits: Vec<bool> = bytes.iter().flat_map(|byte| (0 .. 8).rev().map(move |i| (byte >> i) & 1 == 1)).collect();
+  let mut bits: Vec<bool> = bytes.iter().flat_map(|byte| (0..8).rev().map(move |i| (byte >> i) & 1 == 1)).collect();
 
   // Extract the `is_odd` bit
   let is_odd = bits.remove(0);

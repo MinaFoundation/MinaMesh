@@ -14,16 +14,19 @@ pub fn construction_combine<'a>() -> CompareGroup<'a> {
   let signature_hex_2 = "549E0B6AD43D1E894EBEE9255FEDC1C248CC947F0B548FE309ADDF5C35A95E2783390A8A5EA76561FB0EFEA9F12999FD3D6F9C41FEFEDB7D1D953C1F1861F412";
   // cspell:enable
 
-  ("/construction/combine", vec![
-    Box::new(ConstructionCombineRequest {
-      network_identifier: network_id().into(),
-      signatures: vec![signature(signature_hex_1, SignatureType::SchnorrPoseidon)],
-      unsigned_transaction: unsigned_transaction_payment(),
-    }),
-    Box::new(ConstructionCombineRequest {
-      network_identifier: network_id().into(),
-      signatures: vec![signature(signature_hex_2, SignatureType::SchnorrPoseidon)],
-      unsigned_transaction: unsigned_transaction_delegation(),
-    }),
-  ])
+  (
+    "/construction/combine",
+    vec![
+      Box::new(ConstructionCombineRequest {
+        network_identifier: network_id().into(),
+        signatures: vec![signature(signature_hex_1, SignatureType::SchnorrPoseidon)],
+        unsigned_transaction: unsigned_transaction_payment(),
+      }),
+      Box::new(ConstructionCombineRequest {
+        network_identifier: network_id().into(),
+        signatures: vec![signature(signature_hex_2, SignatureType::SchnorrPoseidon)],
+        unsigned_transaction: unsigned_transaction_delegation(),
+      }),
+    ],
+  )
 }

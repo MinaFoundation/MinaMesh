@@ -21,18 +21,21 @@ pub fn construction_preprocess<'a>() -> CompareGroup<'a> {
 
   let metadata = PreprocessMetadata::new(Some("70000".into()), Some("test memo OK".into()));
 
-  ("/construction/preprocess", vec![
-    Box::new(ConstructionPreprocessRequest::new(network_id(), payment_operations.clone())),
-    Box::new(ConstructionPreprocessRequest::new(network_id(), delegation_operations.clone())),
-    Box::new(ConstructionPreprocessRequest {
-      network_identifier: network_id().into(),
-      operations: payment_operations,
-      metadata: Some(metadata.to_json()),
-    }),
-    Box::new(ConstructionPreprocessRequest {
-      network_identifier: network_id().into(),
-      operations: delegation_operations,
-      metadata: Some(metadata.to_json()),
-    }),
-  ])
+  (
+    "/construction/preprocess",
+    vec![
+      Box::new(ConstructionPreprocessRequest::new(network_id(), payment_operations.clone())),
+      Box::new(ConstructionPreprocessRequest::new(network_id(), delegation_operations.clone())),
+      Box::new(ConstructionPreprocessRequest {
+        network_identifier: network_id().into(),
+        operations: payment_operations,
+        metadata: Some(metadata.to_json()),
+      }),
+      Box::new(ConstructionPreprocessRequest {
+        network_identifier: network_id().into(),
+        operations: delegation_operations,
+        metadata: Some(metadata.to_json()),
+      }),
+    ],
+  )
 }

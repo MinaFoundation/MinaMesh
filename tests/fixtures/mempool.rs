@@ -11,8 +11,11 @@ pub fn mempool<'a>() -> CompareGroup<'a> {
 }
 
 pub fn mempool_transaction<'a>() -> CompareGroup<'a> {
-  ("/mempool/transaction", vec![Box::new(MempoolTransactionRequest::new(
-    network_id(),
-    TransactionIdentifier::new("hash_not_exists".to_string()),
-  ))])
+  (
+    "/mempool/transaction",
+    vec![Box::new(MempoolTransactionRequest::new(
+      network_id(),
+      TransactionIdentifier::new("hash_not_exists".to_string()),
+    ))],
+  )
 }

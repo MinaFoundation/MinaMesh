@@ -22,18 +22,21 @@ pub fn construction_payloads<'a>() -> CompareGroup<'a> {
   let metadata =
     TransactionMetadata::new(sender, receiver, "355", "11", None::<&str>, Some("200009999"), Some("memo test!"));
 
-  ("/construction/payloads", vec![
-    Box::new(ConstructionPayloadsRequest {
-      network_identifier: network_id().into(),
-      operations: payment_operations.clone(),
-      metadata: metadata.to_json().into(),
-      public_keys: None,
-    }),
-    Box::new(ConstructionPayloadsRequest {
-      network_identifier: network_id().into(),
-      operations: delegation_operations.clone(),
-      metadata: metadata.to_json().into(),
-      public_keys: None,
-    }),
-  ])
+  (
+    "/construction/payloads",
+    vec![
+      Box::new(ConstructionPayloadsRequest {
+        network_identifier: network_id().into(),
+        operations: payment_operations.clone(),
+        metadata: metadata.to_json().into(),
+        public_keys: None,
+      }),
+      Box::new(ConstructionPayloadsRequest {
+        network_identifier: network_id().into(),
+        operations: delegation_operations.clone(),
+        metadata: metadata.to_json().into(),
+        public_keys: None,
+      }),
+    ],
+  )
 }

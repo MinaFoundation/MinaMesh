@@ -9,26 +9,29 @@ use mina_mesh::{
 use super::CompareGroup;
 
 pub fn construction_parse<'a>() -> CompareGroup<'a> {
-  ("/construction/parse", vec![
-    Box::new(ConstructionParseRequest {
-      network_identifier: network_id().into(),
-      signed: false,
-      transaction: unsigned_transaction_payment(),
-    }),
-    Box::new(ConstructionParseRequest {
-      network_identifier: network_id().into(),
-      signed: false,
-      transaction: unsigned_transaction_delegation(),
-    }),
-    Box::new(ConstructionParseRequest {
-      network_identifier: network_id().into(),
-      signed: true,
-      transaction: signed_transaction_payment(),
-    }),
-    Box::new(ConstructionParseRequest {
-      network_identifier: network_id().into(),
-      signed: true,
-      transaction: signed_transaction_delegation(),
-    }),
-  ])
+  (
+    "/construction/parse",
+    vec![
+      Box::new(ConstructionParseRequest {
+        network_identifier: network_id().into(),
+        signed: false,
+        transaction: unsigned_transaction_payment(),
+      }),
+      Box::new(ConstructionParseRequest {
+        network_identifier: network_id().into(),
+        signed: false,
+        transaction: unsigned_transaction_delegation(),
+      }),
+      Box::new(ConstructionParseRequest {
+        network_identifier: network_id().into(),
+        signed: true,
+        transaction: signed_transaction_payment(),
+      }),
+      Box::new(ConstructionParseRequest {
+        network_identifier: network_id().into(),
+        signed: true,
+        transaction: signed_transaction_delegation(),
+      }),
+    ],
+  )
 }
