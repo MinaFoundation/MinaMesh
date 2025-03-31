@@ -1,11 +1,21 @@
-use anyhow::{bail, Result};
+use std::process;
+
+use anyhow::{Context, Result};
 use clap::Args;
 use sqlx::{migrate::Migrator, PgPool};
 
 static MIGRATOR: Migrator = sqlx::migrate!("sql/migrations");
 
 #[derive(Debug, Args)]
-#[command(about = "Command to apply or drop search transaction optimizations in the archive database.")]
+#[command(
+  about = "Command to apply or drop search transaction optimizations in the archive database.",
+  long_about = "Command to apply or drop search transaction optimizations in the archive database.
+  Exit Codes:
+    0 - Optimizations applied (status check or apply success)
+    1 - Optimizations not applied (status check or cannot drop because not applied)
+    2 - Error applying or dropping optimizations
+    3 - Invalid arguments or missing required arguments"
+)]
 pub struct SearchTxOptimizationsCommand {
   /// URL to the archive database
   #[arg(long, env = "MINAMESH_ARCHIVE_DATABASE_URL")]
@@ -29,26 +39,39 @@ impl SearchTxOptimizationsCommand {
     // Connect to the database
     let pool = PgPool::connect(&self.archive_database_url).await?;
 
-    // Check if optimizations are already applied
-    if self.apply && self.check_if_optimizations_applied(&pool).await? {
-      bail!("Search transaction optimizations are already applied.");
-    } else if self.drop && !self.check_if_optimizations_applied(&pool).await? {
-      bail!("Search transaction optimizations are not applied.");
-    }
-
+    // Apply optimizations
     if self.apply {
-      self.apply_optimizations(&pool).await?;
+      if self.check_if_optimizations_applied(&pool).await? {
+        eprintln!("Search transaction optimizations are already applied. No need to apply again.");
+        process::exit(0);
+      }
+      self.apply_optimizations(&pool).await.unwrap_or_else(|err| {
+        eprintln!("Error applying optimizations: {:?}", err);
+        process::exit(2);
+      });
+    // Drop optimizations
     } else if self.drop {
-      self.drop_optimizations(&pool).await?;
+      if !self.check_if_optimizations_applied(&pool).await? {
+        eprintln!("Cannot drop since search transaction optimizations are not applied.");
+        process::exit(1);
+      }
+      self.drop_optimizations(&pool).await.unwrap_or_else(|err| {
+        eprintln!("Error dropping optimizations: {:?}", err);
+        process::exit(2);
+      });
+    // Check if optimizations are applied
     } else if self.check {
       let applied = self.check_if_optimizations_applied(&pool).await?;
       if applied {
         println!("Search transaction optimizations are already applied.");
+        process::exit(0);
       } else {
         println!("Search transaction optimizations are not applied.");
+        process::exit(1);
       }
     } else {
-      bail!("You must specify either --apply or --drop or --check.");
+      eprintln!("You must specify either --apply or --drop or --check.");
+      process::exit(3);
     }
     Ok(())
   }
@@ -56,7 +79,7 @@ impl SearchTxOptimizationsCommand {
   async fn apply_optimizations(&self, pool: &PgPool) -> Result<()> {
     println!("Applying search transaction optimizations on Archive Database (this may take a few minutes)...");
 
-    MIGRATOR.run(pool).await?;
+    MIGRATOR.run(pool).await.with_context(|| "Failed to apply optimizations")?;
 
     println!("Optimizations applied successfully.");
     Ok(())
@@ -65,7 +88,7 @@ impl SearchTxOptimizationsCommand {
   async fn drop_optimizations(&self, pool: &PgPool) -> Result<()> {
     println!("Dropping search transaction optimizations from Archive Database...");
 
-    MIGRATOR.undo(pool, 0).await?;
+    MIGRATOR.undo(pool, 0).await.with_context(|| "Failed to drop optimizations")?;
 
     println!("Optimizations dropped successfully.");
     Ok(())
