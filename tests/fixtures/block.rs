@@ -6,7 +6,7 @@ use mina_mesh::{
 use super::CompareGroup;
 
 pub fn block<'a>() -> CompareGroup<'a> {
-  let blocks_by_index: Vec<Box<dyn erased_serde::Serialize + 'static>> = (373675 ..= 373705)
+  let blocks_by_index: Vec<Box<dyn erased_serde::Serialize + 'static>> = (373675..=373705)
     .map(|index| {
       Box::new(BlockRequest {
         network_identifier: Box::new(network_id()),
@@ -39,8 +39,11 @@ pub fn block<'a>() -> CompareGroup<'a> {
 }
 
 pub fn block_not_found<'a>() -> CompareGroup<'a> {
-  ("/block", vec![Box::new(BlockRequest {
-    network_identifier: Box::new(network_id()),
-    block_identifier: Box::new(PartialBlockIdentifier { index: None, hash: Some("not_found".to_string()) }),
-  })])
+  (
+    "/block",
+    vec![Box::new(BlockRequest {
+      network_identifier: Box::new(network_id()),
+      block_identifier: Box::new(PartialBlockIdentifier { index: None, hash: Some("not_found".to_string()) }),
+    })],
+  )
 }
