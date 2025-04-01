@@ -1,8 +1,6 @@
 <div align="center">
 
 [![checks](https://github.com/MinaFoundation/MinaMesh/actions/workflows/checks.yaml/badge.svg)](https://github.com/MinaFoundation/MinaMesh/actions/workflows/checks.yaml)
-[![Crates.io](https://img.shields.io/crates/v/mina_mesh?label=crates.io&color=blue)](https://crates.io/crates/mina_mesh/versions)
-[![Downloads](https://img.shields.io/crates/d/mina_mesh?color=green)](https://crates.io/crates/mina_mesh)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 
 # **Mina Mesh**

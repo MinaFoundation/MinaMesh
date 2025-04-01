@@ -34,13 +34,6 @@ jobs:
           echo "VERSION=${GITHUB_REF_NAME#?}" >> $GITHUB_ENV
           cargo set-version $VERSION
 
-      # - name: 📦 Publish to crates.io
-      #   if: github.event_name == 'release'
-      #   uses: katyo/publish-crates@v2
-      #   with:
-      #     registry-token: ${{ secrets.CRATES_IO_TOKEN }}
-      #     args: --allow-dirty --no-verify
-
       - name: 🔍 Extract build args from mina.yaml
         if: github.event_name == 'release'
         run: |
