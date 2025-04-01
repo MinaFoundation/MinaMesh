@@ -1,3 +1,31 @@
+WITH
+  blocks AS (
+    SELECT
+      id,
+      height,
+      global_slot_since_genesis
+    FROM
+      blocks
+    WHERE
+      chain_status='canonical'
+    UNION ALL
+    SELECT
+      id,
+      height,
+      global_slot_since_genesis
+    FROM
+      blocks AS b
+    WHERE
+      b.chain_status='pending'
+      AND b.height>(
+        SELECT
+          max(height)
+        FROM
+          blocks
+        WHERE
+          chain_status='canonical'
+      )
+  )
 SELECT
   b.height,
   b.global_slot_since_genesis AS block_global_slot_since_genesis,
@@ -14,7 +42,6 @@ FROM
 WHERE
   pks.value=$1
   AND b.height<=$2
-  AND b.chain_status='canonical'
   AND t.value=$3
 ORDER BY
   (b.height) DESC

@@ -23,29 +23,29 @@ impl MinaMesh {
     }
   }
 
-  // TODO: can we get the block via the hash and not the index?
   async fn block_balance(
     &self,
     public_key: String,
     metadata: Option<serde_json::Value>,
-    PartialBlockIdentifier { index, .. }: PartialBlockIdentifier,
+    partial_block_id: PartialBlockIdentifier,
   ) -> Result<AccountBalanceResponse, MinaMeshError> {
-    let block = sqlx::query_file!("sql/queries/maybe_block.sql", index)
+    let index = partial_block_id.index;
+    let hash = partial_block_id.hash;
+    let block = sqlx::query_file!("sql/queries/maybe_block.sql", index, hash)
       .fetch_optional(&self.pg_pool)
       .await?
-      .ok_or(MinaMeshError::BlockMissing(index, None))?;
-    // has canonical height / do we really need to do a different query?
+      .ok_or(MinaMeshError::BlockMissing(index, hash.clone()))?;
     let maybe_account_balance_info = sqlx::query_file!(
       "sql/queries/maybe_account_balance_info.sql",
       public_key,
-      index,
-      Wrapper(metadata).to_token_id()?
+      block.height.ok_or(MinaMeshError::ChainInfoMissing)?,
+      Wrapper(metadata).token_id_or_default()?
     )
     .fetch_optional(&self.pg_pool)
     .await?;
     match maybe_account_balance_info {
       None => Ok(AccountBalanceResponse {
-        block_identifier: Box::new(BlockIdentifier { hash: block.state_hash, index: block.height }),
+        block_identifier: Box::new(build_block_identifier(block.height, block.state_hash, index, hash)?),
         balances: vec![Amount {
           currency: Box::new(create_currency(None)),
           value: "0".to_string(),
@@ -70,8 +70,8 @@ impl MinaMesh {
         let liquid_balance = match timing_info {
           Some(timing_info) => {
             let incremental_balance = incremental_balance_between_slots(
-              account_balance_info.block_global_slot_since_genesis as u32,
-              block.global_slot_since_genesis as u32,
+              account_balance_info.block_global_slot_since_genesis.ok_or(MinaMeshError::ChainInfoMissing)? as u32,
+              block.global_slot_since_genesis.ok_or(MinaMeshError::ChainInfoMissing)? as u32,
               timing_info.cliff_time as u32,
               timing_info.cliff_amount.parse::<u64>()?,
               timing_info.vesting_period as u32,
@@ -85,7 +85,7 @@ impl MinaMesh {
         let total_balance = last_relevant_command_balance;
         let locked_balance = total_balance - liquid_balance;
         Ok(AccountBalanceResponse {
-          block_identifier: Box::new(BlockIdentifier { hash: block.state_hash, index: block.height }),
+          block_identifier: Box::new(build_block_identifier(block.height, block.state_hash, index, hash)?),
           balances: vec![Amount {
             currency: Box::new(create_currency(Some(&token_id))),
             value: liquid_balance.to_string(),
@@ -205,3 +205,15 @@ fn incremental_balance_between_slots(
 // Note: The `min_balance_at_slot` function is not provided in the original
 // OCaml code, so we'll declare it here as a separate function that needs to be
 // implemented.
+
+fn build_block_identifier(
+  db_height: Option<i64>,
+  db_hash: Option<String>,
+  index: Option<i64>,
+  hash: Option<String>,
+) -> Result<BlockIdentifier, MinaMeshError> {
+  Ok(BlockIdentifier {
+    hash: db_hash.clone().ok_or(MinaMeshError::BlockMissing(index, hash.clone()))?,
+    index: db_height.ok_or(MinaMeshError::BlockMissing(index, hash))?,
+  })
+}

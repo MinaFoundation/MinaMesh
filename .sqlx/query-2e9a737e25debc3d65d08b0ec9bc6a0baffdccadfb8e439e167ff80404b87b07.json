@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "WITH\n  blocks AS (\n    SELECT\n      height,\n      state_hash,\n      global_slot_since_genesis\n    FROM\n      blocks\n    WHERE\n      chain_status='canonical'\n    UNION ALL\n    SELECT\n      height,\n      state_hash,\n      global_slot_since_genesis\n    FROM\n      blocks AS b\n    WHERE\n      b.chain_status='pending'\n      AND b.height>(\n        SELECT\n          max(height)\n        FROM\n          blocks\n        WHERE\n          chain_status='canonical'\n      )\n  )\nSELECT\n  height,\n  state_hash,\n  global_slot_since_genesis\nFROM\n  blocks\nWHERE\n  (\n    height=$1\n    OR $1 IS NULL\n  )\n  AND (\n    state_hash=$2\n    OR $2 IS NULL\n  )\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "height",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "state_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "global_slot_since_genesis",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "2e9a737e25debc3d65d08b0ec9bc6a0baffdccadfb8e439e167ff80404b87b07"
+}

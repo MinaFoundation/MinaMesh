@@ -259,14 +259,25 @@ impl MinaMeshError {
           (None, None) => "no identifying information (index or hash)".to_string(),
         };
 
+        let block_identifier_json = match (index, hash) {
+          (Some(idx), Some(hsh)) => json!({
+            "index": idx,
+            "hash": hsh,
+          }),
+          (Some(idx), None) => json!({
+            "index": idx,
+          }),
+          (None, Some(hsh)) => json!({
+            "hash": hsh,
+          }),
+          (None, None) => json!({}),
+        };
+
         let error_message =
           format!("We couldn't find the block in the archive node, specified by {}.", block_identifier);
         json!({
             "error": error_message,
-            "block": {
-                "index": index,
-                "hash": hash,
-            },
+            "block_identifier": block_identifier_json,
         })
       }
 
