@@ -5,17 +5,17 @@ FROM debian:$DEBIAN_CODENAME AS builder
 
 # Set environment variables
 ENV RUSTUP_HOME=/usr/local/rustup \
-    CARGO_HOME=/usr/local/cargo \
-    PATH=/usr/local/cargo/bin:$PATH
+  CARGO_HOME=/usr/local/cargo \
+  PATH=/usr/local/cargo/bin:$PATH
 
 # Install required dependencies and Rust in one step to minimize layers
 RUN apt-get update && apt-get install -y \
-    curl \
-    build-essential \
-    pkg-config \
-    libssl-dev \
-    && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
-    && rm -rf /var/lib/apt/lists/*
+  curl \
+  build-essential \
+  pkg-config \
+  libssl-dev \
+  && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY .sqlx .sqlx
@@ -29,7 +29,7 @@ RUN cargo build --release
 # Build Mina Signer
 FROM gcr.io/o1labs-192920/mina-toolchain@sha256:$MINA_SIGNER_SHA256 AS signer
 RUN eval $(opam config env) && \
-    make build_all_sigs
+  make build_all_sigs
 RUN mv /home/opam/mina/_build/default/src/app/cli/src/mina_testnet_signatures.exe /home/opam/mina/_build/default/src/app/cli/src/mina_devnet_signatures.exe
 
 FROM debian:$DEBIAN_CODENAME-slim AS app
@@ -49,19 +49,19 @@ ENV POSTGRES_VERSION=$POSTGRES_VERSION
 
 # Install dependencies and Mina daemon in one step
 RUN apt-get update && apt-get install -y \
-    curl \
-    gnupg \
-    sudo \
-    postgresql-common \
-    jq \
-    && echo | /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh \
-    && apt-get install -y \
-    postgresql-$POSTGRES_VERSION \
-    && echo "deb [trusted=yes] http://packages.o1test.net $(grep VERSION_CODENAME /etc/os-release | cut -d= -f2) ${DEBIAN_RELEASE_CHANNEL}" | tee /etc/apt/sources.list.d/mina.list \
-    && echo "Installing mina-${MINA_NETWORK}=${MINA_BASE_TAG}" \
-    && apt-get update && \
-    apt-get install --allow-downgrades -y mina-${MINA_NETWORK}=${MINA_BASE_TAG} mina-archive=${MINA_BASE_TAG} \
-    && rm -rf /var/lib/apt/lists/*
+  curl \
+  gnupg \
+  sudo \
+  postgresql-common \
+  jq \
+  && echo | /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh \
+  && apt-get install -y \
+  postgresql-$POSTGRES_VERSION \
+  && echo "deb [trusted=yes] http://packages.o1test.net $(grep VERSION_CODENAME /etc/os-release | cut -d= -f2) ${DEBIAN_RELEASE_CHANNEL}" | tee /etc/apt/sources.list.d/mina.list \
+  && echo "Installing mina-${MINA_NETWORK}=${MINA_BASE_TAG}" \
+  && apt-get update && \
+  apt-get install --allow-downgrades -y mina-${MINA_NETWORK}=${MINA_BASE_TAG} mina-archive=${MINA_BASE_TAG} \
+  && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 3087
 COPY --from=builder /app/target/release/mina-mesh /usr/local/bin
