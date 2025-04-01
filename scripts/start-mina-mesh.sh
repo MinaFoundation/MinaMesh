@@ -23,7 +23,7 @@ start_mina_mesh() {
 }
 
 apply_search_tx_optimizations() {
-    if /usr/local/bin/mina-mesh search-tx-optimizations \
+    if ! /usr/local/bin/mina-mesh search-tx-optimizations \
         --archive-database-url "$POSTGRES_CONNECTION_STRING" \
         --check; then
         echo "Applying transaction optimizations..."
