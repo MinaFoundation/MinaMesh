@@ -10,7 +10,7 @@ env:
 
 jobs:
   publish:
-    runs-on: minafoundation-default-runners
+    runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
@@ -67,4 +67,3 @@ jobs:
                          --build-arg DEBIAN_RELEASE_CHANNEL=${!DEBIAN_RELEASE_CHANNEL_VAR} \
                           .
           done
-          sleep 3600
