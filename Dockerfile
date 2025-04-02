@@ -49,6 +49,8 @@ ENV POSTGRES_VERSION=$POSTGRES_VERSION
 
 # Install dependencies and Mina daemon in one step
 
+RUN sed -i 's|http://deb.debian.org|http://cdn-fastly.deb.debian.org|g' /etc/apt/sources.list
+
 RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
