@@ -8,6 +8,9 @@ ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
     PATH=/usr/local/cargo/bin:$PATH
 
+RUN apt-get update && apt-get install -y ca-certificates apt-transport-https && \
+    sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list
+
 # Install required dependencies and Rust in one step to minimize layers
 RUN apt-get update && apt-get install -y \
     curl \
@@ -48,6 +51,10 @@ ENV PGDATA=/var/lib/postgresql/data
 ENV POSTGRES_VERSION=$POSTGRES_VERSION
 
 # Install dependencies and Mina daemon in one step
+
+RUN apt-get update && apt-get install -y ca-certificates apt-transport-https && \
+    sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list
+
 RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
@@ -57,7 +64,7 @@ RUN apt-get update && apt-get install -y \
     && echo | /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh \
     && apt-get install -y \
     postgresql-$POSTGRES_VERSION \
-    && echo "deb [trusted=yes] http://packages.o1test.net $(grep VERSION_CODENAME /etc/os-release | cut -d= -f2) ${DEBIAN_RELEASE_CHANNEL}" | tee /etc/apt/sources.list.d/mina.list \
+    && echo "deb [trusted=yes] https://packages.o1test.net $(grep VERSION_CODENAME /etc/os-release | cut -d= -f2) ${DEBIAN_RELEASE_CHANNEL}" | tee /etc/apt/sources.list.d/mina.list \
     && echo "Installing mina-${MINA_NETWORK}=${MINA_BASE_TAG}" \
     && apt-get update && \
     apt-get install --allow-downgrades -y mina-${MINA_NETWORK}=${MINA_BASE_TAG} mina-archive=${MINA_BASE_TAG} \
