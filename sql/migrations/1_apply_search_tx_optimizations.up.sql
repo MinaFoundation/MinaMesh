@@ -227,7 +227,8 @@ CREATE TABLE zkapp_commands_aggregated (
   fee TEXT NOT NULL,
   valid_until BIGINT,
   nonce BIGINT NOT NULL,
-  fee_payer TEXT NOT NULL
+  fee_payer TEXT NOT NULL,
+  CONSTRAINT zkapp_commands_aggregated_unique UNIQUE (id, block_id, sequence_no)
 );
 
 -- NEXT --
