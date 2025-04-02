@@ -1,7 +1,7 @@
 supported_releases:
   mainnet:
     debian_release_channel: beta
-    mina_base_tag: 3.0.4-beta1-343543b
+    mina_base_tag: 3.1.0-beta1-a35e440
   devnet:
     debian_release_channel: alpha
     mina_base_tag: 3.0.4-alpha2-b8cdab0
