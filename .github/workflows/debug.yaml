@@ -63,6 +63,7 @@ jobs:
             docker build --build-arg MINA_BASE_TAG=${!MINA_BASE_TAG_VAR} \
                          --build-arg MINA_NETWORK=$network \
                          --build-arg DEBIAN_RELEASE_CHANNEL=${!DEBIAN_RELEASE_CHANNEL_VAR} \
+                          --add-host deb.debian.org:146.75.42.13 \
                          -t ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME }}:$network-${{ env.VERSION }} \
                          -t ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME }}:$network-latest \
                          $( [[ "$network" == "mainnet" ]] && echo "-t ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME }}:${{ env.VERSION }} -t ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME }}:latest" ) .

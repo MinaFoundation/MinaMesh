@@ -8,9 +8,6 @@ ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
     PATH=/usr/local/cargo/bin:$PATH
 
-RUN apt-get update && apt-get install -y ca-certificates apt-transport-https && \
-    sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list
-
 # Install required dependencies and Rust in one step to minimize layers
 RUN apt-get update && apt-get install -y \
     curl \
@@ -51,9 +48,6 @@ ENV PGDATA=/var/lib/postgresql/data
 ENV POSTGRES_VERSION=$POSTGRES_VERSION
 
 # Install dependencies and Mina daemon in one step
-
-RUN apt-get update && apt-get install -y ca-certificates apt-transport-https && \
-    sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list
 
 RUN apt-get update && apt-get install -y \
     curl \
